@@ -1,0 +1,116 @@
+﻿@*@model AuctionInventory.Models.Vehicles*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="box-body" id="divFillByDamageVehicleList">
+    <div>
+        <a class="btn btn-primary" href="/DamageVehicle/DamageVehicleSave" style="margin-bottom:20px; margin-top:20px;">Add New</a>
+
+    </div>
+    <br />
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+</div>
+
+
+<script>
+
+    $('#dataGrid').jqGrid({
+        caption: "Damage Vehicle List",
+        url: '/DamageVehicle/DamageVehicleList/',
+        datatype: "json",
+        contentType: "application/json; charset-utf-8",
+        mtype: 'GET',
+
+        colNames: ['iPaperDetailsForImportID', 'iVehicleID', 'ChasisNo', 'Model', 'DecNo', 'DecDate', 'Deposit', 'DutyCharge', 'PaperCharge', 'Total', 'Balance','Action'],
+        colModel: [
+            { name: 'iPaperDetailsForImportID', index: 'iPaperDetailsForImportID',  hidden: true, hidedlg: true },
+            { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+            { name: 'strChassisNum', index: 'strChassisNum'},
+            { name: 'iModel', index: 'iModel' },
+            { name: 'iDecNo', index: 'iDecNo' },
+            { name: 'strDecDate', index: 'strDecDate' },
+            { name: 'dcmlImpDeposit', index: 'dcmlImpDeposit' },
+            { name: 'dcmlDuty', index: 'dcmlDuty', editable: true },
+            { name: 'dcmlPaper', index: 'dcmlPaper', editable: true },
+            { name: 'dcmlTotal', index: 'dcmlTotal', editable: true },
+            { name: 'dcmlImpBalance', index: 'dcmlImpBalance', editable: true },
+            { name: 'act', index: 'act', width: 350 },
+            //{
+            //    name: 'Action', index: 'Action', align: 'center', width: 200, search: false, title: false,
+            //    formatter: function (cellvalue, options, rowObject) {
+            //        return '<a class="popup btn btn-info" href="/Papers/UpdateImportIndex/' + options.rowId + '">' + "Edit" + '</a>' + "     " + '<a class="popup btn btn-info" href="/Papers/DeleteImport/' + options.rowId + '">' + "Delete" + '</a>';
+
+            //    }
+            //},
+
+        ],
+        width: 1050,
+        height: 250,
+        rowNum: 1000,
+        //loadonce: true,
+        
+        loadComplete: function () {
+            var rowData = jQuery("#dataGrid").getRowData();
+            var repairingStatus=rowData['repairingStatus'];
+            if (repairingStatus=='false') {
+                jQuery("#dataGrid").jqGrid('setCell', "", "repairingStatus", "", { color: 'red' });
+            }
+           
+           
+        },
+        
+        gridComplete: function () {
+
+            var ids = jQuery("#dataGrid").jqGrid('getDataIDs');
+
+            for (var i = 0; i < ids.length; i++) {
+                var cl = ids[i];
+                be = "<input class='popup btn btn-info' style='margin-right: 5%; margin-left: 8%;' type='button' value='Edit' onclick=\"jQuery('#dataGrid').editRow('" + cl + "');\"  />";
+                se = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Save'  onclick=\"saveDamageVehicleRow('" + cl + "');\"/>";
+                ce = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGrid').restoreRow('" + cl + "');\" />";
+                jQuery("#dataGrid").jqGrid('setRowData', ids[i], { act: be + se + ce });
+            }
+        },
+
+
+
+    });
+    jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+
+    function saveDamageVehicleRow(id) {
+
+        jQuery('#dataGrid').saveRow(id);
+        // var griddata = $('#dataGrid').jqGrid('getGridParam', 'data');
+
+
+        var rowDataForDamageVehicle = jQuery("#dataGrid").getRowData(id);
+        //var importID = rowData['iPaperDetailsForImportID'];
+
+
+        $.ajax({
+            type: "POST",
+            url: "/DamageVehicle/DamageVehicleSave",
+            cache: false,
+            data: JSON.stringify({ damageVehicle: rowDataForDamageVehicle }),
+            // data: JSON.stringify(purchase),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (Data) {
+                alert("Save Data");
+            }
+        });
+
+    }
+    
+</script>
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+

@@ -1,0 +1,565 @@
+﻿@using AuctionInventory.Helpers;
+@using AuctionInventoryDAL.Entity;
+@{
+    //Menus menus = CommonMethods.GetMenuAuthorization();
+    List<ControllerAccessRight> menuLists = CommonMethods.GetMenuAuthorization();
+}
+<aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+        <!-- Sidebar user panel -->
+        <div class="user-panel">
+            <div class="pull-left image">
+                <img src="~/Content/dist/img/admin-img.png" class="img-circle" alt="User Image">
+            </div>
+            <div class="pull-left info" style="color:#222d32;">
+                <p>Admin</p>
+                <a href="#" style="color:#222d32;"><i class="fa fa-circle text-success"></i> Online</a>
+            </div>
+        </div>
+        <ul class="sidebar-menu">
+
+
+          
+            @if (menuLists[1].ysnAccessStatus == true && menuLists[1].iControllerID == ((int)Enums.ModuleName.HomeController))  
+             
+            {
+                 @*<li class="treeview">
+                   
+                    <a href="#">
+                        <i class="fa fa-files-o"></i>
+                        <span>Dashboard</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("DashBoard", "Home")"><i class="fa fa-circle-o"></i>Dashboard</a></li>
+                   </ul>
+                </li>*@
+                
+                <li class="active treeview">
+                    <a href="@Url.Action("DashBoard", "Home")">
+                        <i class="fa fa-dashboard fa-angle-left pull-right"></i>
+                        <span>Dashboard</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                </li>
+            }
+
+
+           @if (menuLists[5].ysnAccessStatus == true && menuLists[5].iControllerID == ((int)Enums.ModuleName.MCategoryController))  
+    
+{ <li class="treeview">
+                   
+                    <a href="#">
+                        <i class="fa fa-circle-o"></i>
+                        <span>Category</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+
+                        <li><a href="@Url.Action("Save", "MCategory", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Category</a></li>
+                        <li><a href="@Url.Action("Index", "MCategory")"><i class="fa fa-circle-o"></i>Category List</a></li>
+
+                       
+                   </ul>
+                </li>
+                @*<li class="treeview">
+                    <a href="@Url.Action("Index", "MCategory")">
+
+                        <i class="fa fa-edit"></i> <span>Category List</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                    <li><a href="@Url.Action("Save","MSupplier")"><i class="fa fa-circle-o"></i> Add Supplier</a></li>
+                    <li><a href="@Url.Action("Index", "MSupplier")"><i class="fa fa-circle-o"></i> Supplier List</a></li>
+                    <li><a href="#"><i class="fa fa-circle-o"></i> supplier Ledger</a></li>
+                </ul>
+                </li>*@
+            }
+            
+          @if (menuLists[8].ysnAccessStatus == true && menuLists[8].iControllerID == ((int)Enums.ModuleName.MCurrencyController)) 
+   
+{
+
+                <li class="treeview">
+                   
+                    <a href="#">
+                        <i class=" fa fa-money"></i>
+                        <span>Currency</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Save", "MCurrency", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Currency</a></li>
+                        <li><a href="@Url.Action("Index", "MCurrency")"><i class="fa fa-circle-o"></i>Currency List</a></li>
+
+                      
+                   </ul>
+                </li>
+            }
+
+           @if (menuLists[4].ysnAccessStatus == true && menuLists[4].iControllerID == ((int)Enums.ModuleName.MPartyController)) 
+   
+{
+
+                <li class="treeview">
+
+                    <a href="#">
+                        <i class=" fa fa-user"></i>
+                        <span>Party</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Save", "MParty", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Party</a></li>
+                        <li><a href="@Url.Action("Index", "MParty")"><i class="fa fa-circle-o"></i>Party List</a></li>
+
+
+                    </ul>
+                </li>
+            }
+            
+           @if (menuLists[21].ysnAccessStatus == true && menuLists[21].iControllerID == ((int)Enums.ModuleName.MYardController)) 
+  
+{
+
+                <li class="treeview">
+
+                    <a href="#">
+                        <i class=" fa fa-industry"></i>
+                        <span>Yard</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("SaveYard", "MYard", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Yard</a></li>
+                        <li><a href="@Url.Action("Index", "MYard")"><i class="fa fa-circle-o"></i>Yard List</a></li>
+                        <li><a href="@Url.Action("YardData", "Reports")"><i class="fa fa-circle-o"></i>Print Yard Data</a></li>
+
+                    </ul>
+                </li>
+            }
+
+
+          @if (menuLists[9].ysnAccessStatus == true && menuLists[9].iControllerID == ((int)Enums.ModuleName.MCustomerController)) 
+  
+{
+
+                <li class="treeview">
+
+                    <a href="#">
+                        <i class="fa fa-user"></i>
+                        <span>Customer</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Save", "MCustomer", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Customer</a></li>
+                        <li><a href="@Url.Action("Index", "MCustomer")"><i class="fa fa-circle-o"></i>Customer List</a></li>
+                        <li><a href="@Url.Action("CustomerAccount", "MCustomer")"><i class="fa fa-circle-o"></i>Customer Account</a></li>
+
+                        
+                    </ul>
+                </li>
+            }
+
+
+
+        @if (menuLists[0].ysnAccessStatus == true && menuLists[0].iControllerID == ((int)Enums.ModuleName.MSupplier)) 
+   
+{
+
+                 <li class="treeview">
+                   
+                    <a href="#">
+                        <i class="fa fa-user"></i>
+                        <span>Supplier Management</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Save", "MSupplier", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Supplier</a></li>
+                        <li><a href="@Url.Action("Index", "MSupplier")"><i class="fa fa-circle-o"></i>Supplier List</a></li>
+                        <li><a href="@Url.Action("SupplierBankDetails", "MSupplier")"><i class="fa fa-circle-o"></i>Supplier Bank Details</a></li>
+
+                       
+                   </ul>
+                </li>
+                
+            }
+
+          @if (menuLists[11].ysnAccessStatus == true && menuLists[11].iControllerID == ((int)Enums.ModuleName.MStaffController)) 
+ 
+{
+
+                 <li class="treeview">
+                   
+                    <a href="#">
+                        <i class="fa fa-users"></i>
+                        <span>Employee</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Save", "MStaff", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Employee</a></li>
+                        <li><a href="@Url.Action("Index", "MStaff")"><i class="fa fa-circle-o"></i>Employee List</a></li>
+
+                      
+                   </ul>
+                </li>
+                
+            }
+
+            @*@if (menu.ShowExpenses)
+            {
+                <li class="treeview">
+
+                   
+                    <a href="#">
+                        <i class="fa fa-database"></i>
+                        <span>Expenses</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Save", "MExpenses", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Expenses</a></li>
+                        <li><a href="@Url.Action("Index", "MExpenses")"><i class="fa fa-circle-o"></i>Expenses List</a></li>
+
+                        <li><a href="@Url.Action("GeneralExpenses", "MExpenses", new { id = 0 })"><i class="fa fa-circle-o"></i>Create General Expenses</a></li>
+                        <li><a href="@Url.Action("GeneralExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i>General Expenses List</a></li>
+
+                        <li><a href="@Url.Action("AllVehicleExpenses", "MExpenses")"><i class="fa fa-circle-o"></i>Create  All Vehicle Expenses</a></li>
+                        <li><a href="@Url.Action("AllVehicleExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i> All Vehicle Expenses List</a></li>
+
+
+                        <li><a href="@Url.Action("SingleVehicleExpenses", "MExpenses")"><i class="fa fa-circle-o"></i>Create Single Vehicle Expenses</a></li>
+                        <li><a href="@Url.Action("SingleVehicleExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i> Single Vehicle Expenses List</a></li>
+                        <li><a href="@Url.Action("ExpenseLotList", "MExpenses")"><i class="fa fa-circle-o"></i>Expense Lots</a></li>
+                                        
+                    </ul>
+                </li>
+                
+            }*@
+
+
+         @if (menuLists[10].ysnAccessStatus == true && menuLists[10].iControllerID == ((int)Enums.ModuleName.MExpensesController)) 
+ 
+{
+                <li class="treeview">
+
+                    @*<a href="@Url.Action("Index", "MExpenses")">
+
+                    <i class="fa fa-edit"></i> <span>Expense List</span>
+                    <i class="fa fa-angle-left pull-right"></i>
+                </a>*@
+                    <a href="#">
+                        <i class="fa fa-database"></i>
+                        <span>General Expenses</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Save", "MExpenses", new { id = 0 })"><i class="fa fa-circle-o"></i>Create Expenses</a></li>
+                        <li><a href="@Url.Action("Index", "MExpenses")"><i class="fa fa-circle-o"></i>Expenses List</a></li>
+
+                        <li><a href="@Url.Action("GeneralExpenses", "MExpenses", new { id = 0 })"><i class="fa fa-circle-o"></i>Create General Expenses</a></li>
+                        <li><a href="@Url.Action("GeneralExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i>General Expenses List</a></li>
+
+                        @*<li><a href="@Url.Action("AllVehicleExpenses", "MExpenses")"><i class="fa fa-circle-o"></i>Create  All Vehicle Expenses</a></li>
+                    <li><a href="@Url.Action("AllVehicleExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i> All Vehicle Expenses List</a></li>
+
+
+                    <li><a href="@Url.Action("SingleVehicleExpenses", "MExpenses")"><i class="fa fa-circle-o"></i>Create Single Vehicle Expenses</a></li>
+                    <li><a href="@Url.Action("SingleVehicleExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i> Single Vehicle Expenses List</a></li>
+                    <li><a href="@Url.Action("ExpenseLotList", "MExpenses")"><i class="fa fa-circle-o"></i>Expense Lots</a></li>*@
+
+                    </ul>
+                </li>
+
+
+
+                <li class="treeview">
+
+
+                    <a href="#">
+                        <i class="fa fa-database"></i>
+                        <span>Vehicle Expenses</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+
+                        <li><a href="@Url.Action("AllVehicleExpenses", "MExpenses")"><i class="fa fa-circle-o"></i>Create  All Vehicle Expenses</a></li>
+                        <li><a href="@Url.Action("AllVehicleExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i> All Vehicle Expenses List</a></li>
+
+
+                        <li><a href="@Url.Action("SingleVehicleExpenses", "MExpenses")"><i class="fa fa-circle-o"></i>Create Single Vehicle Expenses</a></li>
+                        <li><a href="@Url.Action("SingleVehicleExpensesList", "MExpenses")"><i class="fa fa-circle-o"></i> Single Vehicle Expenses List</a></li>
+                        <li><a href="@Url.Action("ExpenseLotList", "MExpenses")"><i class="fa fa-circle-o"></i>Expense Lots</a></li>
+
+                    </ul>
+                </li>
+            }
+
+
+            @if (menuLists[15].ysnAccessStatus == true && menuLists[15].iControllerID == ((int)Enums.ModuleName.TPurchaseController)) 
+   
+{
+
+                 <li class="treeview">
+                   
+                    <a href="#">
+                        <i class="fa fa-car"></i>
+                        <span>Purchase</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Index", "TPurchase")"><i class="fa fa-circle-o"></i>Create Purchase</a></li>
+
+                        <li><a href="@Url.Action("GetPurchaseList", "TPurchase")"><i class="fa fa-circle-o"></i>Purchase List</a></li>
+                        <li><a href="@Url.Action("PurchaseLotList", "TPurchase")"><i class="fa fa-circle-o"></i>Purchase Lots</a></li>
+                   </ul>
+                </li>
+            }
+            
+          @if (menuLists[2].ysnAccessStatus == true && menuLists[2].iControllerID == ((int)Enums.ModuleName.AuctionController)) 
+   
+{
+                 <li class="treeview">
+                   
+                    <a href="#">
+                        <i class="fa fa-car"></i>
+                        <span>Auction</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+
+                        <li><a href="@Url.Action("Index", "Auction")"><i class="fa fa-circle-o"></i>Create Auction</a></li>
+                        <li><a href="@Url.Action("AuctionList", "Auction")"><i class="fa fa-circle-o"></i>Auction List</a></li>
+                   </ul>
+                </li>
+                
+            }
+
+
+             @if (menuLists[14].ysnAccessStatus == true && menuLists[14].iControllerID == ((int)Enums.ModuleName.SalesController)) 
+   
+{
+                 <li class="treeview">
+                   
+                    <a href="#">
+                        <i class="fa fa-car"></i>
+                        <span>Sales</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("SaleVehicle", "Sales")"><i class="fa fa-circle-o"></i>Create Sales</a></li>
+                        <li><a href="@Url.Action("Index", "Sales")"><i class="fa fa-circle-o"></i>Sales List</a></li>                       
+                        <li><a href="@Url.Action("editSales", "Sales")"><i class="fa fa-circle-o"></i>Edit Sales</a></li>
+                        <li><a href="@Url.Action("SalesPayment", "Sales")"><i class="fa fa-circle-o"></i>Balance List</a></li>
+                        <li><a href="@Url.Action("SalesLotList", "Sales")"><i class="fa fa-circle-o"></i>Sales Lots</a></li>
+
+                   </ul>
+                </li>
+            }
+
+         @if (menuLists[23].ysnAccessStatus == true && menuLists[23].iControllerID == ((int)Enums.ModuleName.VehicleStatusController)) 
+ 
+{
+                <li class="treeview">
+
+                    <a href="#">
+                        <i class="fa fa-television"></i>
+                        <span>Vehicle Status</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Index", "VehicleStatus")"><i class="fa fa-circle-o"></i>Vehicle Status List</a></li>
+                       
+                    </ul>
+                </li>
+            }
+
+            @if (menuLists[24].ysnAccessStatus == true && menuLists[24].iControllerID == ((int)Enums.ModuleName.DOController))
+            {
+
+                <li class="treeview">
+
+                    <a href="#">
+                        <i class="fa fa-files-o"></i>
+                        <span>Delivery Order</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">                       
+                        <li><a href="@Url.Action("Index", "DO")"><i class="fa fa-circle-o"></i>Create DO</a></li>
+                        <li><a href="@Url.Action("DOList", "DO")"><i class="fa fa-circle-o"></i>DO List</a></li>
+
+                    </ul>
+                </li>
+
+            }
+            
+            @if (menuLists[25].ysnAccessStatus == true && menuLists[25].iControllerID == ((int)Enums.ModuleName.MCashTransactionController))
+            {
+
+                <li class="treeview">
+
+                    <a href="#">
+                        <i class="fa fa-files-o"></i>
+                        <span>Journal Entries</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                       
+                        <li><a href="@Url.Action("Save", "MCashTransaction")"><i class="fa fa-circle-o"></i> Create Journal Transactions</a></li>
+                        <li><a href="@Url.Action("Index", "MCashTransaction")"><i class="fa fa-circle-o"></i>Journal Transaction List</a></li>
+
+                    </ul>
+                </li>
+
+            }
+
+         @if (menuLists[13].ysnAccessStatus == true && menuLists[13].iControllerID == ((int)Enums.ModuleName.PapersController)) 
+    
+{
+
+                <li class="treeview">
+
+                    <a href="#">
+                        <i class="fa fa-files-o"></i>
+                        <span>Paper Details</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="@Url.Action("Index", "AccountParty")"><i class="fa fa-circle-o"></i>Account Party</a></li>
+                        <li><a href="@Url.Action("Index", "Papers")"><i class="fa fa-circle-o"></i>Create Deposit</a></li>
+                        <li><a href="@Url.Action("PapersList", "Papers")"><i class="fa fa-circle-o"></i>Deposit List</a></li>
+                        <li><a href="@Url.Action("PartyAccountTransaction", "Papers")"><i class="fa fa-circle-o"></i>Party Account Transaction</a></li>
+
+                    </ul>
+                </li>
+
+            }
+
+        @if(menuLists!=null && menuLists.Count>0)
+   
+{
+                <li class="treeview">
+
+                    @*<a href="@Url.Action("Index", "MSupplier")">
+
+                        <i class="fa fa-edit"></i> <span>Supplier Management</span>
+                    </a>*@
+                    <a href="#">
+                        <i class="fa fa-files-o"></i>
+                        <span>Ledger Management</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="#"><i class="fa fa-circle-o"></i> Ledger listing</a></li>
+                    </ul>
+                </li>
+
+            }
+
+          @if (menuLists[22].ysnAccessStatus == true && menuLists[22].iControllerID == ((int)Enums.ModuleName.ReportsController)) 
+   
+{
+
+
+
+                 <li class="treeview">
+
+                    <a href="#">
+                        <i class="fa fa-pencil-square-o"></i>
+                        <span>Reports Management</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+
+                        <li><a href="@Url.Action("VehicleExpenseReportList", "Reports")"><i class="fa fa-circle-o"></i>Vehicle Expense Reports</a></li>
+                        <li><a href="@Url.Action("DailyBalanceReport", "Reports")"><i class="fa fa-circle-o"></i>Daily Balance Report</a></li>
+                        <li><a href="@Url.Action("DailySalesReport", "Reports")"><i class="fa fa-circle-o"></i>Daily Sales Report</a></li>
+                        <li><a href="@Url.Action("RecievableReport", "Reports")"><i class="fa fa-circle-o"></i>Recievable Report</a></li>
+                        <li><a href="@Url.Action("VehicleDeliveryReport", "Reports")"><i class="fa fa-circle-o"></i>Vehicle Delivery Report</a></li>
+                        <li><a href="@Url.Action("CashSummaryReport", "Reports")"><i class="fa fa-circle-o"></i>Cash Summary Report</a></li>
+                        <li><a href="@Url.Action("DepositRefundReport", "Reports")"><i class="fa fa-circle-o"></i>Deposit Refund Report</a></li>
+
+                        <li><a href="@Url.Action("PurchaseReport", "TPurchase")"><i class="fa fa-circle-o"></i>Purchase Reports</a></li>
+                        <li><a href="@Url.Action("SalesReport", "Sales")"><i class="fa fa-circle-o"></i>Sales Reports</a></li>
+                        <li><a href="@Url.Action("Index", "IncomeAndExpenditure")"><i class="fa fa-circle-o"></i>Income And Expenditure</a></li>
+                        <li><a href="@Url.Action("BuyerListReport", "Reports")"><i class="fa fa-circle-o"></i>Buyer List Reports</a></li>
+                        <li><a href="@Url.Action("SupplierListReport", "Reports")"><i class="fa fa-circle-o"></i>Supplier List Report</a></li>
+                      
+                    </ul>
+                </li>
+                
+                
+                @*<li class="treeview">
+
+
+                    <a href="@Url.Action("Index", "MSupplier")">
+
+                        <i class="fa fa-edit"></i> <span>Supplier Management</span>
+                    </a>
+                    <a href="#">
+                        <i class="fa fa-laptop"></i>
+                        <span>Reports Management</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="#"><i class="fa fa-circle-o"></i> Reports listing</a></li>
+                        <li><a href="#"><i class="fa fa-circle-o"></i> Reports filtering</a></li>
+                    </ul>
+                </li>*@
+            }
+
+            @*Commented Temprory Uncomment if reuired*@
+                @*<li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-laptop"></i>
+                            <span>Reciepts</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Generate Receipts</a></li>
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Print Receipts</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-pie-chart"></i>
+                            <span>Customer Management</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li>@Html.ActionLink("Customers List", "Index", "Customers")</li>
+                            <li>@Html.ActionLink("Add Customer", "Create", "Customers")</li>
+                            <li>@Html.ActionLink("Customers Ledger", "CustLedger", "Main")</li>
+                        </ul>
+                    </li>
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-table"></i> <span>Product Management</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Add product</a></li>
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Products List</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-laptop"></i>
+                            <span>Queue Management</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Add Ticket</a></li>
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Ticket List</a></li>
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Add Queue</a></li>
+                            <li><a href="#"><i class="fa fa-circle-o"></i> Queue List</a></li>
+                            <li><a href="allqueue.php"><i class="fa fa-circle-o"></i> All Queue</a></li>
+                        </ul>
+                    </li>*@
+            </ul>
+
+
+
+        </section>
+        <!-- /.sidebar -->
+    </aside>

@@ -1,0 +1,548 @@
+﻿@{
+    ViewBag.Title = "Save";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 100px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 10px;
+        color: #FFF;
+    }
+
+    /*#UpdateAccountPopUP {
+        height: 400px;
+        overflow: auto;
+        width: 907px;
+        margin-left: -137px;
+    }*/
+
+    .dailogBoxWrapper {
+        z-index: 999 !important;
+    }
+</style>
+
+
+<div class="box-body">
+
+    <input type="hidden" id="hdnTransID" />
+    <input type="hidden" id="hdnPartyID" />
+    <div class="row" id="divForCashTransactionSave">
+
+
+
+
+        <div class="col-md-12">
+
+            <div class="row">
+
+                <div class='form-group col-md-4' id="divddlParty">
+                    <label>Reference No.</label>
+                    <input id="txtRefernceNumber" class="form-control" type="text" placeholder=" Enter reference Number..." />
+                </div>
+                <div class="form-group col-md-4">
+                    <label>Date </label>
+                    <input id="strAccountDate" class="form-control input-group-lg datepicker" type="text"
+                           placeholder=" Enter drop off date..." />
+                </div>
+
+            </div>
+            <div class="row">
+                <div class='form-group col-md-4' id="divddlParty">
+                    <label>Party</label>
+                    <select class="form-control input-group-sm" id="ddlAccountParty" name="DynamicParty" onchange='getParty(this);'>
+                        <option>Select Party</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label>Amount(DHM) </label>
+                    <input id="strAmountInDHM" class="form-control input-group-lg" type="text" oninput="calculateAmountInYEN();"
+                           placeholder="Enter Amount in DHM" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="options form-group col-md-4">
+                    <label>Payment Option</label>
+                    @*</div>
+                        <div class="options form-group col-md-4">*@
+                    &nbsp; &nbsp;
+                    <label>Debit</label>
+                    <input type="radio" name="PaymentOption" id="rdbDebitOption" value="1" checked="checked" />
+                    &nbsp;
+                    <label>Credit</label>
+                    <input type="radio" name="PaymentOption" id="rdbCreditOption" value="2" />
+                </div>
+
+                <div class="form-group col-md-4 options">
+                    <label>Bank/Cash Option</label>
+                    @*</div>
+                        <div class="options form-group col-md-4">*@
+                    &nbsp; &nbsp;
+                    <label>Cash</label>
+                    <input type="radio" name="BankCashOption" id="rdbCashOption" value="1" checked="checked" />
+                    &nbsp;
+                    <label>Bank</label>
+                    <input type="radio" name="BankCashOption" id="rdbBankOption" value="2" />
+                </div>
+
+
+                <div class="form-group col-md-4">
+                    <label>Description </label>
+                    <input id="strDescription" class="form-control input-group-lg" type="text"
+                           placeholder="Enter Description " />
+                </div>
+            </div>
+        </div>
+        <input type="button" style="margin-left: 85px;" class="btn btn-success col-md-2" id="btnPaymentSave" value="Save " />
+        <input type="button" style="margin-left: 40px;" class="btn btn-warning col-md-2" id="BtnCancelPay" value="Back to List" onclick="CancelInfo();" />
+
+
+    </div><!-- /.row -->
+
+    <div id="divForGridData" style="display:none;">
+        <div>
+            <a class="popup btn btn-primary" href="/MCashTransaction/save" style="margin-bottom:20px; margin-top:20px;margin-left:10px;">New Transaction</a>
+
+        </div>
+        <br />
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        <br><br>
+    </div>
+    <br />
+
+</div><!-- ./box-body -->
+
+
+<div id="dialog4" style="display: none" align="center">
+    Do you want to Save ?
+</div>
+<div id="dialog" style="display: none" align="center">
+    Do you want to Delete ?
+</div>
+<script>
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+
+    });
+
+
+
+    $(function () {
+        $.ajax({
+            url: "/Account/ShowPartyName",
+            type: "Get",
+            success: function (data) {
+                debugger
+                $('#ddlAccountParty').children().remove();
+                $('#ddlAccountParty').append('<option value="">Select Party</option>');
+                for (var i = 0; i < data.length; i++) {
+
+                    //var option = new Option(data[i].strFirstName, data[i].iPartyID);
+
+                    // $('#ddlParty' + j).append(option);
+
+
+                    $('#ddlAccountParty').append('<option value="' + data[i].iAccountPartyID + '">' + data[i].strPartyName + '</option>');
+
+                }
+
+            }
+
+        });
+    });
+
+
+    function CancelInfo() {
+        //window.location.href = "/MCashTransaction/Index";
+
+        //reload grid and show list by using this btn
+        FillDataGrid();
+        $("#divForCashTransactionSave").hide();
+        $("#divForGridData").show();
+    }
+
+</script>
+<script>
+    var arrAccountData = [];
+    $("#btnPaymentSave").click(function () {
+       
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog4').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog4").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //$('#confirm')
+                //.modal({ backdrop: 'static', keyboard: false })
+                //.on('click', '#AlertUpdateSave', function (e) {
+                debugger
+                if ($("#rdbDebitOption").is(":checked")) {
+                    var paymentStatus = 1;    //1 for Debit
+
+                }
+                else {
+                    var paymentStatus = 2;  //2 for Credit
+                }
+
+                if ($("#rdbCashOption").is(":checked")) {
+                    var paymentOption = 1;    //1 for Debit
+
+                }
+                else {
+                    var paymentOption = 2;  //2 for Credit
+                }
+                //var iCashTransactionID= "";
+                //if ($("#hdnTransID").val()>0) {
+                    var iCashTransactionID = $("#hdnTransID").val();
+                //}
+                //else {
+                //    iCashTransactionID = null;
+                //}
+               
+                //var iAccountPartyID= $("#hdnPartyID").val();
+                var txtRefernceNumber = $("#txtRefernceNumber").val();
+                var strAccountDate = $("#strAccountDate").val();
+                var strAmountInDHM = $("#strAmountInDHM").val();
+                var strDescription = $("#strDescription").val();
+                var ddlParty = $("#ddlAccountParty").val();
+
+                if (iCashTransactionID > 0) {
+                    var TransactionData =
+                         {
+
+                             iCashTransactionID: iCashTransactionID,
+                             iAccountPartyID: ddlParty,
+                             strCashDate: strAccountDate,
+                             dtCashDate: strAccountDate,
+                             dmlPaidAmount: strAmountInDHM,
+                             strReferenceNumber: txtRefernceNumber,
+                             strDescription: strDescription,
+                             DebitCreditOptions: paymentStatus,
+                             BankCashOptions: paymentOption
+                         }
+                    //arrAccountData.push(AccountData);
+                    SaveAccountData(TransactionData);
+                }
+                else {
+                    var TransactionData =
+                     {
+
+                         //iCashTransactionID: iCashTransactionID,
+                         iAccountPartyID: ddlParty,
+                         strCashDate: strAccountDate,
+                         dtCashDate: strAccountDate,
+                         dmlPaidAmount: strAmountInDHM,
+                         strReferenceNumber: txtRefernceNumber,
+                         strDescription: strDescription,
+                         DebitCreditOptions: paymentStatus,
+                         BankCashOptions: paymentOption
+                     }
+                    //arrAccountData.push(AccountData);
+                    SaveAccountData(TransactionData);
+                }
+
+                $(this).dialog('close');
+            }
+        },
+                {
+                    id: "No",
+                    text: "No",
+                    click: function () {
+                        $(this).dialog('close');
+                    }
+                }
+            ]
+        });
+        //});
+        // });
+    });
+    function SaveAccountData(model) {
+        debugger;
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/MCashTransaction/SaveEdit",
+            data: JSON.stringify({ 'cashModel': model }),
+            success: function (data) {
+                debugger;
+                alert("Save Transaction Successfully");
+                //window.location.href = "/MCashTransaction/Index";
+                FillDataGrid();
+                $("#divForCashTransactionSave").hide();
+                $("#divForGridData").show();
+
+                clearFields();
+                //PaymentGrid();
+                //calculateDeductionAmount();
+
+                ////$('#btnSave').off('click').on('click', function () {
+                ////    // function body
+                ////});
+                ////$("#btnClose").click();
+                //$("#divForPayment").hide();
+                //$("#divForPaymentGrid").show();
+                ////$('#AccountPopUP').on('shown.bs.modal', function (e) {
+                ////    alert('close modal');
+                ////    $(this).off('shown.bs.modal');
+                ////});
+                ////UpdateAccountFunction();
+                ////window.location.href = "/Account/Index";
+            }
+        });
+    }
+
+
+    function clearFields() {
+
+         $("#hdnTransID").val("");
+         $("#hdnPartyID").val("");
+         $("#txtRefernceNumber").val("");
+         $("#strAccountDate").val("");
+         $("#strAmountInDHM").val("");
+         $("#strDescription").val("");
+    }
+</script>
+
+
+<script>
+    function FillDataGrid() {
+        $("#dataGrid").jqGrid('GridUnload');
+
+        $('#dataGrid').jqGrid({
+            caption: "Cash Transaction List",
+            url: "/MCashTransaction/GetAllCash",
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iCashTransactionID', 'iPartyID', 'PartyName','Ref-No', 'Date', 'Amount', 'Description', 'Description', 'Description', 'Dt/Ct', 'Cash/Bank', 'Action'],
+            colModel: [
+                { name: 'iCashTransactionID', index: 'iCashTransactionID', hidden: true, hidedlg: true },
+                { name: 'iPartyID', index: 'iPartyID', hidden: true, hidedlg: true },
+
+
+                { name: 'strPartyName', index: 'strPartyName', align: 'center' },
+                  { name: 'strReferenceNumber', index: 'strReferenceNumber', align: 'center' },
+                { name: 'strCashDate', index: 'strCashDate', align: 'center' },
+                { name: 'dmlPaidAmount', index: 'dmlPaidAmount', align: 'center' },
+                { name: 'strDescription', index: 'strDescription', align: 'center' },
+
+                { name: 'DebitCreditOptions', index: 'DebitCreditOptions', hidden: true, hidedlg: true},
+                { name: 'BankCashOptions', index: 'BankCashOptions', hidden: true, hidedlg: true },
+
+
+                { name: 'DebitCredit', index: 'DebitCredit', align: 'center', formatter: frmtDebitCreditOptions },
+                { name: 'CashBank', index: 'CashBank', align: 'center', formatter: frmtBankCashOptions },
+                {
+                    name: 'Action', index: 'Action', width: 330, search: false, title: false,
+                    formatter: function (cellvalue, options, rowObject) {
+
+                        return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editCashTransaction('" + options.rowId + "');\"  />"
+                            + '   ' + "<input class='btn btn-danger' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"deleteRecord('" + options.rowId + "');\"  />";
+                                          
+                    }
+
+                },
+            ],
+            width: 1050,
+            height: 450,
+            rowNum: 100000,
+            rownumbers: true,
+            rownumWidth: 50,
+            loadonce: true,
+            ignoreCase: true,
+            //cmTemplate: { sortable: false },
+            //rowList: [10, 20, 30],
+            //pager: 'pagingGrid',
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+    }
+
+    function frmtDebitCreditOptions(cellvalue, options, rowObject) {
+        debugger
+        if (rowObject[7] == 1) {
+
+            return rowObject[9] = "Debit";
+        }
+        else if (rowObject[7] == 2) {
+
+            return rowObject[9] = "Credit";
+
+        }
+    }
+
+    function frmtBankCashOptions(cellvalue, options, rowObject) {
+
+        if (rowObject[8] == 1) {
+
+            return rowObject[10] = "Cash";
+        }
+        else if (rowObject[8] == 2) {
+
+            return rowObject[10] = "Bank";
+
+        }
+    }
+
+
+    function editCashTransaction(rowId) {
+        debugger
+        $("#divForCashTransactionSave").show();
+        $("#divForGridData").hide();
+
+       
+        
+        var rowData = jQuery("#dataGrid").getRowData(rowId);
+        var iCashTransactionID = rowData['iCashTransactionID'];
+        var iPartyID = rowData['iPartyID'];
+        var strPartyName = rowData['strPartyName'];
+        var strReferenceNumber = rowData['strReferenceNumber'];
+
+        var strCashDate = rowData['strCashDate'];
+        var dmlPaidAmount = rowData['dmlPaidAmount'];
+        var strDescription = rowData['strDescription'];
+        var DebitCreditOptions = rowData['DebitCreditOptions'];
+        var BankCashOptions = rowData['BankCashOptions'];
+        debugger
+
+
+        $("#hdnTransID").val(iCashTransactionID);
+        $("#hdnPartyID").val(iPartyID);
+        $("#txtRefernceNumber").val(strReferenceNumber);
+        
+        $("#strAccountDate").val(strCashDate);
+        $("#strAmountInDHM").val(dmlPaidAmount);
+        $("#strDescription").val(strDescription);
+        //$("#txtMakeName").val(strMakeName);
+        setSelectedIndexByValue(document.getElementById('ddlAccountParty'), iPartyID);
+
+        if (DebitCreditOptions == 1) {
+
+            $("#rdbDebitOption").prop('checked', true);
+        }
+        else {
+
+            $("#rdbCreditOption").prop('checked', true);
+
+        }
+
+        if (BankCashOptions == 1) {
+
+            $("#rdbCashOption").prop('checked', true);
+        }
+        else {
+            $("#rdbBankOption").prop('checked', true);
+
+        }
+
+        //setSelectedIndexByValue(document.getElementById('ddlSubCategory'), isubCategoryID);
+    }
+
+
+    //To Delete Record
+    function deleteRecord(id) {
+        //var rowData = jQuery("#dataGrid").getRowData(rowId);
+        //var auctionDate = rowData['dtAuctionDate'];
+        //alert(rowId);
+        debugger;
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+                var rowData = jQuery("#dataGrid").getRowData(id);
+                var TransactionID = rowData['iCashTransactionID'];
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "/MCashTransaction/DeleteTransaction",
+                    cache: false,
+                    data: JSON.stringify({ 'ID': TransactionID }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+                        alert("Data Deleted Successfully !");
+                        //window.location.href = "/MCashTransaction/Index";
+                        FillDataGrid();
+                        $("#divForCashTransactionSave").hide();
+                        $("#divForGridData").show();
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    }
+</script>
+<!--End Script for Update account-->
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+<script src="~/Content/dist/js/Custom.js"></script>
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="http://www.ittutorials.in/js/demo/numtoword.js" type="text/javascript"></script>

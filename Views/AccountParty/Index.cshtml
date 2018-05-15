@@ -1,0 +1,226 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 15px;
+        color: #FFF;
+    }
+</style>
+<div class="box-body" id="divFillByAccountList">
+    <div>
+        <a class="btn btn-primary" href="/AccountParty/Save" style="margin-bottom:20px; margin-top:20px;">Add New</a>
+
+    </div>
+    <br />
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+    @*<div id="pagingGrid"></div>*@
+</div>
+
+
+<div class="box-body" style="display:none" id="divForUpdateAccountPartyList">
+
+    <div class="row">
+
+        <input type="hidden" id="iAccountPartyID" />
+
+        <div class="form-group col-xs-4">
+            <label>Party</label>
+            <input id="strPartyName" class="form-control input-group-lg" type="text"
+                   placeholder="Enter Party Name" />
+        </div>
+
+        <div id="dialog2" style="display:none">
+            Do you want to delete this ?
+        </div>
+    
+     </div>
+    <br /><br />
+    <input type="button" class="btn btn-success col-md-1" id="btnSave" value="Save " />
+
+    <input type="button" style="margin-left: 15px;" class="btn btn-warning col-md-2" value="Back To List" onclick="Cancel();">
+
+
+</div>
+
+
+<script type="text/javascript">
+
+    function Cancel() {
+        window.location.href = "/AccountParty/Index";
+    }
+
+   
+</script>
+<script>
+
+    $(function () {
+
+        $('#dataGrid').jqGrid({
+            caption: "Account Party List",
+            url: '/AccountParty/GetAccountListData/',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+            colNames: ['iAccountPartyID', 'Party', 'Action'],
+            colModel: [
+                
+                  { name: 'iAccountPartyID', index: 'iAccountPartyID', hidden: true, hidedlg: true },
+                   { name: 'strPartyName', index: 'strPartyName', align: 'center' },
+               
+
+                 {
+                     name: 'Action', index: 'Action', align: 'center', width: 250, search: false, title: false,
+                     formatter: function (cellvalue, options, rowObject) {
+
+                         return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  />" + '   ' + "<input class='btn btn-danger' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"DeleteAccountData('" + options.rowId + "');\"  />";
+                     }
+
+                 },
+
+            ],
+            width: 450,
+            height: 300,
+            rowNum: 100000,
+            loadonce: true,
+            rownumbers: true,
+
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+    });
+
+
+
+</script>
+
+
+<script>
+
+
+    var arr = new Array();
+
+    function editRowData(rowID) {
+        debugger
+        //arr = new Array();
+        $("#divFillByAccountList").hide();
+        $("#divForUpdateAccountPartyList").show();
+
+        var rowData = jQuery("#dataGrid").getRowData(rowID);
+
+        var iAccountPartyID = rowData['iAccountPartyID'];
+        var strPartyName = rowData['strPartyName'];
+       
+
+       
+        $("#iAccountPartyID").val(iAccountPartyID);
+        $("#strPartyName").val(strPartyName);
+
+
+    }
+
+
+    $("#btnSave").click(function () {
+        debugger;
+        var model = {
+            iAccountPartyID: $("#iAccountPartyID").val(),
+            strPartyName: $("#strPartyName").val()
+        }
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/AccountParty/SaveEdit",
+            data: JSON.stringify({ 'acntPartyModel': model }),
+            success: function (data) {
+
+                alert("Account Party  Update Successfully");
+                window.location.href = "/AccountParty/Index";
+            }
+        });
+    });
+
+
+
+    //Delete Account
+    function DeleteAccountData(rowId) {
+
+
+        debugger;
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+                debugger
+                $.ajax({
+                    type: "POST",
+                    url: "/AccountParty/Delete",
+                    cache: false,
+                    data: JSON.stringify({ id: rowId }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+
+                        alert("Account Party  Deleted Successfully");
+                        window.location.href = "/AccountParty/Index";
+
+                    }
+
+
+
+
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    }
+
+
+</script>
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

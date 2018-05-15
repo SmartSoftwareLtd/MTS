@@ -1,0 +1,355 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+</style>
+
+
+
+<div class="box-body">
+    <div>
+        <a class="popup btn btn-primary" href="/MCustomer/save/0" style="margin-bottom:20px; margin-top:20px;">Add New Customer</a>
+
+    </div>
+    <br />
+    <div class="col-md-4" style="margin-left:170px;margin-top:-75px;">
+
+        <select id="ddlCutomerType" class="form-control" name="name_GroupMode" onchange="getCustomerType()">
+            @*<option>Select Type</option>*@
+            <option value="2">Direct Customer</option>
+            <option value="1">ShowRoom Customer</option>
+
+        </select>
+    </div>
+    <div id="divForShowroomCustomer" style="display:none">
+        <table id="dataGridShowroomCustomer" class="table table-bordered table-striped"></table>
+        <div id="pagingGridShowroomCustomer"></div>
+        <br><br>
+    </div>
+
+    <div id="divForDirectCustomer">
+        <table id="dataGridDirectCustomer" class="table table-bordered table-striped"></table>
+        <div id="pagingGridDirectCustomer"></div>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(function () {
+        DirectCustomerGrid();
+    });
+
+    function getCustomerType() {
+        debugger
+        var CustomerTypeID = $("#ddlCutomerType").val();
+
+        if (CustomerTypeID == 1) {  //1 for showroom customer
+
+            ShowRoomCustomerGrid();
+
+            $("#divForShowroomCustomer").show();
+            $("#divForDirectCustomer").hide();
+
+
+        }
+        else if (CustomerTypeID == 2) { //2 for direct customer
+            DirectCustomerGrid();
+            $("#divForShowroomCustomer").hide();
+            $("#divForDirectCustomer").show();
+        }
+
+    }
+
+    function DirectCustomerGrid() {
+
+        //this grid is used to fill the Customers list
+
+        $('#dataGridDirectCustomer').jqGrid({
+            caption: "Direct Customers List",
+            url: '/MCustomer/GetAllCustomers',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+
+            colNames: ['iCustomerID', 'Customer Name', 'Country', 'Email', 'Phone Number', 'Pincode', 'Credit Limit', 'Address', 'Action'],
+            colModel: [
+                { name: 'iCustomerID', index: 'iCustomerID', hidden: true, hidedlg: true },
+                { name: 'strFirstName', index: 'strFirstName', width: 250 },
+                { name: 'iCountry', index: 'iCountry', align: 'center' },
+                //{ name: 'iCity', index: 'iCity', align: 'center' },
+                 { name: 'strEmailID', index: 'strEmailID', align: 'center', width: 250 },
+                { name: 'fltPhoneNumber', index: 'fltPhoneNumber', align: 'center' },
+
+                 { name: 'strPincode', index: 'strPincode', align: 'center', width: 100 },
+                { name: 'strCreditLimit', index: 'strCreditLimit', align: 'center', width: 100 },
+                { name: 'strAddress', index: 'strAddress', align: 'center' },
+
+                //{ name: 'iPersonID', index: 'iPersonID', hidden: true, hidedlg: true },
+                //{ name: 'strPersonFirstName', index: 'strPersonFirstName', align: 'center' },
+                //{ name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                //{ name: 'CustomerPhoto', index: 'CustomerPhoto', align: 'center' },
+                //{ name: 'CustomerDate', index: 'CustomerDate', align: 'center' },
+
+
+                   {
+                       name: 'Action', index: 'Action', align: 'center', width: 370, search: false, title: false,
+                       formatter: function (cellvalue, options, rowObject) {
+
+                           //return "<input class='popup btn btn-info' type='button' value='Create ID Card'  onclick=\"GenerateIDProof('" + options.rowId + "');\"  />"  + "  " +
+
+
+
+                           return '<a class="popup btn btn-warning"  href="/MCustomer/Save/' + options.rowId + '">Edit</a>' + "  " + '<a class="popup btn btn-danger"  href="/MCustomer/Delete/' + options.rowId + '">Delete</a>';
+
+                           //return  "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit'  onclick=\"editRowData('" + options.rowId + "');\"  />";
+                       }
+
+                   },
+
+
+
+            ],
+
+            //shrinkToFit: false,
+            //forceFit: true,            
+            width: 1100,
+            height: 450,
+            rowNum: 20,
+            rownumbers: true,
+            rownumWidth: 45,
+            loadonce: true,
+            ignoreCase: true,
+            rowList: [20, 40, 60],
+            gridview: true,
+            //sortname: 'id',
+            viewrecords: true,
+            sortorder: "asc",
+            hoverrows: false,
+            pager: 'pagingGridDirectCustomer',
+        });
+        jQuery("#dataGridDirectCustomer").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        jQuery("#dataGridDirectCustomer").jqGrid('navGrid', '#pagingGridDirectCustomer', { edit: false, add: false, del: false, search: false });
+
+    }
+
+
+    function ShowRoomCustomerGrid() {
+
+        //this grid is used to fill the Customers list
+
+        $('#dataGridShowroomCustomer').jqGrid({
+            caption: "ShowRoom Customers List",
+            url: '/MCustomer/GetAllShowRoomCustomers',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+            colNames: ['iCustomerID', 'Contact Person', 'ShowRoom Name', 'ShowRoom PhoneNo', 'ShowRoom Number', 'ShowRoom BlockNo', 'Country', 'Email', 'Pincode', 'Address', 'Action'],
+            colModel: [
+                { name: 'iCustomerID', index: 'iCustomerID', hidden: true, hidedlg: true },
+                { name: 'PersonFullName', index: 'PersonFullName', width: 250 },
+
+                { name: 'strShowRoomName', index: 'strShowRoomName', align: 'center' },
+                { name: 'strShowRoomPhoneNo', index: 'strShowRoomPhoneNo', align: 'center' },
+                { name: 'strShowRoomNumber', index: 'strShowRoomNumber', align: 'center' },
+                { name: 'strBlock', index: 'strBlock', align: 'center' },
+                { name: 'iCountry', index: 'iCountry', align: 'center' },
+                 { name: 'strEmailID', index: 'strEmailID', align: 'center', width: 250 },
+                 { name: 'strPincode', index: 'strPincode', align: 'center', width: 100 },
+                { name: 'strAddress', index: 'strAddress', align: 'center' },
+
+
+                   {
+                       name: 'Action', index: 'Action', align: 'center', width: 370, search: false, title: false,
+                       formatter: function (cellvalue, options, rowObject) {
+
+                           return '<a class="popup btn btn-warning"  href="/MCustomer/Save/' + options.rowId + '">Edit</a>' + "  " + '<a class="popup btn btn-danger"  href="/MCustomer/Delete/' + options.rowId + '">Delete</a>';
+
+                           //return  "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit'  onclick=\"editRowData('" + options.rowId + "');\"  />";
+                       }
+
+                   },
+
+
+
+            ],
+
+            //shrinkToFit: false,
+            //forceFit: true,
+            width: 1100,
+            height: 450,
+            rowNum: 20,
+            rownumbers: true,
+            rownumWidth: 45,
+            loadonce: true,
+            ignoreCase: true,
+            rowList: [20, 40, 60],
+            gridview: true,
+            //sortname: 'id',
+            viewrecords: true,
+            sortorder: "asc",
+            hoverrows: false,
+            pager: 'pagingGridShowroomCustomer',
+        });
+        jQuery("#dataGridShowroomCustomer").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        jQuery("#dataGridShowroomCustomer").jqGrid('navGrid', '#pagingGridShowroomCustomer', { edit: false, add: false, del: false, search: false });
+
+    }
+</script>
+<script>
+    function GenerateIDProof(CustID) {
+
+
+
+        $.ajax({
+            type: "POST",
+            url: "/MCustomer/GenerateIDProof",
+            cache: false,
+            data: JSON.stringify({ ID: CustID }),
+            // data: JSON.stringify(purchase),
+            dataType: this.dataType,
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                debugger
+                var strQRCodePath = result.strQRCodePath;
+
+                var customerFullName = result.strFirstName;
+                var phoneNumber = result.fltPhoneNumber;
+                var strAddress = result.strAddress;
+
+                var columns = [];
+
+                var data = [];
+
+                // var doc = new jsPDF();
+
+                var doc = new jsPDF('p', 'mm', [100, 80], '');
+
+                var totalPagesExp = "{total_pages_count_string}";
+
+                var pageContent = function (data) {
+                    // HEADER
+
+                    // Black sqaure with rounded corners
+                    doc.setDrawColor(0)
+                    doc.setFillColor(255, 255, 255)
+                    doc.roundedRect(1, 1, 77, 98, 3, 3, 'FD')
+
+
+
+                    doc.setFontSize(15);
+                    //doc.setTextColor(40);
+                    //doc.setFontStyle('normal');
+
+                    doc.text("Name :", 3, 70);
+                    //doc.setLineWidth(1)
+                    doc.text(customerFullName, 25, 70);
+                    //doc.line(25, 31, 75, 31);
+
+                    // doc.text("Mobile :", 3, 80);
+                    // //doc.setLineWidth(1);
+                    // doc.text(phoneNumber, 25, 80);
+                    //// doc.line(25, 41, 75, 41);
+
+                    doc.text("Address :", 1, 90);
+                    //doc.setLineWidth(1);
+                    doc.text(strAddress, 25, 90);
+                    //doc.line(25, 51, 75, 51);
+
+                    doc.setFontSize(12);
+                    doc.text("Scan QR Code", 25, 20);
+                    //To add Image
+                    var img = new Image();
+                    img.onload = function () {
+                        this.width = 140;
+                        this.height = 140;
+                        doc.addImage(this, 20, 20);
+                        //doc.output("dataurlnewwindow");
+                        window.open(doc.output('bloburl'), '_blank');
+                    };
+
+
+                    img.crossOrigin = "";  // for demo as we are at different origin than image
+                    img.src = strQRCodePath;  // some random imgur image
+
+
+
+                    //// FOOTER
+                    //var str = "Page " + data.pageCount;
+                    //// Total page number plugin only available in jspdf v1.0+
+                    //if (typeof doc.putTotalPages === 'function') {
+                    //    str = str + " of " + totalPagesExp;
+                    //}
+                    //doc.setFontSize(10);
+                    //doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+                    ////doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+                };
+
+                doc.autoTable(columns, data, {
+                    //theme: 'grid',
+                    addPageContent: pageContent,
+                    margin: { top: 3 },
+
+                    //drawCell: function (cell, data) {
+                    //    var rows = data.table.rows;
+                    //    if (data.row.index == rows.length - 1) {
+                    //        // doc.setFillColor(200, 200, 255);
+                    //        doc.setFillColor(26, 188, 156);
+                    //        doc.setFontStyle('bold');
+                    //        //doc.setFontSize(16);
+                    //    }
+                    //},
+                });
+
+                //// Total page number plugin only available in jspdf v1.0+
+                //if (typeof doc.putTotalPages === 'function') {
+                //    doc.putTotalPages(totalPagesExp);
+                //}
+                //////doc.output("dataurlnewwindow");
+
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to Retrived data.');
+            }
+        });
+
+
+
+
+
+
+
+    }
+</script>
+
+
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

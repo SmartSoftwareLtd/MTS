@@ -1,0 +1,388 @@
+﻿@model AuctionInventory.Models.Staff
+@{
+    ViewBag.Title = "Save";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    body {
+        font-family: Arial;
+        font-size: 10pt;
+    }
+
+    .error {
+        color: red;
+    }
+</style>
+
+
+@using (Html.BeginForm("save", "MStaff", FormMethod.Post, new { id = "popupForm" }))
+{
+    if (Model != null && Model.iStaffID > 0)
+    {
+        @Html.HiddenFor(a => a.iStaffID)
+    }
+
+
+    <div class="row">
+
+
+       <div class="col-md-4">
+            <label>First Name</label>
+            @Html.TextBoxFor(a => a.strFirstName, new { @class = "form-control  input-group-lg", @placeholder = "Enter First Name" })
+            @Html.ValidationMessageFor(m => m.strFirstName, "", new { @class = "error" })
+
+
+        </div>
+       <div class="col-md-4">
+            <label>Middle Name</label>
+            @Html.TextBoxFor(a => a.strMiddleName, new { @class = "form-control  input-group-lg", @placeholder = "Enter Middle Name" })
+            @Html.ValidationMessageFor(m => m.strMiddleName, "", new { @class = "error" })
+
+
+        </div>
+       <div class="col-md-4">
+            <label>Last Name</label>
+            @Html.TextBoxFor(a => a.strLastName, new { @class = "form-control  input-group-lg", @placeholder = "Enter Last Name" })
+            @Html.ValidationMessageFor(m => m.strLastName, "", new { @class = "error" })
+
+
+        </div>
+        <div class="col-md-4">
+            <label>Country </label>
+            @Html.DropDownListFor(m => m.iCountryID, (IEnumerable<SelectListItem>)ViewBag.Country, null, new { @class = "form-control", @id = "ddlCountry" })
+            @Html.ValidationMessageFor(m => m.iCountryID, "", new { @class = "error" })
+        </div>
+        <div class="col-md-4">
+            <label>City </label>
+            @Html.DropDownListFor(m => m.iCityID, (IEnumerable<SelectListItem>)ViewBag.City, null, new { @class = "form-control", @id = "ddlCity" })
+            @Html.ValidationMessageFor(m => m.iCityID, "", new { @class = "error" })
+        </div>
+
+       <div class="col-md-4">
+            <label>Area</label>
+            @Html.TextBoxFor(a => a.strArea, new { @class = "form-control  input-group-lg", @placeholder = "Enter Area" })
+            @Html.ValidationMessageFor(m => m.strArea, "", new { @class = "error" })
+        </div>
+      
+
+       <div class="col-md-4">
+            <label>Phone Number</label>
+            @Html.TextBoxFor(a => a.iPhoneNumber, new { @class = "form-control  input-group-lg", @placeholder = "Enter Phone Number" })
+            @Html.ValidationMessageFor(m => m.iPhoneNumber, "", new { @class = "error" })
+        </div>
+    
+
+
+        <div class="col-md-4">
+            <label>Passport</label>
+            @Html.TextBoxFor(a => a.strPassport, new { @class = "form-control  input-group-lg", @placeholder = "Enter Passport Number" })
+            @Html.ValidationMessageFor(m => m.strPassport, "", new { @class = "error" })
+
+
+        </div>
+        <div class="col-md-4">
+            <label>Passport Expiry</label>
+            @Html.TextBoxFor(a => a.strPassportExpiry, new { @class = "form-control datepicker  input-group-lg", @placeholder = "Enter Drop Off Date..." })
+            @Html.ValidationMessageFor(m => m.strPassportExpiry, "", new { @class = "error" })
+
+
+        </div>
+        <div class="col-md-4">
+            <label>Email</label>
+            @Html.TextBoxFor(a => a.strEmailID, new { @class = "form-control  input-group-lg", @placeholder = "Enter Email Address " })
+            @Html.ValidationMessageFor(m => m.strEmailID, "", new { @class = "error" })
+        </div>
+        <div class="col-md-4">
+            <label>Visa</label>
+            @Html.TextBoxFor(a => a.strVisa, new { @class = "form-control  input-group-lg", @placeholder = "Enter Visa Number" })
+            @Html.ValidationMessageFor(m => m.strVisa, "", new { @class = "error" })
+
+
+        </div>
+        <div class="col-md-4">
+            <label>Visa Expiry</label>
+            @Html.TextBoxFor(a => a.strVisaExpiry, new { @class = "form-control datepicker  input-group-lg", @placeholder = "Enter Drop Off Date..." })
+            @Html.ValidationMessageFor(m => m.strVisaExpiry, "", new { @class = "error" })
+
+
+        </div>
+
+       <div class="col-md-4">
+            <label>ID NO</label>
+            @Html.TextBoxFor(a => a.iIDNO, new { @class = "form-control  input-group-lg", @placeholder = "Enter ID  Number" })
+            @Html.ValidationMessageFor(m => m.iIDNO, "", new { @class = "error" })
+
+
+        </div>
+       <div class="col-md-4">
+            <label>Miscellaneous</label>
+            @Html.TextBoxFor(a => a.strMISC, new { @class = "form-control  input-group-lg", @placeholder = "Enter Miscellaneous" })
+            @Html.ValidationMessageFor(m => m.strMISC, "", new { @class = "error" })
+
+
+        </div>
+      
+        @*<div class="col-md-4">
+            <label>Designation </label>
+            @Html.DropDownListFor(m => m.iDesignation, (IEnumerable<SelectListItem>)ViewBag.Designation, null, new { @class = "form-control", @id = "ddlCity" })
+            @Html.ValidationMessageFor(m => m.iDesignation, "", new { @class = "error" })
+        </div>*@
+       <div class="col-md-4">
+            <label>Designation</label>
+            @Html.TextBoxFor(a => a.iDesignation, new { @class = "form-control  input-group-lg", @placeholder = "Enter Designation Number" })
+            @Html.ValidationMessageFor(m => m.iDesignation, "", new { @class = "error" })
+
+
+        </div>
+       <div class="col-md-4">
+            <label>Salary</label>
+            @Html.TextBoxFor(a => a.dmlSalary, new { @class = "form-control  input-group-lg", @placeholder = "Enter Salary" })
+            @Html.ValidationMessageFor(m => m.dmlSalary, "", new { @class = "error" })
+
+
+        </div>
+       <div class="col-md-4">
+            <label>DOB</label>
+            @Html.TextBoxFor(a => a.DOB, new { @class = "form-control datepicker  input-group-lg", @placeholder = "Enter Drop Off Date..." })
+            @Html.ValidationMessageFor(m => m.DOB, "", new { @class = "error" })
+
+
+        </div>
+       <div class="col-md-4">
+            <label>DOJ</label>
+            @Html.TextBoxFor(a => a.DOJ, new { @class = "form-control datepicker  input-group-lg", @placeholder = "Enter Drop Off Date..." })
+            @Html.ValidationMessageFor(m => m.DOJ, "", new { @class = "error" })
+
+
+        </div>
+       <div class="col-md-4">
+            <label>Remark</label>
+            @Html.TextBoxFor(a => a.strRemark, new { @class = "form-control  input-group-lg", @placeholder = "Enter Remark" })
+            @Html.ValidationMessageFor(m => m.strRemark, "", new { @class = "error" })
+
+
+        </div>
+        <div class="col-md-4">
+            <label>Address</label>
+            @Html.TextBoxFor(a => a.strAddress, new { @class = "form-control  input-group-lg", @placeholder = "Enter Address" })
+            @Html.ValidationMessageFor(m => m.strAddress, "", new { @class = "error" })
+
+
+        </div>
+    </div>
+     <div id="dialog" style="display: none" align="center">
+         Are you sure ?
+        </div>
+
+     <div>
+        <br />
+@if (Model != null && Model.iStaffID > 0 && Model.iStaffID != null)
+{
+    <input type="submit" name='dailogBox' style="margin-left: 400px;" id="btnUpdate" class="btn btn-warning col-md-1" value="Update">
+}
+else
+{
+    <input type="submit" name='dailogBox' style="margin-left: 400px;" id="btnSave" class="btn btn-success col-md-1" value="Save">
+}
+
+        @*<input type="submit" value="Save" />*@
+
+        <input type="button" style="margin-left: 40px;" class="btn btn-warning col-md-1" value="Cancel" onclick="CancelStaffInfo();" />
+
+    </div>
+}
+@{
+    <input type="hidden" id="hdniCity" value="@Model.iCityID" />
+}
+
+<script type="text/javascript">
+
+
+    //jQuery(document).ready(function () {
+    //    jQuery('[data-confirm]').click(function (e) {
+    //        if (!confirm(jQuery(this).attr("data-confirm"))) {
+    //            e.preventDefault();
+    //        }
+    //    });
+    //});
+
+
+    function CancelStaffInfo() {
+        window.location.href = "/MStaff/Index";
+    }
+
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+        //$('input[type=datetime]').datepicker();
+    });
+
+
+
+    //function Confirm() {
+    //    var input = $("<input />");
+    //    input.attr("type", "hidden").attr("name", "confirm_value");
+    //    if (confirm("Do you want to save data?")) {
+    //        input.val("Yes");
+    //    } else {
+    //        input.val("No");
+    //    }
+    //    $("form")[0].appendChild(input[0]);
+    //}
+
+
+
+
+    var showDialog = true;
+    $("input[name='dailogBox']").click(function (e) {
+
+
+        var input = $(this);
+        var form = $(this).parents("form");
+        if (showDialog) {
+            // Prevent submit
+            e.preventDefault();
+            // Show dialog
+            $("#dialog").dialog({
+
+
+                modal: true,
+                //autoOpen: false,
+                title: "Confirmation",
+                width: 350,
+                height: 160,
+                resizable: false,
+               
+
+
+
+                //buttons: {
+                //    'Confirm': function () {
+                //        $(this).dialog('close');
+                //        // Get the parent form
+                //        showDialog = false;
+                //        //form.submit();
+                //        //input.submit();
+                //        $(input).trigger("click");
+                //    },
+                //    Cancel: function () {
+                //        $(this).dialog('close');
+                //        showDialog = true;
+                //    }
+                //}
+
+
+                buttons: [
+   {
+       id: "Yes",
+       text: "Yes",
+       click: function () {
+
+           //Call function to update here
+           $(this).dialog('close');
+           // Get the parent form
+           showDialog = false;
+           //form.submit();
+           //input.submit();
+           $(input).trigger("click");
+       }
+
+   },
+   {
+       id: "No",
+       text: "No",
+       click: function () {
+           $(this).dialog('close');
+           showDialog = true;
+       }
+   }
+            ]
+
+
+
+            });
+        }
+
+    });
+
+
+
+
+
+</script>
+
+
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+      
+        $("#ddlCity").empty();
+        $.ajax({
+            type: "post",
+            url: "/MStaff/GetCity",
+            data: { countryID: $('#ddlCountry').val() },
+            datatype: "json",
+            traditional: true,
+            success: function (data) {
+
+                $.each(data, function (i, city) {
+
+                    if ($("#hdniCity").val() == city.Value) {
+                        $("#ddlCity").append('<option value="' + city.Value + '" selected>' + city.Text + '</option>');
+                    }
+                    else {
+                        $("#ddlCity").append('<option value="' + city.Value + '" >' + city.Text + '</option>');
+                    }
+
+
+                });
+
+            }
+        });
+
+    });
+
+</script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#ddlCountry').change(function () {
+            $("#ddlCity").empty();
+            $.ajax({
+                type: "post",
+                url: "/MStaff/GetCity",
+                data: { countryID: $('#ddlCountry').val() },
+                datatype: "json",
+                traditional: true,
+                success: function (data) {
+
+
+                    $.each(data, function (i, city) {
+                        $("#ddlCity").append('<option value="' + city.Value + '">' +
+                             city.Text + '</option>');
+                        // here we are adding option for States
+
+                    });
+
+                }
+            });
+        });
+    });
+</script>  
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

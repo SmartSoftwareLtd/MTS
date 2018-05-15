@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Save";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 15px;
+        color: #FFF;
+    }
+</style>
+<div class="box-body">
+
+    <div class="row">
+        <div class="form-group col-xs-4">
+            <label>Party</label>
+            <input id="strPartyName" class="form-control input-group-lg" type="text"
+                   placeholder="Enter Party Name" />
+        </div>
+    </div>
+    <br>
+   
+    <input type="button" style="margin-left: 60px;" class="btn btn-success col-md-1" id="btnSave" value="Save " />
+
+    <input type="button" style="margin-left: 15px;" class="btn btn-warning col-md-2" value="Back To List" onclick="Cancel();">
+
+
+</div>
+
+<script>
+
+    function Cancel() {
+        window.location.href = "/AccountParty/Index";
+    }
+
+ 
+
+
+    $("#btnSave").click(function () {
+        debugger;
+        var model = {
+            iAccountPartyID: $("#iAccountPartyID").val(),
+            strPartyName: $("#strPartyName").val()
+        }
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/AccountParty/SaveEdit",
+            data: JSON.stringify({ 'acntPartyModel': model }),
+            success: function (data) {
+
+                alert("Account Party  Save Successfully");
+                window.location.href = "/AccountParty/Index";
+            }
+        });
+    });
+
+  
+</script>

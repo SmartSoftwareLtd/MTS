@@ -1,0 +1,597 @@
+﻿@model AuctionInventory.Models.GeneralExpenses
+@{
+    ViewBag.Title = "GeneralExpenses";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div id="boxbody" style="width:90%; margin:0px auto" class="tablecontainer">
+    <div class="box-body">
+        <div id="divDetails" class="row">
+            <input type="hidden" id="hdnBillNumber" />
+
+            <div class='row'>
+
+
+                @*<div class='form-group col-sm-2'>
+
+
+                        <label class='form-control input-group-sm' id='lblExpense'></label>
+                    </div>*@
+                @*<div class='form-group col-sm-3'>
+                        <input type="hidden" id="hfVehicle" />
+                        <input type='text' id="txtSearchVehicle" class='form-control input-group-sm' style='margin-left: -20px;' placeholder='Search Vehicle By Chasis Number' />
+                    </div>*@
+
+                @*<div class='form-group col-sm-2'>
+                        <input type='button' value='Search' style='margin-left: -35px;' class='btn btn-success' id='JQGridFill' />
+                    </div>*@
+
+                <div class='form-group col-sm-2' style="margin-top: -24px;">
+                    <label>Date:</label>
+                    <input class='form-control datepicker input-group-sm' name='SingleExpDate' placeholder='Enter drop of date...' id='txtSingleExpDate' />
+                </div>
+                <div class='form-group col-sm-3' style="margin-top: -24px;">
+                    <label>Reference No.:</label>
+                    <input class='form-control' name='' placeholder='Enter reference No...' id='txtReferenceNum' maxlength="25" />
+                </div>
+                <div class='row form-group col-sm-4'>
+                    <input type="hidden" id="hfExpense" />
+                    <input type="text" class='form-control input-group-sm' id="txtSearchExpense" name="name" placeholder="search Expenses" />
+                </div>
+
+                <input id="btnAdd" class='btn btn-success' style="margin-left: 25px;" type="button" value="ADD Expenses" />
+
+            </div>
+
+            @*<div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Search By Vehicle: </label>
+
+                        <input type="text" id="txtSearchVehicle" class="form-control" placeholder="Search Vehicle By Chasis Number" />
+                        <input type="hidden" id="hfVehicle" />
+                        <input type="button" value="Search" id="JQGridFill" />
+                    </div>
+
+                </div>*@
+
+
+
+            <div id="AddExpenseDynamic">
+
+                <br />
+
+                <div id="TextBoxContainer">
+                    <!--Textboxes will be added here -->
+                    <div id="TextBoxContainer">
+                        <!--Textboxes will be added here -->
+                        <div class="row" name="divForExpense">
+
+
+                            <div id="totalExpense" style="display:none">
+                                <div id="divExpense">
+                                    <div class="form-group col-sm-3">
+                                        <label style=" display:none" id="lblExpenseID"></label>
+                                        <label class="form-control input-group-sm" style=" background-color:orange" id="lblExpense">:</label>
+                                    </div>
+                                    <div class="form-group col-sm-2">
+                                        <input type="number" class="txtAmountClass form-control input-group-sm" name="DynamicTextBox" min="1" max="5" placeholder="Enter Amount" id="txtAmount" />
+                                    </div>
+
+                                    <div class='form-group col-sm-2'>
+                                        @*<label>Party</label>*@
+                                        <select class="form-control input-group-sm" id="ddlParty" name="DynamicParty" onchange='getParty(this);'>
+                                            <option>Select Party</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br />
+                                <br />
+
+                                @*<input type="button" value="ADD All Expenses" class="btn btn-success" id="btnAddTotalSum" />
+                                    <br />
+                                    <br />
+                                    <label>Total Expense Amount :</label><input type="text" id="totalSum" readonly />*@
+                                <br />
+                                <div class="row">
+                                    <div class="form-group col-sm-2">
+                                        <label class='form-control input-group-sm' style="background-color: #ff9900;margin-left:17px;">Remarks :</label>
+                                    </div>
+                                    <div class="form-group col-sm-3">
+                                        <textarea class="form-control input-group-sm" id="txtAreaRemarks"></textarea>
+                                    </div>
+                                </div>
+
+
+                                @*<label>Remarks :</label><textarea id="txtAreaRemarks"></textarea>*@
+                                @*<br />
+
+                                    <div style="margin-left: 222px;">
+                                        <input type="button" value="Save" class="btn btn-success col-md-2" id="btnSave" />
+                                        <input type="button" style="margin-left: 30px;" value="Update" class="btn btn-success col-md-2" id="btnUpdate" />
+                                        <input type="button" style="margin-left: 35px;" value="Print" class="btn btn-success col-md-2" id="btnPrint" />
+                                    </div>*@
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+
+                </div>
+                <div>
+                    <br />
+                    <div id="dialog" style="display: none" align="center">
+                        Do you want to Save this Expenses?
+                    </div>
+                    <input type="button" style="margin-left: 70px;" class="btn btn-success col-md-2" id="btnSave" value="Save">
+
+                    <input type="button" style="margin-left: 35px;" value="Print" class="btn btn-success col-md-2" id="btnPrint" onclick="generatePDF();" />
+
+
+                    <input type="button" style="margin-left: 35px" class="btn btn-warning col-md-2" value="Cancel" onclick="CancelVehiclesExpenseInfo();" id="cancelVehiclesExpenseInfo">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var counter = 1;
+    var arrExpenseID = new Array();
+    var favorite = [];
+    $(function () {
+        $("#txtSearchExpense").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/MExpenses/AutoCompleteGeneralExpense/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.strExpenseName,
+                                    value: item.strExpenseName,
+                                    iExpenseID: item.iExpenseID
+                                }
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+
+                event.preventDefault();
+                debugger
+
+                $("#txtSearchExpense").val(i.item.value);
+                //$("#txtSearchSupplier").val(i.item.strLastName);
+                //$("#txtSearchSupplier").val(i.item.strEmailID);
+                $("#hfExpense").val(i.item.iExpenseID);
+
+
+
+                return false;
+            },
+            minLength: 1
+        });
+    });
+
+
+    $(function () {
+
+        //$("#btnAdd").bind("click", function () {
+        //    if (document.getElementById('txtSearchExpense').value == "" || document.getElementById('txtSearchExpense').value == "No matches found") {
+
+
+        //        $('#txtSearchExpense').css('border-color', 'red');
+        //    }
+        //    else {
+        //        $('#txtSearchExpense').css('border-color', '');
+        //        var id = $("#hfExpense").val();
+        //        var value = $("#txtSearchExpense").val();
+
+        //        var addVehicleID = false;
+        //        $.map(arrExpenseID, function (elementOfArray, indexInArray) {
+        //            if (elementOfArray.ExpenseID == id) {
+
+        //                addVehicleID = true;
+        //            }
+        //        })
+        //        if (!addVehicleID) {
+        //            arrExpenseID.push({ ExpenseID: id })
+        //            //$('#TextBoxContainer').append("<div>" + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+
+
+
+        //            $('#TextBoxContainer').append("<div  class='row' name='divForExpense'>"
+
+        //        + "<div class='form-group col-sm-2'>"
+        //        + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>"
+        //        + "<label  class='form-control input-group-sm'  style='background-color:orange' id='lblExpense" + counter + "'>" + value + ":</label></div>"
+        //         + "<div class='form-group col-sm-2'>"
+        //        + "<input  type='number' class='txtAmountClass form-control input-group-sm'  style='margin-left: -20px;' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount"
+        //        + counter + "' /></div>"
+
+
+        //        //+ "<div class='form-group col-sm-2'>" + "<label>" + "Party" + "</label>"
+        //        //+ "<select class='form-control input-group-sm' id='ddlParty' name='DynamicParty' onchange='getParty(this);'>"
+        //        //+ "<option>Select Party</option>" + "<option value='1'>Yes</option>" + "<option value='0'>No</option>" + "</select></div>"
+
+
+
+
+        //          + "<div class='form-group col-sm-2'>"
+        //          //+ "<label>" + "Party" + "</label>"
+        //        + "<select class='form-control input-group-sm' id='ddlParty" + counter + "' name='DynamicParty' onchange='getParty(this);'>"
+        //        + "<option>Select Party</option>"
+        //       + "</select></div>"
+
+
+
+
+
+        //         + "<div class='form-group col-sm-2'>"
+        //        + "<input type='button' value='Remove' style='margin-left: -10px;'   onclick='myFunction(" + id + ")' class='remove btn btn-success' id='btnRemove"
+        //        + counter + "' /></div></div>");
+
+
+
+        //            counter++;
+
+        //            $("#totalExpense").show();
+        //            $('#txtSearchExpense').val("");
+        //        }
+
+
+        //        //// $('#TextBoxContainer').append("<div>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+        //        // $('#TextBoxContainer').append("<div>" + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+        //        // counter++;
+
+        //        // $("#totalExpense").show();
+        //        // $('#txtSearchExpense').val("");
+        //    }
+
+
+        //    ////This is used to fill dropdownlist for party Name
+
+        //    $.ajax({
+        //        url: "/MExpenses/ShowPartyData",
+        //        type: "Get",
+        //        success: function (data) {
+
+
+
+
+        //            for (var j = 1; j <= counter; j++) {
+
+        //                for (var i = 0; i < data.length; i++) {
+
+        //                    //var option = new Option(data[i].strFirstName, data[i].iPartyID);
+
+        //                    // $('#ddlParty' + j).append(option);
+
+        //                    $('#ddlParty' + j).append('<option value="' + data[i].iPartyID + '" >' + data[i].strFirstName + '</option>');
+
+
+
+        //                }
+        //            }
+        //        }
+
+        //    });
+
+
+
+        //});
+
+
+        //BTN ADD///
+        $("#btnAdd").bind("click", function () {
+            if (document.getElementById('txtSearchExpense').value == "" || document.getElementById('txtSearchExpense').value == "No matches found") {
+
+
+                $('#txtSearchExpense').css('border-color', 'red');
+            }
+            else {
+                $('#txtSearchExpense').css('border-color', '');
+                var id = $("#hfExpense").val();
+                var value = $("#txtSearchExpense").val();
+
+                var addVehicleID = false;
+                $.map(arrExpenseID, function (elementOfArray, indexInArray) {
+                    if (elementOfArray.ExpenseID == id) {
+
+                        addVehicleID = true;
+                    }
+                })
+                if (!addVehicleID) {
+                    arrExpenseID.push({ ExpenseID: id })
+                    //$('#TextBoxContainer').append("<div>" + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+
+                    $("#lblExpenseID").html(id);
+                    $("#lblExpense").html(value);
+
+                    $("#totalExpense").show();
+                    $('#txtSearchExpense').val("");
+                }
+
+
+                //// $('#TextBoxContainer').append("<div>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+                // $('#TextBoxContainer').append("<div>" + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+                // counter++;
+
+                // $("#totalExpense").show();
+                // $('#txtSearchExpense').val("");
+            }
+
+
+            ////This is used to fill dropdownlist for party Name
+
+            $.ajax({
+                url: "/MExpenses/ShowPartyData",
+                type: "Get",
+                success: function (data) {
+                    $('#ddlParty').children().remove();
+                    $('#ddlParty').append('<option value="" >Select Party</option>');
+                    for (var i = 0; i < data.length; i++) {
+
+                        //var option = new Option(data[i].strFirstName, data[i].iPartyID);
+
+                        // $('#ddlParty' + j).append(option);
+
+
+                        $('#ddlParty').append('<option value="' + data[i].iPartyID + '" >' + data[i].strFirstName + '</option>');
+
+                    }
+
+                }
+
+            });
+
+
+
+        });
+
+        /////////////////
+
+
+        ////Add Total
+        //$("#btnAddTotalSum").click(function () {
+        //    AmountTextBox();
+
+
+        //});
+
+
+
+        $("#btnSave").click(function () {
+            debugger;
+            //ALLExpense();
+            $(function () {
+                if ($(this).attr("rel") != "update") {
+                    $('#dialog').dialog('open');
+                    return false;
+                }
+            });
+
+            $("#dialog").dialog({
+                modal: true,
+                autoOpen: false,
+                title: "Confirmation",
+                width: 350,
+                height: 160,
+                buttons: [
+            {
+                id: "Yes",
+                text: "Yes",
+                click: function () {
+
+                    //calling function here for update
+
+
+                    var ExpenseID = parseInt($("#hfExpense").val());
+
+                    //var ExpenseName = $("#lblExpense" + i).html();
+                    var ExpenseAmount = $("#txtAmount").val();
+
+                    var PartyID = $("#ddlParty").val();
+                    var refNo = $("#txtReferenceNum").val();
+                    var ExpenseTotalAmount = parseInt($("#totalSum").html());
+                    var genExpense =
+                          {
+                              iExpenseID: ExpenseID,
+                              strExpenseDate: $("#txtSingleExpDate").val(),
+                              dcmlExpenseAmount: ExpenseAmount,
+                              strRemarks: $("#txtAreaRemarks").val(),
+                              iPartyID: PartyID,
+                              strReferenceNumber: refNo
+                          }
+
+
+                    //favorite.push(expenseAmount);
+                    //If you to save all data in one by one then Save function here
+                    //Save(textValue);
+
+                    SaveALLExpense(genExpense);
+
+                    $(this).dialog('close');
+                }
+
+            },
+            {
+                id: "No",
+                text: "No",
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+                ]
+            });
+
+
+
+
+
+        });
+
+        ////Remove From Total
+        //$("body").on("click", ".remove", function () {
+        //    debugger;
+
+        //    arrExpenseID.pop($(this).closest("div[name='divForExpense']").remove());
+
+        //    //ExpenseTotalAmount = 0;
+        //    //counter = counter - 1;
+
+        //    //AmountTextBox();
+
+        //    //ALLExpense();
+
+        //    calculateSum();
+
+        //});
+
+
+
+    });
+
+    function SaveALLExpense(dataTosave) {
+        debugger;
+        var vehicleID = parseInt(0);
+
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/MExpenses/SaveGeneralExpense",
+            data: JSON.stringify({ 'genexpense': dataTosave }),
+            //data: JSON.stringify({ 'expense': dataTosave }),
+            success: function (data) {
+                $('#hdnBillNumber').val(data.billNumber);
+
+                $('#btnSave').hide();
+                //window.location.href = "/MExpenses/GeneralExpensesList";
+            }
+        });
+    }
+
+    function myFunction(id) {
+
+        $("body").on("click", ".remove", function () {
+            $(this).closest("div[name='divForExpense']").remove();
+
+            calculateSum();
+        });
+        //arrExpenseID.splice(id, 1);
+
+        arrExpenseID.splice($.inArray(id, arrExpenseID), 1);
+
+
+    }
+
+</script>
+<script type="text/javascript">
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+        //$('input[type=datetime]').datepicker();
+    });
+
+    function CancelVehiclesExpenseInfo() {
+        window.location.href = "/MExpenses/GeneralExpensesList";
+    }
+</script>
+<script>
+    function generatePDF() {
+        debugger
+
+        var columns = ['Party', 'Expense', 'Amount', 'Remarks'];
+        var data = [];
+
+
+        var Date = $("#txtSingleExpDate").val();
+        var BillNumber = $("#hdnBillNumber").val();
+        var ExpenseName = $("#lblExpense").html();
+        var expAmount = $("#txtAmount").val();
+        var party = $("#ddlParty option:selected").text();
+        var Remarks = $("#txtAreaRemarks").val();
+        //var doc = new jsPDF("p", "mm", "a4");
+        var doc = new jsPDF('l', 'mm', [217, 150], '');
+
+        doc.rect(5, 5, doc.internal.pageSize.width - 10, doc.internal.pageSize.height - 10, 's')
+        var totalPagesExp = "{total_pages_count_string}";
+
+        data.push([party, ExpenseName, expAmount, Remarks]);
+        var pageContent1 = function (data) {
+            // HEADER
+
+            doc.setFontSize(30);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+            doc.text("DAA MOTORS FZCO", data.settings.margin.left + 35, 20);
+            doc.setFontSize(13);
+            doc.text("General Expense", data.settings.margin.left + 70, 30);
+
+            //doc.setLineWidth(1)
+            doc.text("DATE:", data.settings.margin.left + 0, 40);
+            doc.text(Date, data.settings.margin.left + 13, 40);
+
+            doc.text("BillNo:", data.settings.margin.left + 150, 40);
+            doc.text(BillNumber, data.settings.margin.left + 170, 40);
+            doc.line(data.settings.margin.left + 0, 41, 200, 41)
+
+
+        };
+
+
+
+
+        doc.autoTable(columns, data, {
+            theme: 'gridWithNoHeader',
+            addPageContent: pageContent1,
+            margin: { top: 50 },
+
+        });
+
+
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        ////doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+
+    }
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="http://www.ittutorials.in/js/demo/numtoword.js" type="text/javascript"></script>

@@ -1,0 +1,255 @@
+﻿@{
+    ViewBag.Title = "DamageVehicleSave";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<meta name="viewport" content="width=device-width" />
+<title>Damage Vehicles</title>
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+</style>
+
+<input type="hidden" id="hdnVehicleID">
+
+<div class="box-body">
+    @*<div>
+            <a class="popup btn btn-primary" href="/MVehicle/save/0" style="margin-bottom:20px; margin-top:20px;">Add New Vehicle</a>
+
+        </div>*@
+    <br />
+    <div class="col-lg-4">
+        <input type="text" class="form-control" id="txtVehicleSearch" placeholder="Search By Chassis Number" />
+    </div>
+    <div class="col-lg-4">
+        <input class="form-control datepicker" id="txtDate" />
+    </div>
+    <div class="col-lg-4">
+        <select class="form-control" id="ddlYard" name="DynamicYard" onchange='getYard(this);'>
+            <option>Select Yard</option>
+        </select>
+    </div>
+    <br />
+    @*<div>
+            <div>Chassis Number</div>
+            <input type="text" class="form-control" id="txtChassisNumber" />
+        </div>
+        <div>
+            <div>Color</div>
+            <input type="text" class="form-control" id="txtColor" />
+        </div>
+        <div>
+            <div>Make</div>
+            <input type="text" class="form-control" id="txtMake" />
+        </div>
+        <div>
+            <div>Model</div>
+            <input type="text" class="form-control" id="txtModel" />
+        </div>*@
+    <br />
+    <div>
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        <br><br>
+    </div>
+    <div>
+
+        <input type="button" class="btn btn-success col-md-2" style="margin-left: 420px;" id="btnSave" value="Save" onclick="SaveDamageVehicles();" />
+    </div>
+    <br />
+</div>
+
+<script type="text/javascript">
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+        $("#txtDate").datepicker().datepicker("setDate", new Date());
+
+    });
+</script>
+
+<script type="text/javascript">
+    var favorite = [];
+    ////This is used to fill dropdownlist for Yard Name
+
+    $.ajax({
+        url: "/DamageVehicle/ShowYardName",
+        type: "Get",
+        success: function (data) {
+            $('#ddlYard').children().remove();
+            $('#ddlYard').append('<option value="" >Select Yard</option>');
+            for (var i = 0; i < data.length; i++) {
+
+                //var option = new Option(data[i].strFirstName, data[i].iPartyID);
+
+                // $('#ddlParty' + j).append(option);
+
+
+                $('#ddlYard').append('<option value="' + data[i].iYardID + '" >' + data[i].strYardName + '</option>');
+
+            }
+
+        }
+
+    });
+
+
+    $(function () {
+        $("#txtVehicleSearch").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/DamageVehicle/GetVehicles/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+
+
+
+                                return {
+
+                                    iVehicleID: item.iVehicleID,
+                                    strChassisNum: item.strChassisNum,
+
+
+
+                                    value: item.strChassisNum,
+
+                                }
+
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+
+                event.preventDefault();
+
+                //$("#").val(i.item.value);
+                $("#hdnVehicleID").val(i.item.iVehicleID);
+
+                $.ajax({
+                    url: '/DamageVehicle/GetDamageVehicles/',
+                    data: "{ 'vehicleID': '" + i.item.iVehicleID + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        debugger
+                        $("#dataGrid").jqGrid('GridUnload');
+
+
+                        var vehiclesList = data;
+
+                        $('#dataGrid').jqGrid({
+
+                            datatype: "local",
+                            data: vehiclesList,
+                            colNames: ['ID', 'Chasis No', 'Model', 'Color', 'Make'],
+                            colModel: [
+                                { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+
+                                { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                                { name: 'iModel', index: 'iModel', align: 'center' },
+                                { name: 'strColor', index: 'strColor', align: 'center' },
+                                 { name: 'strMake', index: 'strMake', align: 'center' },
+
+
+
+
+                            ],
+                            width: 950,
+                            height: 150,
+                            rowNum: 10,
+                            ignoreCase: true,
+
+
+
+                        });
+                        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+                    }
+
+
+                });
+
+
+
+
+
+
+            },
+            minLength: 1
+        });
+    });
+
+
+    function SaveDamageVehicles() {
+        debugger
+        var damageVehicles = {
+            iVehicleID: $("#hdnVehicleID").val(),
+            iYardID: $("#ddlYard").val(),
+            dtArrivalDate: $("#txtDate").val(),
+            strArrivalDate: $("#txtDate").val(),
+            repairingStatus: false,
+
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/DamageVehicle/Save",
+            cache: false,
+            data: JSON.stringify({ damageVehicle: damageVehicles }),
+            // data: JSON.stringify(purchase),
+            dataType: this.dataType,
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                //alert("Save data Successfully");
+                window.location.href = "/DamageVehicle/Index";
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to Save data.');
+            }
+        });
+
+
+
+
+
+
+    }
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+

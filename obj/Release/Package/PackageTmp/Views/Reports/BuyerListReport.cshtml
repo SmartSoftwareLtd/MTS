@@ -1,0 +1,388 @@
+﻿@{
+    //ViewBag.Title = "BuyerListReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+</style>
+
+
+
+<div class="box-body">
+    <div class="col-md-4">
+
+        <select id="ddlCustomer" class="form-control" onchange="getCustomerType(this.value);">
+            <option value="2">Direct Customer</option>
+            <option value="1">Showroom Customer</option>
+        </select>
+    </div>
+    <br /><br />
+    <div id="divDirectCust">
+        <div>
+            <table id="dataGrid" class="table table-bordered table-striped"></table>
+            @*<div id="pagingGrid"></div>*@
+            <br><br>
+        </div>
+        <div>
+            <input type="button" class="btn btn-info" value="Print" style="margin-left:485px; width:156px;" onclick="generateReportPDF()" />
+        </div>
+    </div>
+    <div id="divShowroomCust" style="display:none;">
+        <div>
+            <table id="dataGridForSRCustomer" class="table table-bordered table-striped"></table>
+            @*<div id="pagingGrid"></div>*@
+            <br><br>
+        </div>
+        <div>
+            <input type="button" class="btn btn-info" value="Print" style="margin-left:485px; width:156px;" onclick="generateShowroomCustomerPDF()" />
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(function () {
+
+        //this grid is used to fill the Customers list
+
+        $('#dataGrid').jqGrid({
+            caption: "Direct Customers List",
+            url: '/Reports/GetAllCustomers',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iCustomerID', 'Customer Name', 'Country', 'Email', 'Phone Number', 'Pincode', 'Credit Limit', 'Address'],
+            colModel: [
+                { name: 'iCustomerID', index: 'iCustomerID', hidden: true, hidedlg: true },
+                { name: 'strFirstName', index: 'strFirstName', align: 'center' },
+                { name: 'iCountry', index: 'iCountry', align: 'center' },
+                //{ name: 'iCity', index: 'iCity', align: 'center' },
+                 { name: 'strEmailID', index: 'strEmailID', align: 'center', width: 250 },
+                { name: 'fltPhoneNumber', index: 'fltPhoneNumber', align: 'center' },
+
+                 { name: 'strPincode', index: 'strPincode', align: 'center', width: 100 },
+                { name: 'strCreditLimit', index: 'strCreditLimit', align: 'center', width: 100 },
+                { name: 'strAddress', index: 'strAddress', align: 'center' },
+
+                //{ name: 'iPersonID', index: 'iPersonID', hidden: true, hidedlg: true },
+                //{ name: 'strPersonFirstName', index: 'strPersonFirstName', align: 'center' },
+                //{ name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                //{ name: 'CustomerPhoto', index: 'CustomerPhoto', align: 'center' },
+                //{ name: 'CustomerDate', index: 'CustomerDate', align: 'center' },
+
+
+                   //{
+                   //    name: 'Action', index: 'Action', align: 'center', width: 250, search: false, title: false,
+                   //    formatter: function (cellvalue, options, rowObject) {
+
+                   //        return '<a class="popup btn btn-warning"  href="/MCustomer/Save/' + options.rowId + '">Edit</a>' + "   " + '<a class="popup btn btn-danger"  href="/MCustomer/Delete/' + options.rowId + '">Delete</a>';
+
+                   //        //return  "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit'  onclick=\"editRowData('" + options.rowId + "');\"  />";
+                   //    }
+
+                   //},
+
+
+
+            ],
+            width: 1050,
+            height: 250,
+            //rowNum: 10,
+            loadonce: true,
+            ignoreCase: true,
+            //rowList: [10, 20, 30],
+            pager: 'pagingGrid',
+        });
+        //jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+        //FOR SHOWROOM CUSTOMERS
+        $('#dataGridForSRCustomer').jqGrid({
+            caption: "Showroom Customers List",
+            url: '/Reports/GetAllSRCustomers',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iCustomerID', 'Customer Name', 'Country', 'Email', 'Phone Number', 'Pincode', 'Credit Limit', 'Address'],
+            colModel: [
+                { name: 'iCustomerID', index: 'iCustomerID', hidden: true, hidedlg: true },
+                { name: 'strFirstName', index: 'strFirstName', align: 'center' },
+                { name: 'iCountry', index: 'iCountry', align: 'center' },
+                //{ name: 'iCity', index: 'iCity', align: 'center' },
+                 { name: 'strEmailID', index: 'strEmailID', align: 'center', width: 250 },
+                { name: 'strPersonPhoneNo', index: 'strPersonPhoneNo', align: 'center' },
+
+                 { name: 'strPincode', index: 'strPincode', align: 'center', width: 100 },
+                { name: 'strCreditLimit', index: 'strCreditLimit', align: 'center', width: 100 },
+                { name: 'strAddress', index: 'strAddress', align: 'center' },
+
+                //{ name: 'iPersonID', index: 'iPersonID', hidden: true, hidedlg: true },
+                //{ name: 'strPersonFirstName', index: 'strPersonFirstName', align: 'center' },
+                //{ name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                //{ name: 'CustomerPhoto', index: 'CustomerPhoto', align: 'center' },
+                //{ name: 'CustomerDate', index: 'CustomerDate', align: 'center' },
+
+
+                   //{
+                   //    name: 'Action', index: 'Action', align: 'center', width: 250, search: false, title: false,
+                   //    formatter: function (cellvalue, options, rowObject) {
+
+                   //        return '<a class="popup btn btn-warning"  href="/MCustomer/Save/' + options.rowId + '">Edit</a>' + "   " + '<a class="popup btn btn-danger"  href="/MCustomer/Delete/' + options.rowId + '">Delete</a>';
+
+                   //        //return  "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit'  onclick=\"editRowData('" + options.rowId + "');\"  />";
+                   //    }
+
+                   //},
+
+
+
+            ],
+            width: 1050,
+            height: 250,
+            //rowNum: 10,
+            loadonce: true,
+            ignoreCase: true,
+            //rowList: [10, 20, 30],
+            pager: 'pagingGrid',
+        });
+
+    });
+</script>
+<script>
+
+
+    function getCustomerType(val) {
+        if (val == 1) {
+            $("#divShowroomCust").show();
+            $("#divDirectCust").hide();
+        }
+        else {
+            $("#divShowroomCust").hide();
+            $("#divDirectCust").show();
+        }
+
+    }
+
+
+    function generateReportPDF() {
+        debugger
+
+        var griddata = jQuery("#dataGrid").getRowData();
+
+        //var griddata = data;
+
+        var columns = ['BuyerName', 'Country', 'Email', 'Phone Number', 'Pincode', 'Credit Limit', 'Address'];
+
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+            data.push([griddata[i].strFirstName, griddata[i].iCountry, griddata[i].strEmailID, griddata[i].fltPhoneNumber, griddata[i].strPincode, griddata[i].strCreditLimit, griddata[i].strAddress]);
+        }
+
+        //for show room customers
+        //var SRcolumns = ['BuyerName', 'Country', 'Email', 'Phone Number', 'Pincode', 'Credit Limit', 'Address'];
+
+        //var SRdata = [];
+
+
+        //var fromDate = $("#fromDate").val();
+        //var toDate = $("#toDate").val();
+        //var sumOfSellingPrice = $('#hdnSellingPrice').val();
+
+        //var custFullName = $("#hdnCustomerName").val();
+        //var custAddr=$("#hdnCustomerAddress").val();
+        //var custPhone=$("#hdnCustomerContactNumber").val();
+
+        //data.push([, , , , , 'Total', sumOfSellingPrice]);
+
+        //var d = new Date();
+
+        //var month = d.getMonth() + 1;
+        //var day = d.getDate();
+
+        //var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' +(('' + month).length < 2 ? '0' : '') + month + '/'+ d.getFullYear();
+
+
+        var doc = new jsPDF('l', 'mm', [350, 300], '');
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("M.D.MOTORS", data.settings.margin.left + 140, 10);
+
+            doc.setFontStyle('normal');
+            doc.setFontSize(15);
+            doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            doc.setFontStyle('bold', 'underline');
+            doc.text("Buyer List(Direct)", data.settings.margin.left + 140, 35);
+
+            doc.setDrawColor(0, 0, 0) // draw black lines
+            doc.setLineWidth(1);
+            doc.line(150, 38, 188, 38);
+
+            //doc.text("From Dt:", data.settings.margin.left + 80, 45);
+            //doc.text(fromDate, data.settings.margin.left + 105, 45);
+            //doc.text("To Dt:", data.settings.margin.left + 180, 45);
+            //doc.text(toDate, data.settings.margin.left + 200, 45);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 50 },
+
+
+        });
+
+        //var secondGridTop=doc.autoTableEndPosY() + 10;
+
+        //doc.autoTable(SRcolumns, SRdata, {
+        //    theme: 'grid',
+        //    margin: { top: secondGridTop },
+
+        //});
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+</script>
+<script>
+    function generateShowroomCustomerPDF() {
+        debugger
+
+
+        var showroomgriddata = jQuery("#dataGridForSRCustomer").getRowData();
+
+        //var griddata = data;
+
+
+        //for show room customers
+        var SRcolumns = ['BuyerName', 'Country', 'Email', 'Phone Number', 'Pincode', 'Credit Limit', 'Address'];
+
+        var SRdata = [];
+        for (var i = 0; i < showroomgriddata.length; i++) {
+            SRdata.push([showroomgriddata[i].strFirstName, showroomgriddata[i].iCountry, showroomgriddata[i].strEmailID, showroomgriddata[i].strPersonPhoneNo, showroomgriddata[i].strPincode, showroomgriddata[i].strCreditLimit, showroomgriddata[i].strAddress]);
+        }
+
+
+
+        var doc = new jsPDF('l', 'mm', [350, 300], '');
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("M.D.MOTORS", data.settings.margin.left + 140, 10);
+
+            doc.setFontStyle('normal');
+            doc.setFontSize(15);
+            doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            doc.setFontStyle('bold', 'underline');
+            doc.text("Buyer List(Showroom)", data.settings.margin.left + 140, 35);
+
+            doc.setDrawColor(0, 0, 0) // draw black lines
+            doc.setLineWidth(1);
+            doc.line(150, 38, 188, 38);
+
+            //doc.text("From Dt:", data.settings.margin.left + 80, 45);
+            //doc.text(fromDate, data.settings.margin.left + 105, 45);
+            //doc.text("To Dt:", data.settings.margin.left + 180, 45);
+            //doc.text(toDate, data.settings.margin.left + 200, 45);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+
+
+        var secondGridTop = doc.autoTableEndPosY() + 10;
+
+        doc.autoTable(SRcolumns, SRdata, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 50 },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+</script>
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="~/Content/plugins/jsPDF-2/faker.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

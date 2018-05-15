@@ -1,0 +1,639 @@
+﻿@model AuctionInventory.Models.GeneralExpenses
+
+@{
+    ViewBag.Title = "GeneralExpensesList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div></div>
+<div class="tablecontainer" id="divFordataGrid">
+    <br />
+    <a class="popup btn btn-primary" href="/MExpenses/GeneralExpenses">Add New</a>
+    <br /><br />
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+    <div id="pagingGrid"></div>
+    <br />
+
+</div>
+<div id="divEditExpense" style="width:90%; margin:0px auto;display:none" class="tablecontainer">
+    <div class="box-body">
+        <div id="divDetails" class="row">
+
+            <input type="button" class="btn btn-warning col-md-2" value="Back" onclick="backToList();" id="btnbackToList">
+            <br /><br /><br /><br />
+
+            <div class='row'>
+
+                <div class='form-group col-sm-2' style="margin-top: -24px;">
+                    <label>Date:</label>
+                    <input class='form-control datepicker input-group-sm' name='SingleExpDate' placeholder='Enter drop of date...' id='txtSingleExpDate' />
+                </div>
+
+                <div class='form-group col-sm-3' style="margin-top: -24px;">
+                    <label>Reference No.:</label>
+                    <input class='form-control' name='' placeholder='Enter reference No...' id='txtReferenceNum' maxlength="25" />
+                </div>
+
+            </div>
+
+
+            <div id="AddExpenseDynamic">
+
+                <div class='row form-group col-sm-4'>
+                    <input type="hidden" id="hfGeneralExpenseID" />
+                    <input type="hidden" id="hfExpenseID" />
+                    <input type="hidden" id="hfiExpenseNumber" />
+                    <input type="hidden" id="hfstrExpenseNumber" />
+                    <input type="hidden" id="hdnPartyID" />
+
+                    <input type="text" class='form-control input-group-sm' id="txtSearchExpense" name="name" placeholder="search Expenses" />
+                </div>
+
+                <input id="btnAdd" class='btn btn-success' style="margin-left: 25px;" type="button" value="ADD Expenses" />
+
+                <br />
+                <br />
+
+                <div id="TextBoxContainer">
+                    <!--Textboxes will be added here -->
+                    <div id="TextBoxContainer">
+                        <!--Textboxes will be added here -->
+                        <div class="row" name="divForExpense">
+
+
+                            <div id="totalExpense">
+                                <div id="divExpense">
+                                    <div class="form-group col-sm-3">
+                                        <label style=" display:none" id="lblExpenseID"></label>
+                                        <label class="form-control input-group-sm" style=" background-color:orange" id="lblExpense"></label>
+                                    </div>
+                                    <div class="form-group col-sm-2">
+                                        <input type="number" class="txtAmountClass form-control input-group-sm" style="margin-left: -20px;" name="DynamicTextBox" min="1" max="5" placeholder="Enter Amount" id="txtAmount" />
+                                    </div>
+
+                                    <div class='form-group col-sm-2'>
+                                        @*<label>Party</label>*@
+                                        <select class="form-control input-group-sm" id="ddlParty" name="DynamicParty" onchange='getParty(this);'>
+                                            <option>Select Party</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br />
+                                <br />
+
+                                <br />
+                                <div class="row" style="margin-left:1px;">
+                                    <div class="form-group col-sm-2">
+                                        <label class='form-control input-group-sm' style="background-color: #ff9900">Remarks :</label>
+                                    </div>
+                                    <div class="form-group col-sm-3">
+                                        <textarea class="form-control input-group-sm" id="txtAreaRemarks"></textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+
+                </div>
+                <div>
+                    <br />
+                    <div id="dialog" style="display: none" align="center">
+                        Do you want to Save this Expenses?
+                    </div>
+
+                    <div id="dialog2" style="display: none" align="center">
+                        Do you want to Delete this Expenses?
+                    </div>
+                    <input type="button" style="margin-left: 175px;" class="btn btn-success col-md-2" id="btnSave" value="Save">
+
+                    <input type="button" style="margin-left: 35px;" value="Print" class="btn btn-success col-md-2" id="btnPrint" onclick="generatePDF();" />
+
+
+                    <input type="button" style="margin-left: 40px" class="btn btn-warning col-md-2" value="Cancel" onclick="CancelVehiclesExpenseInfo();" id="cancelVehiclesExpenseInfo">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        bindParty();
+        //this grid is used to fill All Vehicle Expenses
+
+        $('#dataGrid').jqGrid({
+            caption: "All General Expenses List",
+            url: '/MExpenses/GetAllGeneralExpenses/',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iGeneralExpensesID', 'iExpenseID', 'Expense Name', 'ExpenseDate', 'Expense Amount', 'Remarks', 'iExpenseNumber', 'strExpenseNumber', 'PartyId', 'Party Name','ReferenceNo', 'Action'],
+            colModel: [
+                { name: 'iGeneralExpensesID', index: 'iGeneralExpensesID', hidden: true, hidedlg: true },
+
+                 { name: 'iExpenseID', index: 'iExpenseID', hidden: true, hidedlg: true },
+
+                  { name: 'strExpenseName', index: 'strExpenseName', align: 'center' },
+
+                { name: 'strExpenseDate', index: 'strExpenseDate', align: 'center' },
+
+                { name: 'dcmlExpenseAmount', index: 'dcmlExpenseAmount', align: 'center' },
+
+                { name: 'strRemarks', index: 'strRemarks', align: 'center' },
+
+                 { name: 'iExpenseNumber', index: 'iExpenseNumber', hidden: true, hidedlg: true },
+                 { name: 'strExpenseNumber', index: 'strExpenseNumber', hidden: true, hidedlg: true },
+
+                { name: 'PartyId', index: 'PartyId', hidden: true, hidedlg: true },
+                { name: 'strFirstName', index: 'strFirstName', align: 'center' },
+                { name: 'strReferenceNumber', index: 'strReferenceNumber', align: 'center' },
+                
+                 {
+                     name: 'Action', index: 'Action', align: 'center', width: 150, search: false, title: false,
+                     formatter: function (cellvalue, options, rowObject) {
+                         return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  /><input class='popup btn btn-danger' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"DeleteRowData('" + options.rowId + "');\"  />";
+
+                         //return '<a class="popup btn btn-warning" href="/MExpenses/GeneralExpenses/' + options.rowId + '">Edit</a>' + "   " + '<a class="popup btn btn-danger"  href="/MExpenses/delete/' + options.rowId + '">Delete</a>'+'<input class="popup btn btn-info" style="margin-right: 5%; " type="button" value="Edit" onclick=\"editRowData(' + options.rowId + ');\"  />';
+                         //return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowid + "');\" />";
+                     }
+
+                 },
+
+
+            ],
+            width: 'auto',
+            height: 150,
+            rowNum: 10,
+            loadonce: true,
+            rowList: [10, 20, 30],
+            pager: 'pagingGrid',
+
+
+
+
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+
+    });
+
+
+    function editRowData(rowID) {
+        debugger
+        var sellrow = jQuery("#dataGrid").getRowData(rowID);
+
+
+        $("#hfGeneralExpenseID").val(sellrow.iGeneralExpensesID);
+        $("#hfExpenseID").val(sellrow.iExpenseID);
+        $("#hfiExpenseNumber").val(sellrow.iExpenseNumber);
+        $("#hfstrExpenseNumber").val(sellrow.strExpenseNumber);
+
+        $("#txtSingleExpDate").val(sellrow.strExpenseDate);
+        $("#txtSearchExpense").val(sellrow.strExpenseName);
+        $("#lblExpense").html(sellrow.strExpenseName);
+        $("#txtAmount").val(sellrow.dcmlExpenseAmount);
+        $("#txtAreaRemarks").val(sellrow.strRemarks);
+        $('#ddlCity').val(sellrow.PartyId);
+        $('#txtReferenceNum').val(sellrow.strReferenceNumber);
+        setSelectedIndexByValue(document.getElementById('ddlParty'), sellrow.PartyId);
+        $("#divEditExpense").show();
+        $("#divFordataGrid").hide();
+        
+
+
+        $("#hdnPartyID").val(sellrow.iPartyID);
+
+        //$.each(data, function (i, party) {
+
+        //    if ($("#hdnPartyID").val() == party.Value) {
+        //        $("#ddlCity").append('<option value="' + city.Value + '" selected>' + city.Text + '</option>');
+        //    }
+        //    else {
+        //        $("#ddlCity").append('<option value="' + city.Value + '" >' + city.Text + '</option>');
+        //    }
+
+
+        //});
+
+
+
+    }
+
+    //Back To List
+    function backToList() {
+        $("#divEditExpense").hide();
+        $("#divFordataGrid").show();
+    }
+
+    ////This is used to fill dropdownlist for party Name
+    function bindParty() {
+        $.ajax({
+            url: "/MExpenses/ShowPartyData",
+            type: "Get",
+            success: function (data) {
+                $('#ddlParty').children().remove();
+                $('#ddlParty').append('<option value="" >Select Party</option>');
+                for (var i = 0; i < data.length; i++) {
+
+                    $('#ddlParty').append('<option value="' + data[i].iPartyID + '" >' + data[i].strFirstName + '</option>');
+                }
+            }
+        });
+    }
+</script>
+
+<script>
+    var counter = 1;
+    var arrExpenseID = new Array();
+    var favorite = [];
+    $(function () {
+        $("#txtSearchExpense").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/MExpenses/AutoCompleteGeneralExpense/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.strExpenseName,
+                                    value: item.strExpenseName,
+                                    iExpenseID: item.iExpenseID
+                                }
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+
+                event.preventDefault();
+                debugger
+
+                $("#txtSearchExpense").val(i.item.value);
+                //$("#txtSearchSupplier").val(i.item.strLastName);
+                //$("#txtSearchSupplier").val(i.item.strEmailID);
+                $("#hfExpense").val(i.item.iExpenseID);
+
+
+
+                return false;
+            },
+            minLength: 1
+        });
+    });
+
+
+    $(function () {
+
+        //BTN ADD///
+        $("#btnAdd").bind("click", function () {
+            if (document.getElementById('txtSearchExpense').value == "" || document.getElementById('txtSearchExpense').value == "No matches found") {
+
+
+                $('#txtSearchExpense').css('border-color', 'red');
+            }
+            else {
+                $('#txtSearchExpense').css('border-color', '');
+                var id = $("#hfExpense").val();
+                var value = $("#txtSearchExpense").val();
+
+                var addVehicleID = false;
+                $.map(arrExpenseID, function (elementOfArray, indexInArray) {
+                    if (elementOfArray.ExpenseID == id) {
+
+                        addVehicleID = true;
+                    }
+                })
+                if (!addVehicleID) {
+                    arrExpenseID.push({ ExpenseID: id })
+                    //$('#TextBoxContainer').append("<div>" + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+
+                    $("#lblExpenseID").html(id);
+                    $("#lblExpense").html(value);
+
+                    $("#totalExpense").show();
+                    $('#txtSearchExpense').val("");
+                }
+
+
+                //// $('#TextBoxContainer').append("<div>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+                // $('#TextBoxContainer').append("<div>" + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>" + "<label  id='lblExpense" + counter + "'>" + value + "</label>" + "<input  type='number' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount" + counter + "' />" + "<input type='button' value='Remove' class='remove' id='btnRemove" + counter + "' />'</div>");
+                // counter++;
+
+                // $("#totalExpense").show();
+                // $('#txtSearchExpense').val("");
+            }
+
+
+            ////This is used to fill dropdownlist for party Name
+            bindParty();
+
+        });
+
+        ////This is used to fill dropdownlist for party Name
+        function bindParty() {
+            $.ajax({
+                url: "/MExpenses/ShowPartyData",
+                type: "Get",
+                success: function (data) {
+                    $('#ddlParty').children().remove();
+                    $('#ddlParty').append('<option value="" >Select Party</option>');
+                    for (var i = 0; i < data.length; i++) {
+
+                        $('#ddlParty').append('<option value="' + data[i].iPartyID + '" >' + data[i].strFirstName + '</option>');
+                    }
+                }
+            });
+        }
+
+
+
+        $("#btnSave").click(function () {
+            debugger;
+            //ALLExpense();
+            $(function () {
+                if ($(this).attr("rel") != "update") {
+                    $('#dialog').dialog('open');
+                    return false;
+                }
+            });
+
+            $("#dialog").dialog({
+                modal: true,
+                autoOpen: false,
+                title: "Confirmation",
+                width: 350,
+                height: 160,
+                buttons: [
+            {
+                id: "Yes",
+                text: "Yes",
+                click: function () {
+
+                    //calling function here for update
+
+
+                    var ExpenseID = parseInt($("#hfExpenseID").val());
+                    var GenExpenseID=$("#hfGeneralExpenseID").val()
+                    var iExpenseNumber=$("#hfiExpenseNumber").val();
+                    var strExpenseNumber = $("#hfstrExpenseNumber").val();
+                    var strRefNo = $("#txtReferenceNum").val();
+
+                    //var ExpenseName = $("#lblExpense" + i).html();
+                    var ExpenseAmount = $("#txtAmount").val();
+
+                    var PartyID = $("#ddlParty").val();
+
+                    var ExpenseTotalAmount = parseInt($("#totalSum").html());
+                    var genExpense =
+                          {
+                              iGeneralExpensesID: GenExpenseID,
+                              iExpenseNumber: iExpenseNumber,
+                              strExpenseNumber:strExpenseNumber,
+                              iExpenseID: ExpenseID,
+                              strExpenseDate: $("#txtSingleExpDate").val(),
+                              dcmlExpenseAmount: ExpenseAmount,
+                              strRemarks: $("#txtAreaRemarks").val(),
+                              iPartyID: PartyID,
+                              strReferenceNumber:strRefNo
+
+
+                          }
+
+
+                    //favorite.push(expenseAmount);
+                    //If you to save all data in one by one then Save function here
+                    //Save(textValue);
+
+                    SaveALLExpense(genExpense);
+
+                    $(this).dialog('close');
+                }
+
+            },
+            {
+                id: "No",
+                text: "No",
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+                ]
+            });
+
+
+
+
+
+        });
+
+
+
+    });
+
+    function SaveALLExpense(dataTosave) {
+        debugger;
+        var vehicleID = parseInt(0);
+
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/MExpenses/SaveGeneralExpense",
+            data: JSON.stringify({ 'genexpense': dataTosave }),
+            //data: JSON.stringify({ 'expense': dataTosave }),
+            success: function (data) {
+                alert("Succsesfully Saved Expense.");
+                window.location.href = "/MExpenses/GeneralExpensesList";
+            }
+        });
+    }
+
+    function myFunction(id) {
+
+        $("body").on("click", ".remove", function () {
+            $(this).closest("div[name='divForExpense']").remove();
+
+            calculateSum();
+        });
+        //arrExpenseID.splice(id, 1);
+
+        arrExpenseID.splice($.inArray(id, arrExpenseID), 1);
+
+
+    }
+
+</script>
+<script type="text/javascript">
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+        //$('input[type=datetime]').datepicker();
+    });
+
+</script>
+
+
+<script type="text/javascript">
+    function DeleteRowData(rowID)
+    {
+        debugger;
+        //ALLExpense();
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+                alert(rowID);
+                var sellrow = jQuery("#dataGrid").getRowData(rowID);
+                var GeneralExpID = sellrow.iGeneralExpensesID;
+                alert(GeneralExpID);
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'POST',
+                    url: "/MExpenses/DeleteGeneralExpense",
+                    data: JSON.stringify({ 'id': GeneralExpID }),
+
+                    success: function (data) {
+                        alert("Succsesfully Deleted Expense.");
+
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+    }
+</script>
+<script>
+    function generatePDF() {
+        debugger
+
+        var columns = ['Party','Expense','Amount','Remarks'];
+        var data = [];
+
+
+        var Date = $("#txtSingleExpDate").val();
+        var BillNumber = $("#hfstrExpenseNumber").val();
+        var ExpenseName = $("#lblExpense").html();
+        var expAmount = $("#txtAmount").val();
+        var party = $("#ddlParty option:selected").text();
+        var Remarks = $("#txtAreaRemarks").val();
+        //var doc = new jsPDF("p", "mm", "a4");
+        var doc = new jsPDF('l', 'mm', [217, 150], '');
+
+
+
+
+        doc.rect(5, 5, doc.internal.pageSize.width - 10, doc.internal.pageSize.height - 10, 's')
+
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        data.push([party, ExpenseName, expAmount, Remarks]);
+        var pageContent1 = function (data) {
+            // HEADER
+
+            doc.setFontSize(30);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+            doc.text("DAA MOTORS FZCO", data.settings.margin.left + 35, 20);
+            doc.setFontSize(13);
+            doc.text("General Expense", data.settings.margin.left + 70, 30);
+
+            //doc.setLineWidth(1)
+            doc.text("DATE:", data.settings.margin.left + 0, 40);
+            doc.text(Date, data.settings.margin.left + 13, 40);
+
+            doc.text("BillNo:", data.settings.margin.left + 150, 40);
+            doc.text(BillNumber, data.settings.margin.left + 170, 40);
+            doc.line(data.settings.margin.left + 0, 41, 200, 41)
+
+
+        };
+
+
+
+
+        doc.autoTable(columns, data, {
+            theme: 'gridWithNoHeader',
+            addPageContent: pageContent1,
+            margin: { top: 50 },
+
+        });
+
+
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        ////doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+
+    }
+</script>
+<script src="~/Content/dist/js/Custom.js"></script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="http://www.ittutorials.in/js/demo/numtoword.js" type="text/javascript"></script>

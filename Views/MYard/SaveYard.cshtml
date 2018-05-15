@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewBag.Title = "SaveYard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="col-sm-4">
+    <div class="form-group">
+        <label>Yard Name</label>
+        <input class="form-control input-group-sm" placeholder="Enter Yard Name" id="strYardName" />
+    </div>
+    <div class="form-group">
+        <label>Yard Limit</label>
+        <input type="number" class="form-control input-group-sm" min="1" max="6" placeholder="Enter Yard Limit" id="iYardLimit" />
+    </div>
+    <br />
+    <input type="button" class="btn btn-success col-md-2" value="Save" style="margin-left: 70px;" id="btnSave" />
+    <input type="button" class="btn btn-warning col-md-3" value="Cancel" style="margin-left: 40px;" id="btnCancel" />
+</div>
+
+<script>
+    
+    $("#btnCancel").click(function () {
+        window.location.href = "/MYard/Index";
+    });
+    $("#btnSave").click(function () {
+        var model = {
+            strYardName: $("#strYardName").val(),
+            iYardLimit: $("#iYardLimit").val(),
+        }
+        $.ajax({
+            type: "POST",
+            url: "/MYard/SaveYard",
+            cache: false,
+            data: JSON.stringify({ yardData: model }),
+            // data: JSON.stringify(purchase),
+            dataType: this.dataType,
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                alert("Yard Save Successfully");
+                window.location.href = "/MYard/Index";
+            }
+        });
+    });
+</script>

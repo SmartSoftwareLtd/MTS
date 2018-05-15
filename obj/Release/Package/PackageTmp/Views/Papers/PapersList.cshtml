@@ -1,0 +1,520 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="box-body">
+    <div>
+        <a class="btn btn-primary" href="/Papers/Index" style="margin-bottom:20px; margin-top:0px;">Add New</a>
+
+    </div>
+    <br />
+    <div class="col-md-4" style="margin-left:130px;margin-top:-70px;">
+
+        <select id="ddlPaperType" class="form-control" name="name_GroupMode" onchange="getPaperType(this);">
+            @*<option>Select Type</option>*@
+            <option value="1">Import</option>
+            <option value="2">Export</option>
+        </select>
+    </div>
+
+
+    <div id="divForImport">
+        <table id="dataGridImport" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridImport"></div>*@
+        <br><br>
+    </div>
+
+    <div id="divForExport" style="display:none">
+        <table id="dataGridExport" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridExport"></div>*@
+    </div>
+    <div id="dialog" style="display: none" align="center">
+        Do you want to Update ?
+    </div>
+    <div id="dialog2" style="display: none" align="center">
+        Do you want to Delete ?
+    </div>
+</div>
+
+
+
+
+
+
+<script type="text/javascript">
+    var PapertypeID;
+
+
+
+    function getPaperType(selectedType) {
+        debugger
+        PapertypeID = $("#ddlPaperType").val();
+
+        if (PapertypeID == 1) {
+            $('#divForExport').hide();
+            $('#divForImport').show();
+
+
+            $('#dataGridImport').jqGrid({
+                caption: "Import List",
+                url: '/Papers/GetImportData/',
+                datatype: "json",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+                 
+                colNames: ['iPaperDetailsForImportID', 'iVehicleID', 'dtDate', 'strDate', 'ChasisNo', 'Model', 'DecNo', 'DecDate', 'Deposit', 'Deduction', 'Balance', 'Action'],
+                colModel: [
+                    { name: 'iPaperDetailsForImportID', index: 'iPaperDetailsForImportID', hidden: true, hidedlg: true },
+                    { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                     { name: 'dtDate', index: 'dtDate', hidden: true, hidedlg: true },
+                      { name: 'strDate', index: 'strDate', hidden: true, hidedlg: true },
+                    { name: 'strChassisNum', index: 'strChassisNum' },
+                    { name: 'iModel', index: 'iModel' },
+                    { name: 'iDecNo', index: 'iDecNo' },
+                    { name: 'strDecDate', index: 'strDecDate' },
+                    { name: 'dcmlImpDeposit', index: 'dcmlImpDeposit', id: 'txtTempImpDeposit' },
+                    {
+                        name: 'dcmlDeduction', index: 'dcmlDeduction', id: 'txtTempDeduction', editable: true
+                        , editoptions: {
+                            size: 15, maxlengh: 10,                          
+                            dataInit: function (element) {                              
+                                $(element).keyup(function (e) {
+                                    var temp = element.id;
+                                    var rowID = temp.split('_');
+                                    calculateTotalAndBal(rowID[0], temp);
+                                    //jQuery('#dataGridImport').jqGrid('editRow', rowID[0]);
+                                });
+                            }
+                        }
+                    },
+                    //{
+                    //    name: 'dcmlPaper', index: 'dcmlPaper', id: 'txtTempPaper', editable: true
+                    //    , editoptions: {
+                    //        size: 15, maxlengh: 10,
+                    //        dataInit: function (element) {
+                    //            $(element).keyup(function (e) {
+                    //                var temp = element.id;
+                    //                var rowID = temp.split('_');
+                    //                calculateTotalAndBal(rowID[0]);
+                    //                jQuery('#dataGridImport').jqGrid('editRow', rowID[0]);
+                    //            });
+                    //        }
+                    //    }
+                    //},
+                    //{ name: 'dcmlTotal', index: 'dcmlTotal', id: 'txtTempTotal' },
+                    { name: 'dcmlImpBalance', index: 'dcmlImpBalance', id: 'txtTempBalance' },
+                    { name: 'act', index: 'act', width: 600 },
+                    //{
+                    //    name: 'Action', index: 'Action', align: 'center', width: 200, search: false, title: false,
+                    //    formatter: function (cellvalue, options, rowObject) {
+                    //        return '<a class="popup btn btn-info" href="/Papers/UpdateImportIndex/' + options.rowId + '">' + "Edit" + '</a>' + "     " + '<a class="popup btn btn-info" href="/Papers/DeleteImport/' + options.rowId + '">' + "Delete" + '</a>';
+
+                    //    }
+                    //},
+
+                ],
+                width: 1100,
+                height: 250,
+                rowNum: 100000,
+                rownumbers: true,
+
+                gridComplete: function () {
+
+                    var ids = jQuery("#dataGridImport").jqGrid('getDataIDs');
+
+                    for (var i = 0; i < ids.length; i++) {
+                        var cl = ids[i];
+                        be = "<input class='popup btn btn-info' style='margin-right: 2%; margin-left: 8%;' type='button' value='Edit' onclick=\"jQuery('#dataGridImport').editRow('" + cl + "');\"  />";
+                        se = "<input class='popup btn btn-info' style='margin-right: 2%; ' type='button' value='Save'  onclick=\"saveImportRow('" + cl + "');\"/>";
+                        ce = "<input class='popup btn btn-info' style='margin-right: 2%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGridImport').restoreRow('" + cl + "');\" />";
+                        de = "<input class='popup btn btn-danger' style='margin-right: 2%; ' type='button' value='Delete' onclick=\"deleteImportPaperDetails('" + cl + "');\" />";
+                        jQuery("#dataGridImport").jqGrid('setRowData', ids[i], { act: be + se + ce + de });
+                    }
+                },
+
+            });
+            jQuery("#dataGridImport").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+            //jQuery("#dataGridImport").jqGrid('navGrid', '#pagingGridImport', { edit: false, add: false, del: false, search: false });
+
+        }
+
+
+        else if (PapertypeID == 2) {
+            debugger
+            $('#divForImport').hide();
+            $('#divForExport').show();
+
+            $('#dataGridExport').jqGrid({
+                caption: "Export List",
+                url: '/Papers/GetExportData/',
+                datatype: "json",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+                colNames: ['iPaperDetailsForExportID', 'iVehicleID', 'dtDate', 'strDate', 'iCustApproval', 'ChasisNo', 'Model', 'Receiving', 'Submit', 'Deposit', 'Deduction', 'Balance', 'Action'],
+                colModel: [
+                    { name: 'iPaperDetailsForExportID', index: 'iPaperDetailsForExportID', hidden: true, hidedlg: true },
+                    { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                       { name: 'dtDate', index: 'dtDate', hidden: true, hidedlg: true },
+                      { name: 'strDate', index: 'strDate', hidden: true, hidedlg: true },
+                     { name: 'iCustApproval', index: 'iCustApproval', hidden: true, hidedlg: true },
+                    { name: 'strChassisNum', index: 'strChassisNum' },
+                    { name: 'iModel', index: 'iModel' },
+                    { name: 'strReceivingDate', index: 'strReceivingDate' },
+                    { name: 'strSubmitDate', index: 'strSubmitDate' },
+                     { name: 'dcmlExportDeposit', index: 'dcmlExportDeposit', formatter: 'number' },
+                    //{ name: 'iImpDeposit', index: 'iImpDeposit' , editable: true},
+                    {
+                        name: 'dcmlDeduction', index: 'dcmlDeduction', editable: true, formatter: 'number'                       
+                        , editoptions: {
+                            size: 15, maxlengh: 10,
+                            dataInit: function (element) {
+                                $(element).keyup(function (e) {
+                                    var temp = element.id;
+                                    var rowID = temp.split('_');
+                                    calculateExpTotalAndBal(rowID[0], temp);
+                                    //jQuery('#dataGridImport').jqGrid('editRow', rowID[0]);
+                                });
+                            }
+                        }
+
+
+
+                    },
+                    //{ name: 'dcmlFine', index: 'dcmlFine', editable: true, formatter: 'number' },
+                    //{ name: 'dcmlMisc', index: 'dcmlMisc', editable: true, formatter: 'number' },                   
+                    { name: 'dcmlExportBalance', index: 'dcmlExportBalance', editable: true, formatter: 'number' },
+                     { name: 'act', index: 'act', width: 600 },
+                ],
+                width: 1100,
+                height: 250,
+                rowNum: 100000,
+                rownumbers: true,
+                gridComplete: function () {
+
+                    var ids = jQuery("#dataGridExport").jqGrid('getDataIDs');
+
+                    for (var i = 0; i < ids.length; i++) {
+                        var cl = ids[i];
+                        be = "<input class='popup btn btn-info' style='margin-right: 2%; margin-left: 8%;' type='button' value='Edit' onclick=\"jQuery('#dataGridExport').editRow('" + cl + "');\"  />";
+                        se = "<input class='popup btn btn-info' style='margin-right: 2%; ' type='button' value='Save'  onclick=\"saveExportRow('" + cl + "');\"/>";
+                        ce = "<input class='popup btn btn-info' style='margin-right: 2%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGridExport').restoreRow('" + cl + "');\" />";
+                        de = "<input class='popup btn btn-danger' style='margin-right: 2%; ' type='button' value='Delete' onclick=\"deleteExportPaperDetails('" + cl + "');\" />";
+                        jQuery("#dataGridExport").jqGrid('setRowData', ids[i], { act: be + se + ce + de });
+                    }
+                },
+
+
+            });
+            jQuery("#dataGridExport").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+            //jQuery("#dataGridExport").jqGrid('navGrid', '#pagingGridExport', { edit: false, add: false, del: false, search: false });
+
+        }
+    }
+
+    function calculateTotalAndBal(rowid,DeductionCellID) {
+        debugger
+        //jQuery('#dataGridImport').jqGrid('saveRow', rowid);
+     
+       
+        var Bal = 0;
+
+        var rowData = jQuery("#dataGridImport").getRowData(rowid);
+
+        var Deposit = rowData['dcmlImpDeposit'];     
+        var DeductionCellVal = $("#" + DeductionCellID).val();
+        Bal += parseFloat(Deposit - DeductionCellVal);
+
+        if (!isNaN(Bal) && Bal >= 0) {
+          
+            //$("#txtBal").val(Bal.toFixed(2));
+            $("#dataGridImport").jqGrid('setCell', rowid, 'dcmlImpBalance', Bal.toFixed(2));
+        }
+    }
+
+    //for export
+    
+    function calculateExpTotalAndBal(rowid, DeductionCellID) {
+        debugger
+        //jQuery('#dataGridImport').jqGrid('saveRow', rowid);
+
+
+        var Bal = 0;
+
+        var rowData = jQuery("#dataGridExport").getRowData(rowid);
+
+        var Deposit = rowData['dcmlExportDeposit'];
+        var DeductionCellVal = $("#" + DeductionCellID).val();
+        Bal += parseFloat(Deposit - DeductionCellVal);
+
+        if (!isNaN(Bal) && Bal >= 0) {
+
+            //$("#txtBal").val(Bal.toFixed(2));
+            $("#dataGridExport").jqGrid('setCell', rowid, 'dcmlExportBalance', Bal.toFixed(2));
+        }
+    }
+
+    function saveImportRow(id) {
+        debugger
+        jQuery('#dataGridImport').saveRow(id);
+        // var griddata = $('#dataGrid').jqGrid('getGridParam', 'data');
+
+       
+        var rowDataForImport = jQuery("#dataGridImport").getRowData(id);
+        //var importID = rowData['iPaperDetailsForImportID'];
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Papers/UpdateImportIndex",
+                    cache: false,
+                    data: JSON.stringify({ impUpdateModel: rowDataForImport }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+                        alert("Save Import Data");
+                    }
+                });
+
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+                //window.location.href = "/Papers/PapersList";
+            }
+        }
+            ]
+        });
+
+    }
+
+
+    function saveExportRow(id) {
+
+        jQuery('#dataGridExport').saveRow(id);
+        // var griddata = $('#dataGrid').jqGrid('getGridParam', 'data');
+
+
+        var rowDataForExport = jQuery("#dataGridExport").getRowData(id);
+        //var importID = rowData['iPaperDetailsForImportID'];
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Papers/UpdateExportIndex",
+                    cache: false,
+                    data: JSON.stringify({ expUpdateModel: rowDataForExport }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+                        alert("Save Data");
+                    }
+                });
+
+                $(this).dialog('close');
+            }
+
+        },
+    {
+        id: "No",
+        text: "No",
+        click: function () {
+            $(this).dialog('close');
+            //window.location.href = "/Papers/PapersList";
+        }
+    }
+            ]
+        });
+
+    }
+
+
+
+    function deleteImportPaperDetails(id) {
+        //var rowData = jQuery("#dataGrid").getRowData(rowId);
+        //var auctionDate = rowData['dtAuctionDate'];
+        //alert(rowId);
+        debugger;
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+                var rowDataForImport = jQuery("#dataGridImport").getRowData(id);
+                var importID = rowDataForImport['iPaperDetailsForImportID'];
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Papers/DeleteImportPaperDetails",
+                    cache: false,
+                    data: JSON.stringify({ 'id': importID }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+                        alert("Import data deleted successfully !");
+                        window.location.href = "/Papers/PapersList";
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    }
+
+
+    function deleteExportPaperDetails(id) {
+        //var rowData = jQuery("#dataGrid").getRowData(rowId);
+        //var auctionDate = rowData['dtAuctionDate'];
+        //alert(rowId);
+        debugger;
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+                var rowDataForExport = jQuery("#dataGridExport").getRowData(id);
+                var exportID = rowDataForExport['iPaperDetailsForExportID'];
+
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Papers/DeleteExportPaperDetails",
+                    cache: false,
+                    data: JSON.stringify({ 'id': exportID }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+                        alert("Export data deleted successfully !");
+                        window.location.href = "/Papers/PapersList";
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    }
+
+</script>
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+
+
+<script>
+    //By default Import type is selected
+    var defaultType = $("#ddlPaperType").val();
+
+    getPaperType(defaultType);
+</script>

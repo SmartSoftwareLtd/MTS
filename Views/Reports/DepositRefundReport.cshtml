@@ -1,0 +1,231 @@
+﻿@{
+    ViewBag.Title = "DepositRefundReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2></h2>
+<div class="col-md-4">
+    <label>From Date:</label>
+    <input type="text" id="txtFromDate" class='form-control datepicker input-group-sm' placeholder="Select From Date" />
+</div>
+<div class="col-md-4">
+    <label>To Date:</label>
+    <input type="text" id="txtToDate" class='form-control datepicker input-group-sm' placeholder="Select To Date" />
+</div><br />
+<div class="col-md-4">
+
+    <input type="button" class="btn btn-success col-md-2" value="Filter" id="btnFilter" />
+</div><br /><br /><br /><br />
+<div>
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+    <br><br>
+</div>
+<br />
+<input type="button" class="btn btn-success col-md-2" value="Print" style="margin-left: 400px;" onclick="generateDepositReceipt()" />
+<script type="text/javascript">
+    $(function () {
+
+
+
+
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });
+        var date = new Date();
+        var joindate = new Date(date.getFullYear(), date.getMonth(), 1);
+        var firstDay =
+        ("0" + (joindate.getMonth() + 1)).slice(-2) + "/" +
+        ("0" + joindate.getDate()).slice(-2) + "/" +
+        joindate.getFullYear();
+
+        $("#txtFromDate").val(firstDay);
+        $("#txtToDate").datepicker().datepicker("setDate", new Date());
+
+        PaymentGrid();
+    });
+
+</script>
+
+
+
+<script>
+    $("#btnFilter").click(function () {
+        PaymentGrid();
+    });
+    
+
+    function PaymentGrid() {
+        debugger
+        var FromDt = $("#txtFromDate").val();
+        var ToDt = $("#txtToDate").val();
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/Reports/GetDepositRefundData",
+            data: JSON.stringify({ 'fromDate': FromDt, 'toDate': ToDt }),
+            success: function (data) {
+                debugger
+                $("#dataGrid").jqGrid('GridUnload');
+
+                $('#dataGrid').jqGrid({
+                    caption: "Deposit Refund List",
+                    data: data,
+                    datatype: "local",
+
+                    colNames: ['iCutomerTypeID', 'DirectCustmerName', 'ShowRoomCustmerName', 'DebitCreditOptions', 'Book NO', 'VOUCHER NO', 'Chassis Num', 'DEPOSIT RECEIVED', 'REFUND PAID', 'CUSTOMER'],
+                    colModel: [
+                          { name: 'iCutomerTypeID', index: 'iCutomerTypeID', hidden: true, hidedlg: true },
+                          { name: 'DirectCustmerName', index: 'DirectCustmerName', hidden: true, hidedlg: true },
+                          { name: 'ShowRoomCustmerName', index: 'ShowRoomCustmerName', hidden: true, hidedlg: true },
+                          { name: 'DebitCreditOptions', index: 'DebitCreditOptions', hidden: true, hidedlg: true },
+
+                          { name: 'strBookingID', index: 'strBookingID', align: 'center' },
+                          { name: 'strVoucherNo', index: 'strVoucherNo', align: 'center' },
+                          { name: 'strChassisNum', index: 'strChassisNum', align: 'center', width: 200 },
+                          { name: 'strAmountInDHM', index: 'strAmountInDHM', align: 'center' },
+                          { name: 'RefundPaid', index: 'RefundPaid', align: 'center' },
+                       
+                          { name: 'Customer', index: 'Customer', align: 'center', formatter: setCustomerName },
+
+                    ],
+                    shrinkToFit: false,
+                    forceFit: true,
+                    width: 1050,
+                    height: 350,
+                    rowNum: 10000,
+                    rownumWidth: 50,
+                    rownumbers: true,
+                    loadonce: true,
+                    ignoreCase: true,
+                    cmTemplate: { sortable: false },
+
+                });
+                jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+            }
+        });
+    }
+
+
+    function setCustomerName(cellvalue, options, rowObject) {
+        debugger
+        if (rowObject.iCutomerTypeID == 1) {
+            return rowObject.Customer = rowObject.ShowRoomCustmerName;   //1 showroom customer
+
+        }
+        else if (rowObject.iCutomerTypeID == 2) {
+            return rowObject.Customer = rowObject.DirectCustmerName;   //2 for direct customer
+        }
+    }
+</script>
+<script>
+    function generateDepositReceipt() {
+        debugger
+        
+       
+        var fromDate = $("#txtFromDate").val();
+        var toDate = $("#txtToDate").val();
+
+        var columns = ['SNO', 'Book NO', 'VOUCHER NO', 'CHASSIS NO', 'DEPOSIT RECEIVED', 'REFUND PAID', 'CUSTOMER NAME'];
+            var data = [];
+
+
+            var paymentGridData = jQuery("#dataGrid").getRowData();
+
+            var srno = 1;
+            for (var i = 0; i < paymentGridData.length; i++) {
+             
+                data.push([srno, paymentGridData[i].strBookingID, paymentGridData[i].strVoucherNo, paymentGridData[i].strChassisNum,
+                   paymentGridData[i].strAmountInDHM, paymentGridData[i].RefundPaid, paymentGridData[i].Customer ])
+                srno = srno + 1;
+            }
+        
+            var doc = new jsPDF('l', 'mm', [250, 300], '');
+
+            var totalPagesExp = "{total_pages_count_string}";
+
+            var pageContent = function (data) {
+                // HEADER
+
+                doc.setFontSize(20);
+                doc.setTextColor(40);
+                doc.setFontStyle('normal');
+
+
+
+                doc.setFontSize(20);
+                doc.setFontStyle('bold');
+                doc.text("D.A.A.", data.settings.margin.left + 120, 10);
+
+                doc.setFontStyle('normal');
+                //doc.setFontSize(15);
+                //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+                //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+                doc.setFontStyle('bold', 'underline');
+                doc.text("DEPOSIT/REFUND REPORT", data.settings.margin.left + 90, 20);
+
+                doc.text("From Dt:", data.settings.margin.left + 70, 30);
+                doc.text(fromDate, data.settings.margin.left + 100, 30);
+                doc.text("To Dt:", data.settings.margin.left + 145, 30);
+                doc.text(toDate, data.settings.margin.left + 165, 30);
+
+                //doc.text("Rprt Dt:", data.settings.margin.left + 125, 20);
+                //doc.text(ReportDate, data.settings.margin.left + 145, 20);
+                //doc.setFontSize(20)
+                //doc.setTextColor(0, 0, 255)
+                //doc.text(custFullName, data.settings.margin.left, 20);
+                //doc.setFontSize(10)
+                //doc.text(custAddr, data.settings.margin.left, 30);
+                //doc.text(custPhone, data.settings.margin.left, 40);
+
+                // FOOTER
+                var str = "Page " + data.pageCount;
+                // Total page number plugin only available in jspdf v1.0+
+                if (typeof doc.putTotalPages === 'function') {
+                    str = str + " of " + totalPagesExp;
+                }
+                doc.setFontSize(10);
+                doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+                //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+            };
+            
+            doc.autoTable(columns, data, {
+                theme: 'grid',
+                addPageContent: pageContent,
+                margin: { top: 40 },
+               
+                //drawCell: function (cell, data) {
+                //    var rows = data.table.rows;
+                //    if (data.row.index == rows.length - 1) {
+                //        // doc.setFillColor(200, 200, 255);
+                //        doc.setFillColor(26, 188, 156);
+                //        doc.setFontStyle('bold');
+                //        //doc.setFontSize(16);
+                //    }
+                //},
+            });
+
+        // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                doc.putTotalPages(totalPagesExp);
+            }
+        //doc.output("dataurlnewwindow");
+            window.open(doc.output('bloburl'), '_blank');
+        }
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="~/Content/plugins/jsPDF-2/faker.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

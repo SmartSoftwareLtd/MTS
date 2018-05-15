@@ -1,0 +1,1115 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+</style>
+<script type="text/javascript">
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+        $("#paidDate").datepicker().datepicker("setDate", new Date());
+
+    });
+</script>
+
+
+<div class="box-body" id="divForPaymentListdataGrid" style="display:none">
+    @*<div>
+            <a class="popup btn btn-primary" href="/Sales/SaleVehicle" style="margin-bottom:20px; margin-top:20px;">Add New</a>
+
+        </div>*@
+    <input type="button" class="btn btn-warning col-md-2" value="Back To List" onclick="CancelSalesPaymentInfo();" id="cancelSaleInfo">
+
+    <br />
+    <div>
+        <br><br>
+        <table id="dataGridForPaymentList" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGrid"></div>*@
+
+    </div>
+
+</div>
+<div class="box-body" id="divFordataGrid">
+    @*<div>
+            <a class="popup btn btn-primary" href="/Sales/SaleVehicle" style="margin-bottom:20px; margin-top:20px;">Add New</a>
+
+        </div>*@
+    <br />
+    <div>
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGrid"></div>*@
+        <br><br>
+    </div>
+</div>
+
+<div class="box-body" id="divForUpdateSalesPayment" style="display:none">
+
+    <h4>Payment Installments</h4>
+    <h3>
+        <label id="VehicleInfo" class="label label-warning form-control input-group-lg col-lg">
+            Chassis No: <span id="spnChassisNo" class="label label-success"></span> - Make: <span id="spnMake" class="label label-success"></span> -
+            Color: <span id="spnColor" class="label label-success"></span> - Year: <span id="spnYear" class="label label-success"></span>
+        </label>
+    </h3>
+
+    <div class="row">
+        <br />
+
+
+        @*<input type="hidden" id="hdnPaymentID" />*@
+        <input type="hidden" id="hdnSaleID" />
+        <input type="hidden" id="hdnSalesInvoiceID" />
+        <input type="hidden" id="hdnCustomerID" />
+        <input type="hidden" id="IsBlocked" />
+
+        <input type="hidden" id="iPaymentReceiptNo" />
+        <input type="hidden" id="strPaymentReceiptNo" />
+
+        <input type="hidden" id="hdnReceiptNo" />
+        <input type="hidden" id="hdnCustName" />
+        <input type="hidden" id="hdnInvDate" />
+
+        <label id="receiptLbl" style="display:none" class="label label-warning form-control input-group-lg">Rcpt No: Rpt-@(@DateTime.Now.Year % 100)-<span id="iReceiptNo"></span></label>
+
+        <div class="form-group col-xs-4">
+            <label>Reference No:</label>
+            <input class='form-control' name='' placeholder='Enter reference No' id='txtReferenceNum' maxlength="25" />
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Paid Date</label>
+            <input id="paidDate" class="form-control datepicker input-group-lg" type="text" name="Date"
+                   placeholder="Enter Drop-off date here..." />
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Sales Invoice No</label>
+            <input id="txtSalesInvNo" class="form-control input-group-lg" type="text"
+                   readonly />
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Total Amount</label>
+            <input id="txtSellingPrice" class="form-control input-group-lg" type="text"
+                   placeholder="Selling Price" readonly />
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Balance</label>
+            <input id="txtPrevBalance" class="form-control input-group-lg" type="text"
+                   placeholder="Selling Price" readonly />
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Paid Amount</label>
+            <input id="txtPaidAmount" class="form-control input-group-lg" type="text"
+                   placeholder="Paid Amount" readonly />
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Amount</label>
+            <input id="txtAdvance" class="form-control input-group-lg" oninput="calculateBalance()" type="text"
+                   placeholder="Advance" />
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Current Balance</label>
+            <input id="txtBalance" class="form-control input-group-lg" type="text"
+                   placeholder="Balance" readonly />
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Description:</label>
+            <input class='form-control' name='' placeholder='Enter Description' id='txtDescription'/>
+        </div>
+
+    </div>
+    <div id="dynamicDivAppend" style="display:none">
+
+
+    </div>
+    <div>
+        <br />
+
+        <div id="dialog" style="display: none" align="center">
+            Do you want to Paid this Amount?
+        </div>
+
+        <div id="dialogPrint" style="display: none" align="center">
+            Do you want to Print Receipt ?
+        </div>
+        <div id="dialogDeleteSalesPayment" style="display: none" align="center">
+            Do you want to Delete ?
+        </div>
+
+        @*<input type="button" style="margin-left: 400px" class="btn btn-success" id="saveSaleInfo" value="Save"/>*@
+        <input type="button" style="margin-left: 215px;" class="btn btn-success col-md-2" id="saveSalesPaymentInfo" value="Save">
+
+        <input type="button" style="margin-left: 215px; display:none;" class="btn btn-success col-md-2" id="printSalesPaymentInfo" onclick="printSalesPaymentInfo();" value="Print">
+
+        <input type="button" style="margin-left: 40px" class="btn btn-warning col-md-2" value="Cancel" onclick="CancelSalesPaymentInfo();" id="cancelSaleInfo">
+
+        <a class="popup btn btn-primary" href="/Papers/Index" style="margin-left: 60px;">GO TO DEPOSITE</a>
+    </div>
+</div>
+
+<script>
+
+
+    function CancelSalesPaymentInfo() {
+        window.location.href = "/Sales/SalesPayment";
+    }
+
+    var input = document.getElementById("txtAdvance");
+
+    input.onkeypress = function (e) {
+        var unicode = e.keyCode;
+        //only accept numeric value
+        if (unicode == 49 || unicode == 50 || unicode == 51 || unicode == 52 || unicode == 53 || unicode == 54 || unicode == 55 || unicode == 56 || unicode == 57 || unicode == 48) {
+            return true;
+        } else {
+            return false;
+        }
+
+    };
+
+
+
+    $(function () {
+
+        //this grid is used to fill the SalesPayment Information list
+
+        $('#dataGrid').jqGrid({
+            caption: "SalesPayment List",
+            url: '/Sales/GetAllSalesPaymentList/',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iSaleID', 'iCustomerID', 'iSalesInvoiceID', 'IsBlocked', 'strColor', 'iModel', 'Sales Invoice', 'Voucher No', 'ChassisNum', 'Make', 'Payment Date', 'Total Amount', 'Paid', 'Balance', 'Customer', 'Action'],
+            colModel: [
+                 //{ name: 'iPaymentID', index: 'iPaymentID', hidden: true, hidedlg: true },
+                 { name: 'iSaleID', index: 'iSaleID', hidden: true, hidedlg: true },
+                 { name: 'iCustomerID', index: 'iCustomerID', hidden: true, hidedlg: true },
+                 { name: 'iSalesInvoiceID', index: 'iSalesInvoiceID', hidden: true, hidedlg: true },
+                  { name: 'IsBlocked', index: 'IsBlocked', hidden: true, hidedlg: true },
+                   { name: 'strColor', index: 'strColor', hidden: true, hidedlg: true },
+                  { name: 'iModel', index: 'iModel', hidden: true, hidedlg: true },
+
+
+                   { name: 'strSalesInvoiceNo', index: 'strSalesInvoiceNo', hidden: true, hidedlg: true },
+                     { name: 'strVoucherNo', index: 'strVoucherNo', width: 100 },
+                    { name: 'strChassisNum', index: 'strChassisNum', width: 180 },
+                    { name: 'strMake', index: 'strMake', width: 220 },
+
+                     { name: 'strSalesDate', index: 'strSalesDate' },
+
+                 { name: 'dmlSellingPrice', index: 'dmlSellingPrice' },
+
+                 { name: 'dmlAdvance', index: 'dmlAdvance' },
+                   { name: 'dmlBalance', index: 'dmlBalance' },
+
+
+                 { name: 'strFirstName', index: 'strFirstName', hidden: true, hidedlg: true },
+
+                // { name: 'dmlPaidAmount', index: 'dmlPaidAmount', align: 'center' },
+
+
+                   //{ name: 'dmlPrevBalance', index: 'dmlPrevBalance', align: 'center' },
+                // { name: 'ysnPaymentStatus', index: 'ysnPaymentStatus', align: 'center' },
+
+                   //{
+                   //    name: 'Action', index: 'Action', align: 'center', width: 100, search: false, title: false,
+                   //    formatter: function (cellvalue, options, rowObject) {
+
+                   //        return '<a class="popup btn btn-warning" href="/Sales/save/' + options.rowId + '">Edit</a>' + "   " + '<a class="popup btn btn-danger"  href="/Sales/delete/' + options.rowId + '">Delete</a>';
+
+                   //        //return  "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit'  onclick=\"editRowData('" + options.rowId + "');\"  />";
+                   //    }
+
+                   //},
+
+                    {
+                        name: 'Action', index: 'Action', width: 280, search: false, title: false,
+                        formatter: function (cellvalue, options, rowObject) {
+
+                            return "<input class='popup btn btn-warning'  type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  />"
+                                 //+ "   " + "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Print' onclick=\"printSalesPaymentInfo('" + options.rowId + "');\"  />"
+
+                                + "   " + "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Prev Paid Amt' onclick=\"PrevPaidAmount('" + options.rowId + "');\"  />";
+
+                            // '<a class="popup btn btn-info"  href="/Sales/SalesPaymentList/' + options.rowId + '">Prev Paid Amount</a>';
+                        }
+
+                    },
+
+
+            ],
+            //shrinkToFit: false,
+            //forceFit: true,
+            width: 1150,
+            height: 250,          
+            rowNum: 100000,
+            rownumbers: true,
+            rownumWidth:60,
+            loadonce: true,
+            ignoreCase: true,
+            //pager: 'pagingGrid',
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+    });
+
+
+    function PrevPaidAmount(rowID) {
+
+        debugger
+        $.ajax({
+            type: "POST",
+            url: "/Sales/GetAllPreviousSalesPaymentList",
+            cache: false,
+            data: JSON.stringify({ id: rowID }),
+            // data: JSON.stringify(purchase),
+            dataType: this.dataType,
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                debugger
+                $("#divFordataGrid").hide();
+                $("#divForPaymentListdataGrid").show();
+
+
+                //this grid is used to fill the Prev SalesPayment Information list
+
+                $('#dataGridForPaymentList').jqGrid({
+                    caption: "Previous Sales Payment List",
+                    //url: '/Sales/GetAllPreviousSalesPaymentList/',
+                    datatype: "local",
+                    data: result,
+                    contentType: "application/json; charset-utf-8",
+                    mtype: 'GET',
+
+                    colNames: ['iPaymentID', 'Sales Invoice', 'Payment Date', 'Recently Paid', 'Current Balance', 'Action'],
+                    colModel: [
+                        { name: 'iPaymentID', index: 'iPaymentID', hidden: true, hidedlg: true },
+                           { name: 'strSalesInvoiceNo', index: 'strSalesInvoiceNo', align: 'center' },
+
+                           { name: 'strPaymentDate', index: 'strPaymentDate', align: 'center' },
+
+                            { name: 'dmlPaidAmount', index: 'dmlPaidAmount', align: 'center' },
+
+                           { name: 'dmlPrevBalance', index: 'dmlPrevBalance', align: 'center' },
+
+                           {
+                               name: 'Action', index: 'Action', align: 'center', width: 100, search: false, title: false,
+                               formatter: function (cellvalue, options, rowObject) {
+
+                                   return "<input class='popup btn btn-danger'  type='button' value='Delete' onclick=\"deletePreviousSalesPayment('" + options.rowId + "');\"  />";
+                               }
+
+                           },
+
+                    ],
+                    width: 800,
+                    height: 250,
+                    rowNum: 100000,
+                    rownumbers: true,
+                    //loadonce: true,
+                    ignoreCase: true,
+                    //rowList: [10, 20, 30],
+                    //pager: 'pagingGrid',
+                });
+                jQuery("#dataGridForPaymentList").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to Save data.');
+            }
+        });
+
+    }
+
+    
+
+    function deletePreviousSalesPayment(rowID) {
+
+        var  rowData= jQuery("#dataGridForPaymentList").getRowData(rowID);
+        var iPaymentID = rowData["iPaymentID"];
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialogDeleteSalesPayment').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialogDeleteSalesPayment").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+                debugger
+                $.ajax({
+                    type: "POST",
+                    url: "/Sales/DeletePreviousSalesPayment",
+                    cache: false,
+                    data: JSON.stringify({ id: iPaymentID }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        alert("Payment Successfully Deleted");
+                        window.location.href = "/Sales/SalesPayment";
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+    }
+
+    function editRowData(rowID) {
+        $("#dynamicDivAppend").html("");
+        debugger
+        $.ajax({
+            type: "POST",
+            url: "/Sales/GetAllPreviousSalesPaymentList",
+            cache: false,
+            data: JSON.stringify({ id: rowID }),
+            // data: JSON.stringify(purchase),
+            dataType: this.dataType,
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                debugger
+
+                //$("#divFordataGrid").hide();
+
+                $("#dynamicDivAppend").show();
+                var tempdmlPaidAmount = 0;
+                for (var i = 0; i < result.length; i++) {
+
+                    $('#dynamicDivAppend').append("<h4>Date : <span id='appendPaymentDate' class='label label-success'>" + result[i].strPaymentDate + "</span> ===>  Payment: <span id='appendPaymentAmount' class='label label-success'>" + result[i].dmlPaidAmount + "</span></h4>\n");
+                    tempdmlPaidAmount += result[i].dmlPaidAmount;
+                }
+
+
+
+                $("#divFordataGrid").hide();
+                $("#divForUpdateSalesPayment").show();
+
+                var rowData = jQuery("#dataGrid").getRowData(rowID);
+
+
+                //var iPaymentID = rowData['iPaymentID'];
+                var iSaleID = rowData['iSaleID'];
+                var iCustomerID = rowData['iCustomerID'];
+                var iSalesInvoiceID = rowData['iSalesInvoiceID'];
+
+                var dmlSellingPrice = rowData['dmlSellingPrice'];
+                var dmlBalance = rowData['dmlBalance'];
+                var dmlAdvance = rowData['dmlAdvance'];
+                var strSalesInvoiceNo = rowData['strSalesInvoiceNo'];
+
+                var IsBlocked = rowData['IsBlocked'];
+
+                var strChassisNum = rowData['strChassisNum'];
+                var strMake = rowData['strMake'];
+                var strColor = rowData['strColor'];
+                var iModel = rowData['iModel'];
+
+                var custmerName = rowData['strFirstName'];
+                var invDate = rowData['strSalesDate'];
+
+                $('#hdnCustName').val(custmerName);
+                $('#hdnInvDate').val(invDate);
+
+                $("#spnChassisNo").html(strChassisNum);
+                $("#spnMake").html(strMake);
+                $("#spnColor").html(strColor);
+                $("#spnYear").html(iModel);
+
+                //$("#hdnPaymentID").val(iPaymentID);
+                $("#hdnSaleID").val(iSaleID);
+                $("#hdnSalesInvoiceID").val(iSalesInvoiceID);
+                $("#hdnCustomerID").val(iCustomerID);
+
+                $("#txtSellingPrice").val(dmlSellingPrice);
+                $("#txtPrevBalance").val(dmlBalance);
+                $("#txtPaidAmount").val(dmlAdvance);
+                $("#txtSalesInvNo").val(strSalesInvoiceNo);
+
+                $("#IsBlocked").val(IsBlocked);
+
+                $("#txtDescription").val(strChassisNum + " " + strMake);
+
+                var tempSellingPrice = (parseFloat($("#txtSellingPrice").val()) - parseFloat(tempdmlPaidAmount)).toFixed(3);
+                //$('#dynamicDivAppend').append("<h2>Balance : <span id='appendPaymentBalance' class='label label-warning'>" + $("#txtPrevBalance").val() + "</span></h4>");
+                $('#dynamicDivAppend').append("<h2>Balance : <span id='appendPaymentBalance' class='label label-warning'>" + tempSellingPrice + "</span></h4>");
+
+
+                $.ajax({
+                    url: '/Sales/GetReceiptNo/',
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        $("#iReceiptNo").html(data);
+
+                        $("#hdnReceiptNo").val(data);
+
+
+
+                        var receipt = $('#receiptLbl').text().split(':');
+
+                        $("#receiptLbl").html(receipt[1]);
+
+                    }
+                });
+
+
+                //$.ajax({
+                //    type: "POST",
+                //    url: "/Sales/GetCustomerReceiptNoForSalesPayment",
+                //    cache: false,
+                //    data: JSON.stringify({ CustomerID: iCustomerID }),
+                //    // data: JSON.stringify(purchase),
+                //    dataType: this.dataType,
+                //    contentType: "application/json; charset=utf-8",
+                //    success: function (result) {
+
+                //        $("#iPaymentReceiptNo").val(result.iPaymentReceiptNo);
+                //        $("#strPaymentReceiptNo").val(result.strPaymentReceiptNo);
+
+                //    },
+                //    error: function (xhr, ajaxOptions, thrownError) {
+                //        alert('Failed to Save data.');
+                //    }
+                //});
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to Save data.');
+            }
+        });
+
+    }
+
+    function calculateBalance() {
+        var sellingPrice = $('#txtPrevBalance').val();
+
+        var total = parseFloat($('#txtPrevBalance').val());
+        var paid = parseFloat($('#txtAdvance').val());
+
+        if (paid > sellingPrice) {
+            alert("Advance Amount should not be greater than Total Amount");
+            $('#txtAdvance').val("")
+        }
+        else {
+            var balance = (total - paid).toFixed(3);
+            if (!isNaN(balance) && balance > 0)
+            { $('#txtBalance').val(balance); } else { $('#txtBalance').val("0"); }
+        }
+
+    }
+
+
+</script>
+
+
+<script>
+
+
+    //var SalesPaymentParameter = new Array();
+
+    var ysnPaymentStatus;
+    $("#saveSalesPaymentInfo").click(function () {
+        // SalesPaymentParameter = new Array();
+        debugger;
+
+
+
+
+        if ($("#txtBalance").val() == "0" && $("#txtBalance").val() != null) {
+            ysnPaymentStatus = true;
+        }
+        else {
+            ysnPaymentStatus = false;
+        }
+
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+                debugger
+                var parameters = {
+
+                    //iPaymentID: $("#hdnPaymentID").val(),
+                    iSaleID: $("#hdnSaleID").val(),
+                    iSalesInvoiceID: $("#hdnSalesInvoiceID").val(),
+                    iCustomerID: $("#hdnCustomerID").val(),
+
+                    //dmlSellingPrice: $("#txtSellingPrice").val(),
+                    // dmlBalance: $("#txtPrevBalance").val(),
+                    dmlPaidAmount: $("#txtAdvance").val(),
+                    strSalesInvoiceNo: $("#txtSalesInvNo").val(),
+
+                    //dmlPrevBalance use as a Current Balance
+                    dmlPrevBalance: $("#txtBalance").val(),
+
+                    IsBlocked: $("#IsBlocked").val(),
+
+                    iPaymentReceiptNo: $("#hdnReceiptNo").val(),
+                    strPaymentReceiptNo: $("#receiptLbl").text(),
+
+                    strPaymentDate: $("#paidDate").val(),
+                    dtPaymentDate: $("#paidDate").val(),
+                    ysnPaymentStatus: ysnPaymentStatus,
+                    strReferenceNumber: $("#txtReferenceNum").val(),
+                    strDescription: $("#txtDescription").val(),
+                    ysnPaymentStatusFromSales: false
+                    
+                }
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Sales/UpdateOnlySalesPayment",
+                    cache: false,
+                    data: JSON.stringify({ salesPayment: parameters }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+
+                        $("#saveSalesPaymentInfo").hide();
+                        $("#printSalesPaymentInfo").show();
+                        //window.location.href = "/Sales/SalesPayment";
+                        editRowData($("#hdnSaleID").val());
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to Save data.');
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    });
+
+
+
+    //function printSalesPaymentInfo() {
+
+    //    var rowID = $("#hdnSaleID").val();
+    //    $(function () {
+    //        if ($(this).attr("rel") != "update") {
+    //            $('#dialogPrint').dialog('open');
+    //            return false;
+    //        }
+    //    });
+
+    //    $("#dialogPrint").dialog({
+    //        modal: true,
+    //        autoOpen: false,
+    //        title: "Confirmation",
+    //        width: 350,
+    //        height: 160,
+    //        buttons: [
+    //    {
+    //        id: "Yes",
+    //        text: "Yes",
+    //        click: function () {
+    //            debugger
+    //            //calling function here for update
+
+    //            $.ajax({
+    //                type: "POST",
+    //                url: "/Sales/GetAllPreviousSalesPaymentList",
+    //                cache: false,
+    //                data: JSON.stringify({ id: rowID }),
+    //                // data: JSON.stringify(purchase),
+    //                dataType: this.dataType,
+    //                contentType: "application/json; charset=utf-8",
+    //                success: function (result) {
+    //                    debugger
+    //                    var rowData = jQuery("#dataGrid").getRowData(rowID);
+
+    //                    var dmlSellingPrice = rowData['dmlSellingPrice'];
+    //                    //var dmlBalance = rowData['dmlBalance'];
+    //                    //var dmlAdvance = rowData['dmlAdvance'];
+    //                    var strSalesInvoiceNo = rowData['strSalesInvoiceNo'];
+
+    //                    //$("#txtPaidAmount").val(result.dmlPaidAmount);
+    //                    //$("#txtBalance").val(result.dmlPrevBalance);
+
+
+    //            ////$("#txtSellingPrice").val(dmlSellingPrice);
+    //            ////$("#txtPrevBalance").val(dmlBalance);
+    //            ////$("#txtSalesInvNo").val(strSalesInvoiceNo);
+
+
+
+    //                    var PaymentDate = $("#paidDate").val();
+    //                    var ReceiptNo = $("#receiptLbl").text();
+
+    //                    //var ReceiptNo = result.strPaymentReceiptNo;
+    //                    ////var InvoiceNo = $("#txtSalesInvNo").val();
+
+    //                   ////var InvoiceAmount = $("#txtSellingPrice").val();
+
+    //                    //var PrevAmount = parseFloat($("#txtPrevBalance").val()) + parseFloat($("#txtPaidAmount").val());
+    //                    ////var PrevAmount = dmlBalance;
+
+    //                    var CurrentBalance = $("#txtBalance").val();
+    //                    var PaidAmount = (parseFloat(dmlSellingPrice) - parseFloat(CurrentBalance)).toFixed(3);
+    //                    debugger
+    //                    var columns = ['Date', 'Paid Amount'];
+    //                    var data = [];
+    //                    for (var i = 0; i < result.length; i++) {
+    //                        data.push([result[i].strPaymentDate, result[i].dmlPaidAmount]);
+
+    //                    }
+
+
+    //                    data.push(['Total Amount', dmlSellingPrice]);
+    //                    //data.push(['Prev Balance', PrevAmount]);
+    //                    data.push(['Total Paid Amount', PaidAmount]);
+    //                    data.push(['Current Balance', CurrentBalance]);
+
+    //                    var pageContent = function (data) {
+
+    //                        doc.setFontStyle('normal');
+
+    //                        doc.setFontSize(30);
+
+    //                        doc.text("RECEIPT", data.settings.margin.left + 65, 15);
+
+
+    //                        doc.setFontSize(15);
+    //                        doc.setTextColor(40);
+    //                        doc.text("Date:", data.settings.margin.left + 0, 30);
+    //                        doc.text(PaymentDate, data.settings.margin.left + 14, 30);
+
+    //                        doc.text("Inv No:", data.settings.margin.left + 60, 30);
+    //                        doc.text(strSalesInvoiceNo, data.settings.margin.left + 77, 30);
+
+    //                        doc.text("Rpt No:", data.settings.margin.left + 120, 30);
+    //                        doc.text(ReceiptNo, data.settings.margin.left + 138, 30);
+
+
+    //                        //doc.setFontSize(10);
+
+    //                    };
+
+    //                    //var doc = new jsPDF('l', 'mm', [197, 110], '');
+    //                    var doc = new jsPDF();
+    //                    //doc.setLineWidth(50);
+
+
+    //                    doc.autoTable(columns, data, {
+    //                        theme: 'grid',
+    //                        addPageContent: pageContent,
+    //                        margin: { top: 40 },
+
+    //                        drawCell: function (cell, data) {
+    //                            var rows = data.table.rows;
+    //                            if (data.row.index == rows.length - 1||data.row.index == rows.length - 2||data.row.index == rows.length - 3) {
+
+    //                                doc.setFillColor(26, 188, 156);
+    //                                doc.setFontStyle('bold');
+
+    //                            }
+    //                        },
+
+    //                    });
+
+
+    //                    //doc.output("dataurlnewwindow");
+    //                    window.open(doc.output('bloburl'), '_blank');
+
+                      
+
+    //                }
+    //            });
+    //            $(this).dialog('close');
+    //        }
+
+    //    },
+    //{
+    //    id: "No",
+    //    text: "No",
+    //    click: function () {
+    //        $(this).dialog('close');
+    //    }
+    //}
+    //        ]
+    //    });
+
+    //}
+
+    </script>
+
+    <script>
+        function printSalesPaymentInfo() {
+
+            var rowID = $("#hdnSaleID").val();
+            $(function () {
+                if ($(this).attr("rel") != "update") {
+                    $('#dialogPrint').dialog('open');
+                    return false;
+                }
+            });
+
+            $("#dialogPrint").dialog({
+                modal: true,
+                autoOpen: false,
+                title: "Confirmation",
+                width: 350,
+                height: 160,
+                buttons: [
+            {
+                id: "Yes",
+                text: "Yes",
+                click: function () {
+                    debugger
+                    //calling function here for update
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Sales/GetAllPreviousSalesPaymentList",
+                        cache: false,
+                        data: JSON.stringify({ id: rowID }),
+                        // data: JSON.stringify(purchase),
+                        dataType: this.dataType,
+                        contentType: "application/json; charset=utf-8",
+                        success: function (result) {
+                            debugger
+                            var rowData = jQuery("#dataGrid").getRowData(rowID);
+
+                            var dmlSellingPrice = rowData['dmlSellingPrice'];
+                            //var dmlBalance = rowData['dmlBalance'];
+                            //var dmlAdvance = rowData['dmlAdvance'];
+                            var strSalesInvoiceNo = rowData['strSalesInvoiceNo'];
+                            var chassisNo = $('#spnChassisNo').html();
+                            var vehicle = $('#spnMake').html();
+                            var sellingPrice = $('#txtSellingPrice').val();
+                            var PrevPaid = $('#txtPaidAmount').val();
+                            var adv = $('#txtAdvance').val();
+                            var totalBal = $('#appendPaymentBalance').html();
+                            var custName= $('#hdnCustName').val();
+                            var invDate = $('#hdnInvDate').val();
+
+                            
+                                 
+
+                            //var griddata = jQuery("#GridAddVehicle").getRowData();
+
+                            //var SellingPriceInDHM = $("#txtSellingPrice").val();
+
+                            //var totalInWords = $('#hfNumToWord').html();
+
+                            //var invNumber = $("#invoiceLbl").text();
+                            //var invDate = $('#salesDate').val();
+                            //var customerName = $('#txtCustomerName').val();
+                            //var From = 'DUBAI';
+                            //var To = '';
+
+                            var data = [];
+                            //for (var i = 0; i < griddata.length; i++) {
+                            //    data.push([i + 1, griddata[i].strMake + ' ' + griddata[i].iModel + ' ' + 'Color:' + griddata[i].strColor + ' ' + 'Chassis Num:' + griddata[i].strChassisNum, SellingPriceInDHM]);
+                            //}
+
+
+                            ////Calculate total of Value
+                            //   var allRows = jQuery('#GridAddVehicle').getDataIDs();
+                            //   var subTotal = 0;
+                            //   for (var j = 0; j < allRows.length; j++) {
+                            //       var rowData = jQuery("#GridAddVehicle").getRowData(allRows[j]);
+                            //       subTotal += Number(rowData['DHM']);//Calculating Sum of total column
+
+                            //   }
+                        
+                        
+
+                        
+                            //var sumOfSellingPrice = $('#hdnSellingPrice').val();
+                            //var drmInwords = inWords(SellingPriceInDHM);
+                            var balance = 0;
+                            var paid = sellingPrice;
+                            var totalPaid = parseFloat(PrevPaid)+parseFloat(adv);
+                            data.push([invDate, 'SALE PRICE', '', '', sellingPrice]);
+                            for (var i = 0; i < result.length; i++) {
+
+                                balance = (parseFloat(paid) - parseFloat(result[i].dmlPaidAmount))
+                                if (balance != 0) {
+                                    data.push([result[i].strPaymentDate, 'PARCIAL PAYMENT RECIEVED', result[i].dmlPaidAmount, , balance]);
+                                    paid = balance;
+                                }
+                                else {
+                                    data.push([result[i].strPaymentDate, 'FINAL PAYMENT RECIEVED', result[i].dmlPaidAmount, , balance]);
+                                }
+                            }
+                       
+                            //data.push(['13-10-2017', 'ADVANCE RECIEVED', '3000', '', '5000']);
+                            //data.push(['16-10-2017', 'PARCIAL PAYMENT RECIEVED', '2000', '', '3000']);
+                            //data.push(['18-10-2017', 'PARCIAL PAYMENT RECIEVED', '1000', '', '2000']);
+                            //if (totalBal == 0) {
+                            //    data.push(['', 'FINAL PAYMENT RECIEVED', '2000', '', '0']);
+                            //}
+                            data.push([, , ]);
+                            data.push([, , ]);
+                            data.push([, , ]);
+                            data.push([, , ]);
+                            data.push(['TOTAL', , totalPaid,'', totalBal]);
+                            //data.push([, '', 'TOTAL']);
+                            //data.push([drmInwords, '', ' TOTAL']);
+                            //data.push([, , , , , 'Total', sumOfSellingPrice]);
+
+                            var d = new Date();
+
+                            var month = d.getMonth() + 1;
+                            var day = d.getDate();
+
+                            var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+                            //first table
+
+                            var columns2 = ['', '', '', ''];
+                            var data2 = [];
+                            data2.push(['INVOICE NO.', strSalesInvoiceNo, 'CHASIS NO.', chassisNo, ]);
+                            data2.push(['DATE', invDate, 'CAR', vehicle]);
+                            data2.push(['CUSTOMER', custName, '', '']);
+                            //data2.push(['CUSTOMER ID', '203030', '', '']);
+
+                            var columns = ['Date', 'Description', 'DEBIT', 'CREDIT', 'BALANCE'];
+
+
+                            var doc = new jsPDF();
+
+                            var totalPagesExp = "{total_pages_count_string}";
+
+                            var pageContent = function (data) {
+                                // HEADER
+
+                                doc.setFontSize(25);
+                                doc.setTextColor(111, 168, 210);
+                                doc.setFontStyle('normal');
+
+
+
+
+
+
+                                doc.text("INVOICE", data.settings.margin.left + 145, 35);
+
+
+                                doc.setTextColor(40);
+                                doc.setFontSize(10);
+                                doc.text("Invoice Nuber:", data.settings.margin.left + 120, 45);
+                                doc.text(strSalesInvoiceNo, data.settings.margin.left + 145, 45);
+
+                                //doc.text("Invoice Date:", data.settings.margin.left + 120, 50);
+                                //doc.text(invDate, data.settings.margin.left + 145, 50);
+
+                                //doc.text("CONSIGNEE:", data.settings.margin.left + 0, 60);
+                                //doc.text("MR."+consignee, data.settings.margin.left + 0,65);
+
+                                //doc.text("From:", data.settings.margin.left + 130, 50);
+                                //doc.text(From, data.settings.margin.left + 140, 50);
+
+                                //doc.text("To:", data.settings.margin.left + 130, 60);
+                                //doc.text(To, data.settings.margin.left + 140, 60);
+
+                                doc.setFontSize(15);
+                                doc.text("DAA MOTORS FZCO", data.settings.margin.left + 0, 40);
+                                doc.setFontSize(10);
+                                doc.text("Show room # 118, DUCAMZ,RAS AL KHOR, DUBAI, U.A.E.", data.settings.margin.left + 0, 45);
+                                doc.text("Tel : +971 4 333 8986", data.settings.margin.left + 0, 50);
+                                doc.text("E-Mail : automan1@eim.ae", data.settings.margin.left + 0, 55);
+                                //doc.text("Tel : +971 4 333 8986", data.settings.margin.left + 0, 60);
+                                //doc.text("Fax : +971 4 333 2256", data.settings.margin.left + 0, 60);
+                                //doc.text("E-Mail : automan1@eim.ae", data.settings.margin.left + 0, 65);
+                                //doc.setFontSize(20)
+                                //doc.setTextColor(0, 0, 255)
+                                //doc.text("TOTAL AMOUNT IN WORDS (DHM):", data.settings.margin.left + 0, 170);
+                                //doc.setFontStyle('bold');
+                                //doc.text(totalInWords+' DHMS Only', data.settings.margin.left+65, 170);
+                                doc.setFontSize(10);
+                                doc.text("Make all checks payable to DAA MOTORS FZCO", data.settings.margin.left + 50, 250);
+                                doc.setFontStyle('bold');
+                                doc.text("THANK YOU FOR YOUR BUSINESS!", data.settings.margin.left + 55, 255);
+
+                                // FOOTER
+                                var str = "Page " + data.pageCount;
+                                // Total page number plugin only available in jspdf v1.0+
+                                if (typeof doc.putTotalPages === 'function') {
+                                    str = str + " of " + totalPagesExp;
+                                }
+                                doc.setFontSize(10);
+                                doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+                                //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+                            };
+
+
+
+                            doc.autoTable(columns2, data2, {
+                                theme: 'gridWithNoHeader',
+
+                                margin: { top: 60 },
+
+
+                            });
+                            doc.autoTable(columns, data, {
+                                theme: 'grid',
+                                headerStyles: {
+                                    //columnWidth: 'wrap',
+                                    cellPadding: 2,
+                                    lineWidth: 0,
+                                    valign: 'top',
+                                    fontStyle: 'bold',
+                                    halign: 'left',    //'center' or 'right'
+                                    fillColor: [111, 168, 210],
+                                    //textColor: [78, 53, 73], //Black
+                                    textColor: [255, 255, 255], //White
+                                    fontSize: 8,
+
+                                    rowHeight: 20
+                                },
+                                addPageContent: pageContent,
+                                margin: { top: 100 },
+
+                                drawCell: function (cell, data) {
+                                    var rows = data.table.rows;
+                                    if ((data.row.index == rows.length - 1) || (data.row.index == rows.length - 2)) {
+                                        // doc.setFillColor(200, 200, 255);
+                                        doc.setFillColor(111, 168, 210);
+                                        doc.setTextColor(255, 255, 255);
+                                        doc.setFontStyle('bold');
+                                        //doc.setFontSize(16);
+                                    }
+                                },
+                            });
+                            //To add Image
+                            var img = new Image;
+                            img.onload = function () {
+
+                                this.width = 700;
+                                this.height = 80;
+                                doc.addImage(this, 13, 05);
+                                // window.open(doc.output('bloburl'), '_blank');
+
+                            };
+
+                            img.crossOrigin = "";  // for demo as we are at different origin than image
+                            img.src = "/Content/Images/invheader2.bmp";  // image
+
+                            //img.crossOrigin = "";  // for demo as we are at different origin than image
+                            //img.src = "/Content/Images/invheader.bmp";  // image
+                            //add footer
+                            var imgfooter = new Image;
+                            imgfooter.onload = function () {
+
+                                this.width = 700;
+                                this.height = 80;
+                                doc.addImage(this, 13, 260);
+                                window.open(doc.output('bloburl'), '_blank');
+                                // doc.output("dataurlnewwindow");
+                            };
+
+                            imgfooter.crossOrigin = "";  // for demo as we are at different origin than image
+                            imgfooter.src = "/Content/Images/invFooter.bmp";  // image
+
+
+                            // Total page number plugin only available in jspdf v1.0+
+                            if (typeof doc.putTotalPages === 'function') {
+                                doc.putTotalPages(totalPagesExp);
+                            }
+                            //doc.output("dataurlnewwindow");
+
+                        }
+                    });
+                    $(this).dialog('close');
+                }
+
+            },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+                ]
+            });
+
+        }
+    </script>
+
+
+    <!-- JqGrid Scripts -->
+    <link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+    <link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+    <script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+    <script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+    <script src="~/scripts/grid.locale-en.js"></script>
+    <script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+    <script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+    <script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

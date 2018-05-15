@@ -1,0 +1,1808 @@
+﻿@model AuctionInventory.Models.Purchase
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+
+    #divDetails #divParsedExcel {
+        margin-right: 5%;
+        margin-left: 5%;
+    }
+</style>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>*@
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- Modal -->
+<div id="myVehicleModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+
+            <div class="modal-body">
+
+
+
+                <fieldset class="format_fieldset">
+                    <legend>Vehicle Information:</legend>
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label>Make</label>
+                            <div>
+                                <input id="strMake" class="form-control" placeholder="Enter Make" required />
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>ChassisNo</label>
+                            <div>
+                                <input id="strChassisNo" class="form-control" placeholder="Enter Chassis No" required />
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Color</label>
+                            <div>
+                                <input id="strColor" class="form-control" placeholder="Enter Color" />
+
+                            </div>
+                        </div>
+
+                    </div>@*End Row*@
+
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Weight</label>
+                            <div>
+                                <input id="strWeight" class="form-control" placeholder="Enter Weight" />
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+
+                            <label>Model</label>
+                            <div>
+                                <input id="strModel" class="form-control" placeholder="Enter Model" />
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Door</label>
+                            <div>
+                                <input id="iDoor" class="form-control" placeholder="Enter Door" />
+
+                            </div>
+                        </div>
+
+
+                    </div>@*End Row*@
+
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>CNF(JPY)</label>
+                            <div>
+
+                                <input id="strCNFJPY" class="form-control" placeholder="Enter JPY" required />
+
+
+                            </div>
+                        </div>
+
+
+
+                    </div>@*End Row*@
+
+                </fieldset>
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger col-md-2 pull-left" id="btnCloseModal" data-dismiss="modal">Close</button>
+                <button type="button" id="btnADDVehicle" class="btn btn-success col-md-2 pull-right">ADD</button>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="boxbody" style="width:90%; margin:0px auto" class="tablecontainer">
+    <div class="box-body">
+        <div id="divDetails" class="row">
+            @Html.HiddenFor(a => a.PurchaseID, new { @id = "PurchaseID" })
+            @*<label>Purchase Inv No:PUR-@(@DateTime.Now.Year % 100)-<span id="invno"></span></label>*@
+            <br />
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Purchase Inv No: </label>
+                    @*<label>Purchase Inv No:PUR-@(@DateTime.Now.Year % 100)-<span id="invno"></span></label>*@
+
+                    @Html.TextBoxFor(a => a.iPurchaseInvoiceNo, new { @class = "form-control", @type = "hidden", @id = "intInvno" })
+
+                    @Html.TextBoxFor(a => a.strPurchaseInvoiceNo, new { @class = "form-control", @id = "invno", @readonly = "readonly" })
+
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Reference No:</label>
+                    @* <input type="datetime" name="name" value="" class="form-control datepicker" placeholder="Enter Drop-off date here..." />*@
+
+                    @Html.TextBoxFor(a => a.strReferenceNumber, new { @class = "form-control", @id = "strReferenceNumber", @placeholder = "Enter Reference Number" })
+                    @Html.ValidationMessageFor(a => a.strReferenceNumber)
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Customer Invoice No:</label>
+                    @* <input type="datetime" name="name" value="" class="form-control datepicker" placeholder="Enter Drop-off date here..." />*@
+
+                    @Html.TextBoxFor(a => a.strCustomerInvoiceNo, new { @class = "form-control", @id = "strCustomerInvoiceNo", @placeholder = "Enter Customer Invoice No" })
+                    @Html.ValidationMessageFor(a => a.strCustomerInvoiceNo)
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Purchase Inv Date:</label>
+                    @* <input type="datetime" name="name" value="" class="form-control datepicker" placeholder="Enter Drop-off date here..." />*@
+
+                    @Html.TextBoxFor(a => a.strPurchaseInvoiceDate, new { @class = "form-control datepicker", @placeholder = "Enter Drop-off date here..." })
+                    @Html.ValidationMessageFor(a => a.strPurchaseInvoiceDate)
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @*<input type="hidden" id="hfSupplier" />*@
+
+                    <input type="hidden" id="hdfSupplierAddress" />
+
+                    @Html.HiddenFor(a => a.iSupplierID, new { @id = "hfSupplier" })
+
+                    <label>Supplier:</label>
+                    @Html.TextBoxFor(a => a.strSupplierName, new { @class = "form-control", @id = "txtSearchSupplier" })
+                    @Html.ValidationMessageFor(a => a.strSupplierName)
+                </div>
+            </div>
+
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Master Dec No:</label>
+                    @Html.TextBoxFor(a => a.strMasterDecNo, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(a => a.strMasterDecNo)
+                </div>
+            </div>
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Bill No:</label>
+                    @Html.TextBoxFor(a => a.strBLNo, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(a => a.strBLNo)
+                </div>
+            </div>
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Arrival Date:</label>
+                    @*<input type="datetime" name="name" value="" class="form-control  datepicker" placeholder="Enter Drop-off date here..." />*@
+                    @Html.TextBoxFor(a => a.strArrivalDate, new { @class = "form-control datepicker", @placeholder = "Enter Drop-off date here..." })
+                    @Html.ValidationMessageFor(a => a.strArrivalDate)
+                </div>
+            </div>
+
+
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label>Conversion Rate:</label>
+                    @Html.TextBoxFor(a => a.dmlConversionRate, new { @class = "form-control", name = "dmlConversionRate", @id = "dmlConversionRate" })
+                    @Html.ValidationMessageFor(a => a.dmlConversionRate)
+                </div>
+
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Remark:</label>
+                    @* <input type="datetime" name="name" value="" class="form-control datepicker" placeholder="Enter Drop-off date here..." />*@
+
+                    @Html.TextBoxFor(a => a.strRemark, new { @class = "form-control", @id = "strRemark", @placeholder = "Enter Remark"})
+                    @Html.ValidationMessageFor(a => a.strRemark)
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="divParsedExcel" style="display:none">
+            <input type="hidden" id="sumOfCustomAssesVal" />
+            <input type="hidden" id="sumOfDuty" />
+
+            <input type="hidden" id="hdfIsStockReceived" />
+
+            @*<div class="col-sm-6">
+                    <b>Invoice value JPY </b>: &yen; <span id="spnINVJPY"></span>
+                    <br />
+                    <b>Invoice value AED </b>: 	د.إ <span id="spnINVAED"></span>
+                </div>
+                <br /><br /><br /><br />*@
+
+            <div class="col-sm-6">
+                @*<b>Invoice value JPY </b>: &yen; <span id="spnINVJPY"></span>
+                    <br />
+                    <b>Invoice value AED </b>: 	د.إ  <span id="spnINVAED"></span>
+                    <br /><br />*@
+                <h4><label class="label label-warning form-control input-group-lg">Invoice value JPY: &yen <span id="spnINVJPY"></span></label></h4>
+
+                <h4><label class="label label-warning form-control input-group-lg">Invoice value AED: د.إ <span id="spnINVAED"></span></label></h4>
+            </div>
+            <br />
+            <div class="col-sm-6">
+                <h4><label class="label label-warning form-control input-group-lg">No Of Imported Vehicles: <span id="rowCount"></span></label></h4>
+                @*<b>No Of Imported Vehicles </b>: 	 <span id="rowCount"></span>*@
+            </div>
+
+
+            <!-- Trigger the modal with a button -->
+            <button type="button" id="btnModal" style="margin-left: 250px;margin-top: -35px;" class="btn btn-info col-md-3" data-target="#myVehicleModal">
+                Add Vehicle Details
+            </button>
+
+            <br />
+            <br />
+            <br />
+
+            <table id="dataGrid" class="table table-bordered table-striped"></table>
+            @*<div id="pagingGrid"></div>*@
+
+
+            <br />
+            <div class="col-sm-6">
+
+                <div class="row">
+
+                    <div id="dialog" style="display: none" align="center">
+                        Do you want to Update this Purchase?
+                    </div>
+
+                    <div id="dialog2" style="display: none" align="center">
+                        Do you want to Receive this Stock?
+                    </div>
+
+                    <div id="dialog3" style="display: none" align="center">
+                        Do you want to delete this vehicle?
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="submit" class='popup btn btn-info' id="btnSaveJQ" name="Save" value="Update" />
+                    </div>
+
+                    <button class="btn btn-info" id="hdnBtnSaveJQ" style="margin-left:-467px;display: none">
+                        <i class="fa fa-refresh fa-spin"></i>Loading
+                    </button>
+
+                    @*<div class="col-sm-2">
+                            <input type="button" class='popup btn btn-info' id="btnSaveJQ" name="Save" value="Save" />
+                        </div>*@
+                    <div class="col-sm-3">
+
+                        <input type="button" style="margin-left: 0px;" class='popup btn btn-info' id="btnRcvStock" value="Stock Revice" />
+
+
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="button" class='popup btn btn-info' value="Print Invoice" onclick="generateInvoicePDF()" />
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="button" class='popup btn btn-info' value="Print Custom Invoice" onclick="generateCustomPDF()" />
+                    </div>
+                    <input type="button" style=" margin-left: 535px; margin-top: -33px;" class="btn btn-warning col-md-2" value="Cancel" onclick="Cancel();" id="cancelVehiclesExpenseInfo">
+
+
+                </div>
+
+            </div>
+
+
+
+        </div>
+
+
+
+        @*<table id="dataGrid" class="table table-bordered table-striped"></table>
+            <div id="pagingGrid"></div>*@
+
+        @*<div class="row" id="divParsedExcel" style="display:none">
+
+                <div class="col-sm-6">
+                    <b>Invoice value JPY </b>: &yen; <span id="spnINVJPY"></span>
+                    <br />
+                    <b>Invoice value AED </b>: 	د.إ <span id="spnINVAED"></span>
+                </div>
+
+                <div class="col-sm-6">
+
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <input type="submit" class='popup btn btn-info' id="btnSaveJQ" name="Save" value="Save" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <input type="button" class='popup btn btn-info' name="Save" value="Stock Revice" />
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="button" class='popup btn btn-info' name="Save" value="Print Invoice" />
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="button" class='popup btn btn-info' name="Save" value="Print Custom Invoice" />
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <br />
+
+
+
+            </div>*@
+
+
+    </div>
+</div>
+
+<!-- /.box-body -->
+
+
+
+<script>
+    $("#btnModal").click(function () {
+        debugger;
+        $('#myVehicleModal').modal('show');
+    });
+
+
+
+   
+
+
+    $("#btnRcvStock").click(function () {
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+
+                var id = $('#intInvno').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/TPurchase/RcvStock",
+                    cache: false,
+                    data: JSON.stringify({ id: id }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+                        alert("Stock Received.");
+                    }
+                });
+
+
+
+                $(this).dialog('close');
+            }
+
+        },
+            {
+                id: "No",
+                text: "No",
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+            ]
+        });
+
+    });
+
+    $(document).on('keyup', 'input[name="dmlConversionRate"]', function () {
+        debugger;
+
+        calculateSumOfAED();
+    });
+
+
+    // Bind the navigation and set the onEnter event
+
+
+
+
+
+    function calculateSumOfAED() {
+        debugger;
+
+
+
+        var sum = 0;
+        //iterate through each textboxes and add the values
+        $("input[name='dmlConversionRate']").each(function () {
+
+            //add only if the value is number
+            if (!isNaN(this.value) && this.value.length != 0) {
+
+                sum += parseFloat($("#spnINVJPY").text() * this.value);
+
+            }
+
+        });
+        //.toFixed() method will roundoff the final sum to 2 decimal places
+        $("#spnINVAED").text(sum.toFixed(3));
+
+    }
+</script>
+
+
+<script type="text/javascript">
+
+    function Cancel() {
+        window.location.href = "/TPurchase/GetPurchaseList";
+    }
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy'  }); //Initialise any date pickers
+    });
+</script>
+
+
+<script>
+    var lastsel;var lastCol;
+    function generateInvoicePDF() {
+        debugger
+        if (lastsel > 0 && lastCol > 0) {
+            jQuery("#dataGrid").jqGrid("editCell", lastsel, lastCol, false);
+        }
+
+
+        //jQuery("#dataGrid").jqGrid('saveRow',lastsel,false,'clientArray');
+        //jQuery('#dataGrid').jqGrid('saveRow', lastsel);
+        var griddata = jQuery("#dataGrid").getRowData();
+
+
+
+        var columns =  ['VR.No', 'Make', 'Chasis No', 'Color', 'weight', 'Model', 'Door', 'Origin', 'Location', 'CustomAssessed Value', 'Duty', 'CNF(JPY)'];
+
+
+        //var columns = ['Lot No', 'Chasis No', 'Make', 'Model', 'Category', 'Year', 'Color', 'Origin', 'Location', 'JPY'];
+
+        var VRNO = 0;
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+
+            VRNO = VRNO + 1;
+
+
+            data.push([VRNO, griddata[i].strMake, griddata[i].strChassisNum, griddata[i].strColor,
+                griddata[i].weight, griddata[i].iModel,
+
+                 griddata[i].iDoor, griddata[i].strOrigin, griddata[i].strLocation, griddata[i].iCustomAssesVal, griddata[i].dmlDuty, griddata[i].iCustomValInJPY]);
+
+        }
+
+        var txtSearchSupplier = $("#txtSearchSupplier").val();
+        var invoiceDate = $("#strPurchaseInvoiceDate").val();
+        var hdfSupplierAddress = $("#hdfSupplierAddress").val();
+
+        var invno = $("#invno").val();
+
+        //var dcmlAED = $('#spnINVAED').text();
+        var dcmlJYP = $('#spnINVJPY').text();
+
+
+
+        data.push([, , , , , , , , , ,  'Total', dcmlJYP]);
+
+        var d = new Date();
+
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+
+        var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+
+        // var doc = new jsPDF();
+
+        var doc = new jsPDF('l', 'mm', [500, 350], '');
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(30);
+            doc.text("Purchase Invoice Report", data.settings.margin.left + 170, 15);
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+
+            //doc.text("Invoice Date:", data.settings.margin.left + 25, 20);
+            //doc.text(invoiceDate, data.settings.margin.left + 67, 20);
+
+
+            doc.text("Inv No:", data.settings.margin.left + 400, 56);
+            doc.text(invno, data.settings.margin.left + 425, 56);
+
+            doc.text("Inv Dt:", data.settings.margin.left + 400, 48);
+            doc.text(invoiceDate, data.settings.margin.left + 425, 48);
+
+            //doc.text("To Dt:", data.settings.margin.left + 95, 20);
+            //doc.text(toDate, data.settings.margin.left + 115, 20);
+            doc.text("Rprt Dt:", data.settings.margin.left + 400, 15);
+            doc.text(ReportDate, data.settings.margin.left + 425, 15);
+
+
+            doc.text("To :", data.settings.margin.left + 0, 15);
+            doc.text("DAA", data.settings.margin.left + 0, 22);
+
+            doc.text("Show room # 118, DUCAMZ,", data.settings.margin.left + 0, 30);
+
+            doc.text("From :", data.settings.margin.left + 0, 40);
+            doc.text(txtSearchSupplier, data.settings.margin.left + 0, 48);
+
+            //doc.text("Address :", data.settings.margin.left + 0, 50);
+            doc.text(hdfSupplierAddress, data.settings.margin.left + 0, 56);
+
+
+            //doc.setFontSize(30)
+            //doc.setTextColor(0, 0, 255)
+            //doc.text('DAA', data.settings.margin.left, 20);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 70 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+    }
+
+
+    function generateCustomPDF() {
+        debugger
+        if (lastsel > 0 && lastCol > 0) {
+            jQuery("#dataGrid").jqGrid("editCell", lastsel, lastCol, false);
+        }
+
+        //jQuery('#dataGrid').jqGrid('saveRow', lastsel);
+        var griddata = jQuery("#dataGrid").getRowData();
+
+
+        //comment for a period of time
+        //var columns = ['Lot No', 'Make', 'Chasis No', 'Color', 'weight', 'Model', 'Door', 'Origin', 'Location', 'CustomAssessed Value', 'Duty'];
+
+
+        var columns = ['VR.No', 'Make', 'Chasis No', 'Model', 'CNF(JPY)'];
+
+        var VRNO = 0;
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+
+            VRNO = VRNO + 1;
+
+
+            data.push([VRNO, griddata[i].strMake, griddata[i].strChassisNum,
+                griddata[i].iModel, griddata[i].iCustomValInJPY]);
+
+        }
+
+        var txtSearchSupplier = $("#txtSearchSupplier").val();
+        var invoiceDate = $("#strPurchaseInvoiceDate").val();
+        var hdfSupplierAddress = $("#hdfSupplierAddress").val();
+        var invno = $("#invno").val();
+
+        //var fromDate = $("#fromDate").val();
+        //var toDate = $("#toDate").val();
+        //var dcmlAED = $('#spnINVAED').text();
+        var sumOfCustomAssesVal = $('#sumOfCustomAssesVal').val();
+
+        var sumOfDuty = $('#sumOfDuty').val();
+
+
+        var dcmlJYP = $('#spnINVJPY').text();
+        data.push([, , ,  'Total', dcmlJYP]);
+
+        //data.push([, , , , , , , , 'Total', sumOfCustomAssesVal, sumOfDuty]);
+
+        var d = new Date();
+
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+
+        var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+
+        // var doc = new jsPDF();
+
+        //var doc = new jsPDF('p', 'mm', [500, 350], '');
+        var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+
+
+
+            //doc.setFontSize(30);
+            //doc.text("Purchase Invoice Report", data.settings.margin.left + 67, 10);
+
+            //doc.setFontSize(20);
+            //doc.setTextColor(40);
+            //doc.setFontStyle('normal');
+
+
+
+
+            ////doc.text("Invoice Date:", data.settings.margin.left + 25, 20);
+            ////doc.text(invoiceDate, data.settings.margin.left + 67, 20);
+
+
+            //doc.text("Inv No:", data.settings.margin.left + 400, 56);
+            //doc.text(invno, data.settings.margin.left + 425, 56);
+
+            //doc.text("Inv Dt:", data.settings.margin.left + 400, 48);
+            //doc.text(invoiceDate, data.settings.margin.left + 425, 48);
+
+            ////doc.text("To Dt:", data.settings.margin.left + 95, 20);
+            ////doc.text(toDate, data.settings.margin.left + 115, 20);
+            //doc.text("Rprt Dt:", data.settings.margin.left + 400, 15);
+            //doc.text(ReportDate, data.settings.margin.left + 425, 15);
+
+
+            //doc.text("To :", data.settings.margin.left + 0, 15);
+            //doc.text("DAA", data.settings.margin.left + 0, 22);
+
+            //doc.text("Show room # 118, DUCAMZ,", data.settings.margin.left + 0, 30);
+
+            //doc.text("From :", data.settings.margin.left + 0, 40);
+            //doc.text(txtSearchSupplier, data.settings.margin.left + 0, 48);
+
+            ////doc.text("Address :", data.settings.margin.left + 0, 50);
+            //doc.text(hdfSupplierAddress, data.settings.margin.left + 0, 56);
+
+
+            doc.setFontSize(30);
+            doc.setTextColor(40);
+            doc.setFontStyle('bold');
+
+            doc.text("Invoice", data.settings.margin.left + 115, 22);
+
+            doc.setFontSize(12);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.text("Inv No:", data.settings.margin.left + 115, 30);
+            doc.text(invno, data.settings.margin.left + 130, 30);
+
+            doc.text("Rprt Dt:", data.settings.margin.left + 115, 35);
+            doc.text(ReportDate, data.settings.margin.left + 130, 35);
+
+            doc.text("Inv Dt:", data.settings.margin.left + 115, 40);
+            doc.text(invoiceDate, data.settings.margin.left + 130, 40);
+            //doc.text("To Dt:", data.settings.margin.left + 95, 20);
+            //doc.text(toDate, data.settings.margin.left + 115, 20);
+
+
+
+            doc.text("To :", data.settings.margin.left + 0, 15);
+            doc.text("DAA", data.settings.margin.left + 0, 20);
+
+            doc.text("Show room # 118, DUCAMZ,", data.settings.margin.left + 0, 25);
+
+            doc.text("From :", data.settings.margin.left + 0, 30);
+            doc.text(txtSearchSupplier, data.settings.margin.left + 0, 35);
+
+            //doc.text("Address :", data.settings.margin.left + 0, 50);
+            doc.text(hdfSupplierAddress, data.settings.margin.left + 0, 40);
+
+            //doc.setFontSize(30)
+            //doc.setTextColor(0, 0, 255)
+            //doc.text('DAA', data.settings.margin.left, 20);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 45 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        ////doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+
+</script>
+
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#txtSearchSupplier").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/TPurchase/AutoComplete/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+                                return {
+
+                                    label: item.strFirstName,
+                                    iSupplierID: item.iSupplierID,
+                                    strAddress: item.strAddress,
+                                    value: item.strFirstName
+                                }
+                            }));
+                        }
+                    }
+
+
+                    //success: function (data) {
+                    //    var items = $.map(data, function (item) {
+                    //        return {
+                    //            strFirstName: item.strFirstName,
+                    //            //strLastName : item.strLastName,
+                    //            //strEmailID : item.strEmailID,
+                    //            iSupplierID: item.iSupplierID,
+                    //            value: item.strFirstName
+
+                    //            //,value: item.strLastName,
+                    //            //value: item.strEmailID
+
+                    //        };
+                    //    });
+                    //    response(items);
+                    //}
+                });
+            },
+            select: function (event, i) {
+
+                event.preventDefault();
+
+                $("#txtSearchSupplier").val(i.item.value);
+                //$("#txtSearchSupplier").val(i.item.strLastName);
+                //$("#txtSearchSupplier").val(i.item.strEmailID);
+                $("#hfSupplier").val(i.item.iSupplierID);
+                $("#hdfSupplierAddress").val(i.item.strAddress);
+                return false;
+            },
+            minLength: 1
+        });
+    });
+</script>
+@*<script type="text/javascript">
+        $(function () {
+            $("#txtSearchSupplier").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '/TPurchase/AutoComplete/',
+                        data: "{ 'prefix': '" + request.term + "'}",
+                        dataType: "json",
+                        type: "POST",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            var items = $.map(data, function (item) {
+                                return {
+                                    strFirstName: item.strFirstName,
+                                    iSupplierID: item.iSupplierID,
+                                    value: item.strFirstName
+
+                                };
+                            });
+                            response(items);
+                        }
+                    });
+                },
+                select: function (event, i) {
+
+                    event.preventDefault();
+                    $("#txtSearchSupplier").val(i.item.strFirstName);
+                    $("#hfSupplier").val(i.item.iSupplierID);
+
+                    return false;
+                },
+                minLength: 1
+            });
+        });
+    </script>*@
+
+
+
+<script type="text/javascript">
+
+
+    jQuery(document).ready(function () {
+        var request =@Model.PurchaseID
+        jQuery.ajax({
+            url: '/TPurchase/GetSupplierAddress/',
+            data: "{ 'id': '" + request + "'}",
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (result)
+            { var listVehicle = result.listVehicle
+
+
+
+                $("#hdfSupplierAddress").val(listVehicle[0].strAddress);
+
+            }
+        });
+    });
+
+    jQuery(document).ready(function () {
+        var request =@Model.PurchaseID
+        jQuery.ajax({
+            url: '/TPurchase/GetData/',
+            data: "{ 'id': '" + request + "'}",
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                debugger
+                var listVehicle = result.listVehicle
+
+
+
+                $("#hdfIsStockReceived").val(listVehicle[0].IsStockReceived);
+
+                var sumOfJPY = result.sumOfJPY
+
+                var sumOfAED = result.sumOfAED
+
+
+                $("#sumOfCustomAssesVal").val(result.sumOfCustomAssesVal);
+                $("#sumOfDuty").val(result.sumOfDuty);
+
+
+                //$("#spnINVJPY").text(sumOfJPY.toFixed(3));
+                //$("#spnINVAED").text((sumOfAED*$("#dmlConversionRate").val()).toFixed(3));
+
+                $("#spnINVJPY").text((listVehicle[0].dcmlJYP).toFixed(3));
+                $("#spnINVAED").text(((listVehicle[0].dcmlJYP)*$("#dmlConversionRate").val()).toFixed(3));
+
+                $("#divParsedExcel").show();
+
+                //bindGrid(listVehicle);
+
+
+                //var lastsel;
+                $('#dataGrid').jqGrid({
+                    caption:'Purchase Vehicles List',
+                    data: listVehicle,
+                    datatype: "local",
+                    // colNames: ['Action', 'Lot No', 'Chasis No', 'Model', 'Year', 'Color', 'JPY', 'Assessed Value', 'AED'],
+                    colNames: ['iVehicleID','VR No', 'Make', 'Chasis No', 'Color', 'weight', 'Model', 'Door', 'Origin', 'Location', 'CustomAssessed Value', 'Duty', 'CNF(JPY)','Action'],
+                    colModel: [
+
+                    { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true  },
+
+
+                             { name: 'iLotNum', index: 'iLotNum', width: 50, editable: true, align: 'center', hidden: true, hidedlg: true },
+                    { name: 'strMake', index: 'strMake', width: 120, editable: true, align: 'center' },
+                     { name: 'strChassisNum', index: 'strChassisNum', width: 120, editable: true, align: 'center' },
+                       { name: 'strColor', index: 'strColor', width: 50, editable: true, align: 'center' },
+                        { name: 'weight', index: 'weight', width: 50, editable: true, align: 'center' },
+                        { name: 'iModel', index: 'iModel', width: 50, editable: true, align: 'center' },
+                        { name: 'iDoor', index: 'iDoor', width: 50, editable: true, align: 'center' },
+                          { name: 'strOrigin', index: 'strOrigin', width: 50, editable: true, align: 'center' },
+                            { name: 'strLocation', index: 'strLocation', width: 50, editable: true, align: 'center' },
+                             { name: 'iCustomAssesVal', index: 'iCustomAssesVal', width: 50, editable: true, align: 'center' },
+                    { name: 'dmlDuty', index: 'dmlDuty', width: 50, editable: true, align: 'center' },
+                    { name: 'iCustomValInJPY', index: 'iCustomValInJPY', width: 100, editable: true, align: 'center' },
+
+                     {
+                         name: 'Action', index: 'Action', align: 'center', width: 100, search: false, title: false,
+                         formatter: function (cellvalue, options, rowObject) {
+                             debugger
+                             //return "<input class='popup delete btn btn-info' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"jQuery('#GridAddVehicle').delRowData('" + options.rowId + "');\"  />";
+
+                             return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"delRowData('" + options.rowId + "');\"  />";
+                         }
+
+                     },
+
+                    //,{ name: 'act', index: 'act', width: 150 }
+
+
+                    //    { name: 'iLotNum', index: 'iLotNum', width: 50, align: 'center' },
+                    //{ name: 'strMake', index: 'strMake', width: 120, align: 'center' },
+                    // { name: 'strChassisNum', index: 'strChassisNum', width: 120, align: 'center' },
+                    //   { name: 'strColor', index: 'strColor', width: 50,  align: 'center' },
+                    //    { name: 'weight', index: 'weight', width: 50, align: 'center' },
+                    //    { name: 'iModel', index: 'iModel', width: 50,  align: 'center' },
+                    //    { name: 'iDoor', index: 'iDoor', width: 50, align: 'center' },
+                    //      { name: 'strOrigin', index: 'strOrigin', width: 50,  align: 'center' },
+                    //        { name: 'strLocation', index: 'strLocation', width: 50,  align: 'center' },
+                    //         { name: 'iCustomAssesVal', index: 'iCustomAssesVal', width: 50,editable: true,align: 'center' },
+
+                    //{ name: 'dmlDuty', index: 'dmlDuty', width: 50,  align: 'center' },
+                    //{ name: 'iCustomValInJPY', index: 'iCustomValInJPY', width: 100,  align: 'center' }
+
+
+                    ],
+                    width: 1050,
+                    height: 250,
+                    rowNum: 1000,
+                    ignoreCase: true,
+                    rownumbers: true,
+                    //rowList: [10, 20, 30],
+                    //pager: 'pagingGrid',
+                    //editurl: '/MVehicle/Save/',
+
+                    cellsubmit: 'clientArray',
+
+                    //onSelectRow: function (id) {
+                    //    debugger
+
+
+                    //    if (id !== lastsel) {
+
+
+                    //        // jQuery('#dataGrid').jqGrid('saveRow', lastsel);
+
+                    //        //jQuery('#dataGrid').saveRow(lastsel);
+
+                    //        jQuery("#dataGrid").jqGrid('saveRow',lastsel,false,'clientArray');
+
+                    //        var rowData = jQuery("#dataGrid").getRowData(lastsel);
+
+                    //        var iCustomAssesVal = rowData['iCustomAssesVal'];
+
+
+                    //        var Duty = (iCustomAssesVal * 5) / 100;
+
+
+                    //        $("#dataGrid").jqGrid('setCell', lastsel, 'dmlDuty', Duty.toFixed(3));
+
+                    //        lastsel = id;
+                    //    }
+                    //    jQuery('#dataGrid').jqGrid('editRow', id, true);
+
+                    //    return true;
+
+                    //},
+
+
+
+                    cellEdit: true,  // Make sure we are using cell edit
+                    afterEditCell: function(rowid, cellname, value, iRow, iCol) {
+
+                        debugger
+
+
+
+                        // Get a handle to the actual input field
+                        var inputControl = jQuery('#' + (iRow) + '_' + cellname);
+
+                        // Listen for enter (and shift-enter)
+                        inputControl.bind("keydown",function(e) {
+
+                            if (e.keyCode === 13) {  // Enter key:
+                                var increment = e.shiftKey ? -1 : 1;
+
+
+
+                                var rowData = jQuery("#dataGrid").getRowData(rowid);
+
+                                var iCustomAssesVal = rowData['iCustomAssesVal'];
+
+                                var Duty = (iCustomAssesVal * 5) / 100;
+
+
+                                $("#dataGrid").jqGrid('setCell', rowid, 'dmlDuty', Duty.toFixed(3));
+
+
+
+                                // Do not go out of bounds
+                                var lastRowInd = jQuery("#dataGrid").jqGrid("getGridParam","reccount")
+                                if ( iRow+increment == 0 || iRow+increment == lastRowInd+1)
+                                    return;   // we could re-edit current cell or wrap
+                                else
+                                    lastsel = iRow + increment;
+                                lastCol = iCol;
+                                jQuery("#dataGrid").jqGrid("editCell",iRow+increment,iCol,true);
+
+                            }
+                        }); // End keydown binding
+                    },
+
+
+                    //gridComplete: function () {
+
+                    //    var ids = jQuery("#dataGrid").jqGrid('getDataIDs');
+
+                    //    for (var i = 0; i < ids.length; i++) {
+                    //        var cl = ids[i];
+                    //        be = "<input class='popup btn btn-info' style='margin-right: 5%; margin-left: 8%;' type='button' value='Edit' onclick=\"jQuery('#dataGrid').editRow('" + cl + "');\"  />";
+                    //        //se = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Save' onclick=\"jQuery('#dataGrid').saveRow('" + cl + "');\"  />";
+                    //        ce = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGrid').restoreRow('" + cl + "');\" />";
+                    //        jQuery("#dataGrid").jqGrid('setRowData', ids[i], { act: be + ce });
+                    //    }
+                    //},
+
+
+                });
+                jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+                //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false, rel: false });
+
+
+
+                var rowCount = $("#dataGrid").getGridParam("reccount");
+                $("#rowCount").text(rowCount);
+
+
+            }
+        });
+
+
+        //$("#GetRow").click(function(){
+        //    var gridData = jQuery("#dataGrid").getRowData();
+        //    var postData = JSON.stringify(gridData);
+        //    alert("JSON serialized jqGrid data:\n" + postData);
+        //    $.ajax({
+        //        type: "POST",
+        //        url: "/TPurchase/Save",
+        //        data : {
+        //            jgGridData: postData,
+        //            customData: "bla bla"
+        //        },
+        //        dataType:"json",
+        //        contentType: "application/json; charset=utf-8",
+        //        success: function(response, textStatus, xhr) {
+        //            alert("success");
+        //        },
+        //        error: function(xhr, textStatus, errorThrown) {
+        //            alert("error");
+        //        }
+        //    });
+        //});
+
+
+        //function bindGrid(listVehicle) {
+
+
+        //    //var lastsel;
+        //    $('#dataGrid').jqGrid({
+        //        //// Comment and uncomment below lines for ajax and local data
+        //        //    caption: "Invoice Discription",
+        //        //    url: '/MVehicle/GetData/',
+        //        //    datatype: "json",
+        //        //    contentType: "application/json; charset-utf-8",
+        //        //    mtype: 'GET',
+
+        //        // caption: "Invoice Discription",
+        //        data: listVehicle,
+        //        datatype: "local",
+        //        // colNames: ['Action', 'Lot No', 'Chasis No', 'Model', 'Year', 'Color', 'JPY', 'Assessed Value', 'AED'],
+        //        colNames: ['iVehicleID','Lot No', 'Make', 'Chasis No', 'Color', 'weight', 'Model', 'Door', 'Origin', 'Location', 'CustomAssessed Value', 'Duty', 'CNF(JPY)'],
+        //        colModel: [
+
+        //        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true  },
+
+
+        //                 { name: 'iLotNum', index: 'iLotNum', width: 50, editable: true, align: 'center' },
+        //        { name: 'strMake', index: 'strMake', width: 50, editable: true, align: 'center' },
+        //         { name: 'strChassisNum', index: 'strChassisNum', width: 120, editable: true, align: 'center' },
+        //           { name: 'strColor', index: 'strColor', width: 50, editable: true, align: 'center' },
+        //            { name: 'weight', index: 'weight', width: 50, editable: true, align: 'center' },
+        //            { name: 'iModel', index: 'iModel', width: 50, editable: true, align: 'center' },
+        //            { name: 'iDoor', index: 'iDoor', width: 50, editable: true, align: 'center' },
+        //              { name: 'strOrigin', index: 'strOrigin', width: 50, editable: true, align: 'center' },
+        //                { name: 'strLocation', index: 'strLocation', width: 50, editable: true, align: 'center' },
+        //                 { name: 'iCustomAssesVal', index: 'iCustomAssesVal', width: 50, editable: true, align: 'center' },
+        //        { name: 'dmlDuty', index: 'dmlDuty', width: 50, editable: true, align: 'center' },
+        //        { name: 'iCustomValInJPY', index: 'iCustomValInJPY', width: 100, editable: true, align: 'center' }
+
+
+
+
+        //            //,{ name: 'act', index: 'act', width: 750 }
+
+
+
+        //        //colNames: ['Lot No', 'Chasis No', 'Model', 'Year', 'Color', 'JPY', 'Assessed Value', 'AED', 'Action'],
+        //        //colModel: [
+
+        //        //    { name: 'iLotNum', index: 'iLotNum', editable: true },
+        //        //    { name: 'strChassisNum', index: 'strChassisNum', editable: true },
+        //        //    { name: 'iModel', index: 'iModel', editable: true },
+        //        //    { name: 'iYear', index: 'iYear', editable: true },
+        //        //    { name: 'strColor', index: 'strColor', editable: true },
+        //        //    { name: 'iCustomValInJPY', index: 'iCustomValInJPY', editable: true },
+        //        //    { name: 'iCustomAssesVal', index: 'iCustomAssesVal', editable: true },
+        //        //    { name: 'AED', index: 'AED', editable: true },
+        //        //    { name: 'act', index: 'act', width: 350 }
+
+        //            //{
+        //            //    name: 'Action', index: 'Action', align: 'center', width: 200, search: false, title: false,
+        //            //    formatter: function (cellvalue, options, rowObject) {
+        //            //        return '<a class="popup btn btn-info" href="/MVehicle/Save/' + options.rowId + '">' + "Edit" + '</a>' + "     " + '<a class="popup btn btn-info" href="/MVehicle/Delete/' + options.rowId + '">' + "Delete" + '</a>';
+
+        //            //    }
+        //            //},
+
+        //        ],
+        //        width: 1050,
+        //        height: 250,
+        //        rowNum: 1000,
+        //        ignoreCase: true,
+        //        //rowList: [10, 20, 30],
+        //        pager: 'pagingGrid',
+        //        editurl: '/MVehicle/Save/',
+
+        //        cellsubmit: 'clientArray',
+        //        onSelectRow: function (id) {
+        //            debugger
+        //            if (id !== lastsel) {
+
+
+        //                // jQuery('#dataGrid').jqGrid('saveRow', lastsel);
+
+        //                jQuery('#dataGrid').saveRow(lastsel);
+
+
+        //                var rowData = jQuery("#dataGrid").getRowData(lastsel);
+
+        //                var iCustomAssesVal = rowData['iCustomAssesVal'];
+
+
+        //                var Duty = (iCustomAssesVal * 5) / 100;
+
+
+        //                $("#dataGrid").jqGrid('setCell', lastsel, 'dmlDuty', Duty.toFixed(3));
+
+        //                lastsel = id;
+        //            }
+        //            jQuery('#dataGrid').jqGrid('editRow', id, true);
+        //            return true;
+
+        //        },
+        //        //gridComplete: function () {
+
+        //        //    var ids = jQuery("#dataGrid").jqGrid('getDataIDs');
+
+        //        //    for (var i = 0; i < ids.length; i++) {
+        //        //        var cl = ids[i];
+        //        //       // be = "<input class='popup btn btn-info' style='margin-right: 5%; margin-left: 8%;' type='button' value='Edit' onclick=\"jQuery('#dataGrid').editRow('" + cl + "');\"  />";
+        //        //        se = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Save' onclick=\"SaveRow('" + cl + "');\"  />";
+
+        //        //        //se = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Save' onclick=\"jQuery('#dataGrid').GetRow('" + cl + "');\"  />";
+        //        //        //se="<input type='button' id='GetRow'>"
+        //        //        //ce = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGrid').restoreRow('" + cl + "');\" />";
+        //        //        jQuery("#dataGrid").jqGrid('setRowData', ids[i], { act:se});
+        //        //    }
+        //        //},
+
+        //    });
+        //    jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //    jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false, rel: false });
+
+        //    var rowCount = $("#dataGrid").getGridParam("reccount");
+        //    $("#rowCount").text(rowCount);
+
+        //    //jQuery('#dataGrid').jqGrid({
+        //    //    url: '/MVehicle/GetData/',
+        //    //    data: listVehicle,
+        //    //    datatype: "local",
+        //    //    colNames: ['Lot No','Chasis No','Model','Year','Color','JPY','Assessed Value','AED','Action'],
+        //    //    colModel: [
+        //    //    { name:'iLotNum',index:'iLotNum',editable:true },
+        //    //    { name:'strChassisNum',index:'strChassisNum',editable:true },
+        //    //    { name:'iModel',index:'iModel',editable:true },
+        //    //    { name:'iYear',index:'iYear',editable:true },
+        //    //    { name:'iColor',index:'iColor',editable:true },
+        //    //    { name:'iCustomValInJPY',index:'iCustomValInJPY',editable:true },
+        //    //    { name:'iCustomAssesVal',index:'iCustomAssesVal',editable:true },
+        //    //    { name:'AED',index:'AED',editable:true },
+        //    //    { name:'act',index:'act',width:350 }
+
+        //    //    //{
+        //    //    //    name: 'Action', index: 'Action', align: 'center', width: 200, search: false, title: false,
+        //    //    //    formatter: function (cellvalue, options, rowObject) {
+        //    //    //        return '<a class="popup btn btn-info" href="/MVehicle/Save/' + options.rowId + '">' + "Edit" + '</a>' + "     " + '<a class="popup btn btn-info" href="/MVehicle/Delete/' + options.rowId + '">' + "Delete" + '</a>';
+
+        //    //    //    }
+        //    //    //},
+
+        //    //    ],
+        //    //    width: 1050,
+        //    //    height: 250,
+        //    //    rowNum: 10,
+        //    //    //loadonce: true,
+        //    //    rowList: [10, 20, 30],
+        //    //    pager: 'pagingGrid',
+        //    //    caption: 'Select Invoice to edit',
+        //    //    //cellEdit: true,
+        //    //    cellsubmit: 'clientArray',
+        //    //    jsonReader: {
+        //    //        repeatitems: false,
+        //    //        //page: function () { return 1; },
+        //    //        root: function (obj) { return obj; },
+        //    //        //records: function (obj) { return obj.length; }
+        //    //    },
+        //    //    gridComplete: function () {
+
+        //    //        var ids = jQuery("#dataGrid").jqGrid('getDataIDs');
+
+        //    //        for (var i = 0; i < ids.length; i++) {
+        //    //            var cl = ids[i];
+        //    //            be = "<input class='popup btn btn-info' style='margin-right: 5%; margin-left: 8%;' type='button' value='Edit' onclick=\"jQuery('#dataGrid').editRow('" + cl + "');\" />";
+        //    //            se = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Save' onclick=\"jQuery('#dataGrid').saveRow('" + cl + "');\" />";
+        //    //            ce = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGrid').restoreRow('" + cl + "');\" />";
+        //    //            jQuery("#dataGrid").jqGrid('setRowData', ids[i], { act: be + se + ce });
+        //    //        }
+        //    //    }
+        //    //});
+
+        //    //jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //    //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false, rel: false });
+        //}
+    });
+
+
+    ////////////////////////-----------Comment on 01-06-2017-03-00------------/////////////////////////////////////////////
+
+
+    //function SaveRow(id) {
+    //    alert(id);
+    //    debugger;
+    //    var griddata = $('#dataGrid').jqGrid('getGridParam', 'data');
+    //    //var vehicles = jQuery('#dataGrid').jqGrid ('getRowData', id);
+    //    //var griddata = jQuery("#dataGrid").getRowData();
+    //    //var ID=id-1;
+    //    //var vehicle= griddata;
+    //    var vehicle=  griddata[id-1];
+
+
+    //    ////Now goes ur ajax
+    //    //$.ajax({
+    //    //    url: '/MVehicle/Save/',
+    //    //    data: JSON.stringify({ vehicle:vehicle  }),
+    //    //    //data: {vehicle:vehicle },
+    //    //    type: "post",
+    //    //    cache: false,
+    //    //    success: function (Status) {
+    //    //        alert("Update Data Successfully!!!!");
+    //    //    },
+    //    //    error: function (xhr, ajaxOptions, thrownError) {
+    //    //        alert("Not able to Update Data !!!!");
+    //    //    }
+    //    //});
+    //    $.ajax({
+    //        type: "POST",
+    //        url: '/MVehicle/Save/',
+    //        cache: false,
+    //        data: JSON.stringify({vehicle: vehicle }),
+    //        dataType: "json",
+    //        contentType: "application/json; charset=utf-8",
+    //        success: function (Data) {
+    //            //window.location.href = "/TPurchase/Index";
+
+    //            if (Data.status) {
+
+    //                alert("Data Saved");
+    //            }
+
+    //        },
+    //        error: function (data) {
+    //            alert("Not able to Update Data !!!!");
+    //        }
+    //    });
+
+    //}
+
+    ////////////////////////------END-----Comment on 01-06-2017-03-00------------/////////////////////////////////////////////
+
+
+
+
+
+    function delRowData(rowid) {
+        debugger;
+
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog3').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog3").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+              
+                
+
+                var rowData = jQuery("#dataGrid").getRowData(rowid);
+                var iVehicleID=rowData['iVehicleID'];
+
+                $.ajax({
+                    type: "POST",
+                    url: "/TPurchase/DeleteVehicle",
+                    cache: false,
+                    data: JSON.stringify({ iVehicleID: iVehicleID }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+                        debugger
+                        if(Data.status==true)
+                        {
+
+                        var rowData = jQuery("#dataGrid").getRowData(rowid);
+                        var delValueFromJPY=rowData['iCustomValInJPY'];
+
+                        jQuery('#dataGrid').delRowData(rowid);
+
+                        var rowCount = $("#dataGrid").getGridParam("reccount");
+                        $("#rowCount").text(rowCount);
+                        //for(var i=0;i<rowData.length;i++)
+                        //{
+                        //    sumOfJPY += parseFloat(rowData[i].iCustomValInJPY);
+
+                        //}
+                        //var sumOfJPY = (($("#spnINVJPY").text())-(delValueFromJPY)).toFixed(3);
+                        var sumOfJPY =parseFloat($("#spnINVJPY").text())-parseFloat(delValueFromJPY);
+                        $("#spnINVJPY").text(sumOfJPY.toFixed(3));
+                        //$("#spnINVAED").text(sumOfAED);
+                        calculateSumOfAED();
+                       
+                        }else 
+                        {
+                            alert("Vehicle is in used,You can't delete this");
+                        }
+                        //else
+                        //{
+                        //    return null;
+                        //}
+                    },
+                    error: function (data) {
+                        $("#error_message").html(data);
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+
+    }
+
+
+</script>
+
+
+<script>
+
+
+    $("#btnSaveJQ").click(function () {
+        debugger
+        if (lastsel > 0 && lastCol > 0) {
+            jQuery("#dataGrid").jqGrid("editCell", lastsel, lastCol, false);
+        }
+
+
+        //jQuery("#dataGrid").jqGrid('saveRow',lastsel,false,'clientArray');
+
+        // jQuery('#dataGrid').jqGrid('saveRow', lastsel);
+
+        var rowData = jQuery("#dataGrid").getRowData(lastsel);
+        var iCustomAssesVal = rowData['iCustomAssesVal'];
+
+
+        var Duty = (iCustomAssesVal * 5) / 100;
+
+
+        $("#dataGrid").jqGrid('setCell', lastsel, 'dmlDuty', Duty.toFixed(3));
+        //jQuery('#dataGrid').jqGrid('saveRow', lastsel);
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+                $("#btnSaveJQ").hide();
+                $("#hdnBtnSaveJQ").show();
+                //calling function here for update
+                //debugger;
+                //var tes="salman"
+                //var alphanumers = /^[a-zA-Z0-9]+$/;
+                //if(!alphanumers.test(tes)){
+                //    alert("Special chareter found");
+                //    $("#textboxid").css({"background-color": "color"});
+                //    return false;
+                //}
+
+
+                //var alphanumers = /^[a-zA-Z0-9]+$/;
+                //if(!alphanumers.test($("#firstname").val())){
+                //    alert("Nickname can have only alphabets and numbers.");
+                //    return false;
+                //}
+
+                // var test=   $("#someid").val();
+
+debugger
+
+                var purchase = {
+                    PurchaseID: @Model.PurchaseID,
+                    iPurchaseInvoiceNo: $('#intInvno').val(),
+                    strPurchaseInvoiceNo: $('#invno').val(),
+                    //strPurchaseInvoiceNo: $('#invoiceLbl').text(),
+                    strPurchaseInvoiceDate: $('#strPurchaseInvoiceDate').val(),
+
+                    strCustomerInvoiceNo: $('#strCustomerInvoiceNo').val(),
+                    IsStockReceived:$("#hdfIsStockReceived").val(),
+                    iSupplierID: $("#hfSupplier").val(),
+                    strSupplierName: $('#txtSearchSupplier').val(),
+                    strMasterDecNo: $('#strMasterDecNo').val(),
+                    strBLNo: $('#strBLNo').val(),
+                    strArrivalDate: $('#strArrivalDate').val(),
+                    dtPurchaseInvoiceDate: $('#strPurchaseInvoiceDate').val(),
+                    dmlConversionRate: $('#dmlConversionRate').val(),
+                    dcmlAED: $('#spnINVAED').text(),
+                    dcmlJYP: $('#spnINVJPY').text(),
+                    strReferenceNumber: $('#strReferenceNumber').val(),
+                    strRemark: $('#strRemark').val()
+                }
+                var griddata = $('#dataGrid').jqGrid('getGridParam', 'data');
+
+                $.ajax({
+                    type: "POST",
+                    url: "/TPurchase/Save",
+                    cache: false,
+                    data: JSON.stringify({ purchase: purchase, griddata: griddata }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+
+                        alert("Data Update Successfully You Can Generate PDF");
+                        $("#hdnBtnSaveJQ").hide();
+                        //window.location.href = "/TPurchase/GetPurchaseList";
+
+
+                        //var $result = $(Data).find(purID);
+                        //alert($result);
+
+                        //$('#result').html('"PassGriddata()" successfully called.');
+
+
+
+
+                        //var griddata = $('#dataGrid').jqGrid('getGridParam', 'data');
+
+                        //griddata = JSON.stringify({ 'griddata': griddata });
+                        //$.ajax({
+                        //    contentType: 'application/json; charset=utf-8',
+                        //    dataType: 'json',
+                        //    type: 'POST',
+                        //    url: '/MVehicle/PassGriddata',
+                        //    data: griddata,
+                        //    success: function () {
+                        //        $('#result').html('"PassGriddata()" successfully called.');
+                        //    },
+                        //    failure: function (response) {
+                        //        $('#result').html(response);
+                        //    }
+                        //});
+                    },
+                    error: function (data) {
+                        $("#error_message").html(data);
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $("#btnSaveJQ").show();
+                $("#hdnBtnSaveJQ").hide();
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+
+
+    });
+
+
+    //$("#btnSaveJQ").click(function () {
+    //    var griddata = $('#dataGrid').jqGrid('getGridParam', 'data');
+    //    griddata = JSON.stringify({ 'griddata': griddata });
+    //    $.ajax({
+    //        contentType: 'application/json; charset=utf-8',
+    //        dataType: 'json',
+    //        type: 'POST',
+    //        url: '/MVehicle/PassGriddata',
+    //        data: griddata,
+    //        success: function () {
+    //            $('#result').html('"PassGriddata()" successfully called.');
+    //        },
+    //        failure: function (response) {
+    //            $('#result').html(response);
+    //        }
+    //    });
+
+    //});
+    $("#btnCloseModal").click(function () {
+        $("#strMake").val(""); $('#strMake').css('border-color', '');
+        $("#strChassisNo").val(""); $('#strChassisNo').css('border-color', '');
+        $("#strColor").val("");
+        $("#strWeight").val("");
+        $("#strModel").val(""); $('#strModel').css('border-color', '');
+        $("#iDoor").val("");
+        $("#strCNFJPY").val(""); $('#strCNFJPY').css('border-color', '');
+    });
+
+
+    $("#btnADDVehicle").click(function () {
+        debugger;
+       
+        var VehicleInfo = ValidateVehicleInfo();
+        if (VehicleInfo == true) {
+        
+            $('#strCNFJPY').css('border-color', '');
+            //if(!(document.getElementById('strMake').value == "" || document.getElementById('strChassisNo').value == ""
+            //    ||document.getElementById('strModel').value == "" || document.getElementById('strCNFJPY').value == "")){
+
+            //    $('#strMake').css('border-color', ''); $('#strChassisNo').css('border-color', '');
+            //    $('#strModel').css('border-color', ''); $('#strCNFJPY').css('border-color', '');
+            //}
+        
+            var model={
+
+                strMake:$("#strMake").val(),
+                strChassisNum:$("#strChassisNo").val(),
+                strColor:$("#strColor").val(),
+                weight:$("#strWeight").val(),
+                iModel:$("#strModel").val(),
+                iDoor:$("#iDoor").val(),
+                strOrigin:'Japan',
+                strLocation:'NIP',
+                //iCustomAssesVal:0,
+                //dmlDuty:0,
+
+                iCustomValInJPY:$("#strCNFJPY").val(),
+            }
+
+            $('#dataGrid').jqGrid('addRowData', lastsel, model);
+            $('#myVehicleModal').modal('hide');
+
+
+
+            var rowCount = $("#dataGrid").getGridParam("reccount");
+            $("#rowCount").text(rowCount);
+
+
+            var sumOfJPY = parseFloat($("#spnINVJPY").text()) + parseFloat($("#strCNFJPY").val());
+
+            $("#spnINVJPY").text(sumOfJPY.toFixed(3));
+            //$("#spnINVAED").text(sumOfAED);
+            calculateSumOfAED();
+
+            $("#strMake").val("");
+            $("#strChassisNo").val("");
+            $("#strColor").val("");
+            $("#strWeight").val("");
+            $("#strModel").val("");
+            $("#iDoor").val("");
+            $("#strCNFJPY").val("");
+        }
+        else {
+            
+            if (document.getElementById('strMake').value == "") {
+                $('#strMake').css('border-color', 'red');
+            }
+            else
+                $('#strMake').css('border-color', '');
+                if (document.getElementById('strChassisNo').value == "") {
+                    $('#strChassisNo').css('border-color', 'red');
+                } 
+
+                else
+                    $('#strChassisNo').css('border-color', '');
+                    if (document.getElementById('strModel').value == "") {
+                        $('#strModel').css('border-color', 'red');
+            } else
+                        $('#strModel').css('border-color', '');
+                        if (document.getElementById('strCNFJPY').value == "") {
+                            $('#strCNFJPY').css('border-color', 'red');
+                        }
+        }
+
+
+    });
+
+    function ValidateVehicleInfo() {
+
+        if ( 
+            
+            (jQuery.trim($('#strMake').val()) == "") ||
+             (jQuery.trim($('#strChassisNo').val()) == "") ||
+             (jQuery.trim($('#strModel').val()) == "") ||
+            (jQuery.trim($('#strCNFJPY').val()) == "")
+            //||
+            // (jQuery.trim($('#strArrivalDate').val()) == "")
+
+             ) {
+
+            return false;
+        }
+        else {
+
+            return true;
+        }
+    }
+
+</script>
+
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+@*<script src="~/scripts/jQuery-ui-1.9.2.custom.js"></script>*@
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+

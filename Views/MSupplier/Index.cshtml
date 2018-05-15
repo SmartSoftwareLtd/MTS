@@ -1,0 +1,111 @@
+﻿@model AuctionInventory.Models.Supplier
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+</style>
+
+<div class="box-body">
+
+    <div>
+        <a class="popup btn btn-primary" href="/MSupplier/save/0" style="margin-bottom:20px; margin-top:20px;">Add New Supplier</a>
+       
+    </div>
+    <br />
+    <div>
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        <div id="pagingGrid"></div>
+        <br><br>
+    </div>
+</div>
+<script>
+    $(function () {
+
+        //this grid is used to fill the Supplier list
+
+        $('#dataGrid').jqGrid({
+            caption: "All Supplier List",
+            url: '/MSupplier/GetAllSuppliers',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iSupplierID', 'Supplier Photo', 'Company Name', 'Phone Number', 'Email', 'Address','Website', 'Date', 'Currency', 'Action'],
+            colModel: [
+                { name: 'iSupplierID', index: 'iSupplierID', hidden: true, hidedlg: true },
+                {
+                    name: 'SupplierPhoto',
+                    index: 'SupplierPhoto',
+                    //align: 'left',
+                    search: false,
+                    width: 80,
+                    align: 'center',
+
+                    formatter: function (cellvalue, options, rowObject) {
+                       
+                        //cellvalue = '"..\" + " +cellvalue + "';
+                        //cellvalue = "~\" + cellvalue;
+                        if (cellvalue==null) {
+                            return '<img src="/Images/Profiles/Supplier.png" alt="" height="60" width="50" class="img-circle"/>';
+                        }
+                        return '<img src="'+cellvalue+'" alt="" height="60" width="50" class="img-circle"/>';
+                       
+                    }
+                },
+                { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                
+
+                { name: 'iPhoneNumber', index: 'iPhoneNumber', align: 'center' },
+                 { name: 'strEmailID', index: 'strEmailID', align: 'center', width: 250 },
+                 { name: 'strAddress', index: 'strAddress', align: 'center' },
+
+                  { name: 'strWebsites', index: 'strWebsites', align: 'center', width: 250 },
+                 { name: 'SupplierDate', index: 'SupplierDate', align: 'center', width: 100 },
+            { name: 'strCurrencyName', index: 'strCurrencyName', align: 'center', width: 100 },
+             //{ name: 'strCategoryName', index: 'strCategoryName', align: 'center', width: 100 },
+                   {
+                       name: 'Action', index: 'Action', align: 'center', width: 250, search: false, title: false,
+                       formatter: function (cellvalue, options, rowObject) {
+
+                           return '<a class="popup btn btn-warning"  href="/MSupplier/Save/' + options.rowId + '">Edit</a>' + "   " + '<a class="popup btn btn-danger"  href="/MSupplier/Delete/' + options.rowId + '">Delete</a>';
+                       }
+
+                   },
+            ],
+            width: 1050,
+            height: 450,
+            rowNum: 10,
+            loadonce: true,
+            ignoreCase: true,
+            rowList: [10, 20, 30],
+            pager: 'pagingGrid',
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+    });
+
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

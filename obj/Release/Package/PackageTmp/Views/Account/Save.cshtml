@@ -1,0 +1,191 @@
+﻿@{
+    ViewBag.Title = "Save";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 15px;
+        color: #FFF;
+    }
+</style>
+<div class="box-body">
+
+    <div class="row">
+        <div class="form-group col-xs-4">
+            <label>Party</label>
+            <input id="strAccountPartyName" class="form-control input-group-lg" type="text"
+                   placeholder="Enter Party Name" />
+        </div>
+
+       
+
+        @*<div class="form-group col-xs-4">
+            <label>Debit</label>
+            <input id="strDebit" class="form-control input-group-lg" type="text"
+                   placeholder="Debit" />
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Credit </label>
+            <input id="strCredit" class="form-control input-group-lg" type="text"
+                   placeholder=" Credit" />
+        </div>*@
+        <div class="form-group col-xs-4">
+            <label>Date </label>
+            <input id="strAccountDate" class="form-control input-group-lg datepicker" type="text"
+                   placeholder=" Enter drop off date..." />
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Amount(DHM) </label>
+            <input id="strAmountInDHM" class="form-control input-group-lg" type="text" oninput="calculateAmountInYEN();"
+                   placeholder="Enter Amount in DHM" />
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Amount(YEN) </label>
+            <input id="strAmountInYEN" class="form-control input-group-lg" type="text" readonly />
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Description </label>
+            <input id="strDescription" class="form-control input-group-lg" type="text"
+                   placeholder="Enter Description " />
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Conversion Rate</label>
+            <input id="strConvRate" class="form-control input-group-lg" type="text" oninput="calculateAmountInYEN();"
+                   placeholder="Enter Conversion Rate" />
+        </div>
+        <div class="options form-group col-xs-2">
+
+            <label>Debit</label>
+            <input type="radio" name="PaymentOption" id="rdbDebitOption" value="1" checked="checked" />
+            &nbsp;
+            <label>Credit</label>
+            <input type="radio" name="PaymentOption" id="rdbCreditOption" value="2" />
+        </div>
+    </div>
+    <br>
+    <div id="dialog" style="display: none" align="center">
+        Do you want to Save ?
+    </div>
+    <input type="button" style="margin-left: 360px;" class="btn btn-success col-md-1" id="btnSave" value="Save " />
+
+    <input type="button" style="margin-left: 15px;" class="btn btn-warning col-md-2" value="Back To List" onclick="Cancel();">
+
+
+</div>
+
+<script>
+    
+    function Cancel() {
+        window.location.href = "/Account/Index";
+    }
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+
+    });
+
+    var arrAccountData = [];
+    $("#btnSave").click(function () {
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+                debugger
+
+                if ($("#rdbDebitOption").is(":checked")) {
+                    var paymentStatus = 1;    //1 for Paid
+                    
+                }
+                else {
+                    var paymentStatus = 2;  //2 for Credit
+                }
+
+                var strAccountPartyName = $("#strAccountPartyName").val();
+                //var strDebit = $("#strDebit").val();
+                //var strCredit = $("#strCredit").val();
+                var strAccountDate = $("#strAccountDate").val();
+                var strAmountInDHM = $("#strAmountInDHM").val();
+                var strAmountInYEN = $("#strAmountInYEN").val();
+                var strDescription = $("#strDescription").val();
+                var strConvRate = $("#strConvRate").val();
+                var AccountData =
+                      {
+                          strAccountPartyName: strAccountPartyName,
+                          //strDebit: paymentDebit,
+                          //strCredit: paymentCredit,
+                          strAccountDate: strAccountDate,
+                          dtAccountDate: strAccountDate,
+                          strAmountInDHM: strAmountInDHM,
+                          strAmountInYEN: strAmountInYEN,
+                          strDescription: strDescription,
+                          strConvRate: strConvRate,
+                          DebitCreditOptions: paymentStatus
+                      }
+                //arrAccountData.push(AccountData);
+                SaveAccountData(AccountData);
+
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    });
+
+
+    function SaveAccountData(model) {
+        debugger;
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/Account/SaveEdit",
+            data: JSON.stringify({ 'acntModel': model }),
+            success: function (data) {
+
+                window.location.href = "/Account/Index";
+            }
+        });
+    }
+
+
+    //Calculate Amount In YEN
+    function calculateAmountInYEN() {
+        debugger
+        var strAmountInDHM = parseFloat($('#strAmountInDHM').val());
+        var strConvRate = parseFloat($('#strConvRate').val());
+        var AmountInYEN = (strAmountInDHM * strConvRate).toFixed(3);
+        if (!isNaN(AmountInYEN) && AmountInYEN >= 0)
+        { $('#strAmountInYEN').val(AmountInYEN); } else { $('#strAmountInYEN').val("0"); }
+
+    }
+</script>
+
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />

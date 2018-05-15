@@ -1,0 +1,480 @@
+﻿@model AuctionInventory.Models.Customer
+
+@{
+    int RoleID = (int)System.Web.HttpContext.Current.Session["UserRoleID"];    
+}
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style type="text/css">
+    body {
+        font-family: Arial;
+        font-size: 10pt;
+    }
+
+    .error {
+        color: red;
+    }
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 10px;
+        color: #FFF;
+    }
+    .customer_save fieldset {
+        border: 0;
+    }
+
+    .customer_save .row {
+        padding: 0 25px;
+    }
+
+    .customer_save legend {
+        padding: 3px 15px;
+        display: inline-block;
+        background-color: #589c2b;
+        color: #fff;
+    }
+
+    .customer_save {
+        margin: 0 0 30px 10px;
+    }
+
+    #IDCopydvPreview img.img-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+    }
+    #VisaCopydvPreview img.img-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+    }
+</style>
+
+@using (Html.BeginForm("save", "MCustomer", FormMethod.Post, new { enctype = "multipart/form-data", id = "popupForm" }))
+{
+    if (Model != null && Model.iCustomerID > 0)
+    {
+        @Html.HiddenFor(a => a.iCustomerID)
+    }
+
+      <div class="row">
+            <div class="col-md-4">
+                <label>Customer Date </label>
+                @Html.TextBoxFor(a => a.CustomerDate, new { @class = "form-control datepicker input-group-lg", @placeholder = "Enter drop off date..." })
+                @Html.ValidationMessageFor(m => m.CustomerDate, "", new { @class = "error" })
+            </div>
+            <div class="col-md-4">
+                <label>Select Customer Type</label>
+                @Html.DropDownListFor(m => m.iCutomerTypeID, (IEnumerable<SelectListItem>)ViewBag.CutomerType, "---Select Customer Type---", new { @class = "form-control", @id = "ddlCutomerType", @onchange = "getCustomerType();" })
+                @Html.ValidationMessageFor(m => m.iCutomerTypeID, "", new { @class = "error" })
+            </div>
+        </div>
+    <br />
+    <div id="divForBothFiledSet" style="display:none">
+        <fieldset class="customer_save" id="customerFieldSet">
+            <legend>Customer Information:</legend>
+            </fieldset>
+            <div class="row">
+
+                @if (Model != null && Model.iCustomerID > 0 && Model.iCustomerID != null)
+                {
+                    @Html.TextBoxFor(a => a.IDCopyName, new { @type = "hidden", @id = "hdnIDCopyName" })
+                    @Html.TextBoxFor(a => a.VisaCopyName, new { @type = "hidden", @id = "hdnVisaCopyName" })
+
+    @*<div class="col-md-12 customer_save" id="divForHdnIDCopy">
+
+        <label style="margin-left:10px;">ID Copy</label>
+
+        <br />
+        <div class="btn btn-success col-md-3" style="max-height: 40px;">
+            <input type="button" class="btn btn-default col-md-5" value="Choose File" id="btnIDCopyImageData" style="max-height: 26px;">
+            <label id="lblIDCopy"></label>
+        </div>
+    </div>
+
+    <div class="col-md-12 customer_save" id="divForHdnVisaCopy" style="margin-left: 350px;margin-top: -88px;">
+
+        <label style="margin-left:10px;">Visa Copy</label>
+        <br />
+        <div class="btn btn-success col-md-3" style="max-height: 40px;">
+            <input type="button" class="btn btn-default col-md-5" value="Choose File" id="btnVisaCopyImageData" style="max-height: 26px;">
+            <label id="lblVisaCopy"></label>
+        </div>
+    </div>*@
+                }
+
+                <div class="col-md-12 customer_save" id="divForIDCopy">                  
+
+                    <label style="margin-left:10px;">ID Copy</label>
+                   
+                    <br />
+                    @*@Html.TextBoxFor(m => m.SupplierPhoto, new { @name="ImageData", @id="ImageData", @type = "file", @height="60", @width="50", @class="img-circle", onchange="fileCheck(this);" })*@
+                    @*<input class='btn btn-success' type="button" name="Submit" style="margin-left: 3px;" value=" choose ID Copy" id="IDCopybrowse" />*@
+                    <input type="file" class='btn btn-success' name="IDCopyImageData" id="IDCopyImageData" accept=".jpeg, .jpg, .png, .gif, .bmp,.pdf" alt="" onchange="fileCheck(this);" />
+                             
+                </div>
+               
+                <div class="col-md-12 customer_save" id="divForVisaCopy" style="margin-left: 350px; margin-top:-88px;">
+
+                    <label style="margin-left:10px;">Visa Copy</label>
+                    <br />
+
+
+                    @*<input class='btn btn-success' type="button" name="Submit" style="margin-left: 3px;" value="choose Visa Copy" id="VisaCopybrowse" />*@
+                    <input type="file" class='btn btn-success' name="VisaCopyImageData" id="VisaCopyImageData" accept=".jpeg, .jpg, .png, .gif, .bmp,.pdf" alt="" onchange="fileCheck(this);" />
+                   
+                </div>
+
+
+
+
+
+
+                 <div class="hdnDivForShowRoom col-md-3">
+                    <label>Name</label>
+                    @Html.TextBoxFor(a => a.strFirstName, new { @class = "form-control  input-group-lg", @placeholder = "Enter Customer Name" })
+                    @Html.ValidationMessageFor(m => m.strFirstName, "", new { @class = "error" })
+                </div>
+                <div class="hdnDivForShowRoom col-md-3">
+                    <label>Passport No</label>
+                    @Html.TextBoxFor(a => a.fltPassportNo, new { @class = "form-control  input-group-lg", @placeholder = "Enter Passport Number" })
+                    @Html.ValidationMessageFor(m => m.fltPassportNo, "", new { @class = "error" })
+                </div>
+                <div class="hdnDivForShowRoom col-md-3">
+                    <label>Passport Expiry Date </label>
+                    @Html.TextBoxFor(a => a.strExpiryDate, new { @class = "form-control datepicker input-group-lg", @placeholder = "Enter drop off date..." })
+                    @Html.ValidationMessageFor(m => m.strExpiryDate, "", new { @class = "error" })
+                </div>
+                <div class="hdnDivForShowRoom col-md-3">
+                    <label>PC Code </label>
+                    @Html.TextBoxFor(a => a.strPcCode, new { @class = "form-control  input-group-lg", @placeholder = "Enter PC Code" })
+                    @Html.ValidationMessageFor(m => m.strPcCode, "", new { @class = "error" })
+                </div>
+             
+               
+
+                @*<div class="hdnDivForShowRoom col-md-3">
+                    <label>Middle Name</label>
+                    @Html.TextBoxFor(a => a.strMiddleName, new { @class = "form-control  input-group-lg", @placeholder = "Enter Middle Name" })
+                    @Html.ValidationMessageFor(m => m.strMiddleName, "", new { @class = "error" })
+                </div>
+                 <div class="hdnDivForShowRoom col-md-3">
+                    <label>Last Name </label>
+                    @Html.TextBoxFor(a => a.strLastName, new { @class = "form-control  input-group-lg", @placeholder = "Enter Last Name" })
+                    @Html.ValidationMessageFor(m => m.strLastName, "", new { @class = "error" })
+                </div>*@
+                @*Feild For ShowRoom Start---*@
+                <div class="hdnDivForCustomer col-md-3">
+                    <label>FirstName </label>
+                    @Html.TextBoxFor(a => a.strPersonFirstName, new { @class = "form-control  input-group-lg", @placeholder = "Enter  First Name" })
+                    @Html.ValidationMessageFor(m => m.strPersonFirstName, "", new { @class = "error" })
+
+                </div>
+
+                <div class="hdnDivForCustomer col-md-3">
+                    <label>MiddleName</label>
+                    @Html.TextBoxFor(a => a.strPersonMiddleName, new { @class = "form-control  input-group-lg", @placeholder = "Enter  Middle Name" })
+                    @Html.ValidationMessageFor(m => m.strPersonMiddleName, "", new { @class = "error" })
+
+                </div>
+                <div class="hdnDivForCustomer col-md-3">
+                    <label>LastName </label>
+                    @Html.TextBoxFor(a => a.strPersonLastName, new { @class = "form-control  input-group-lg", @placeholder = "Enter  Last Name" })
+                    @Html.ValidationMessageFor(m => m.strPersonLastName, "", new { @class = "error" })
+                </div>
+                @*Feild For ShowRoom End---*@
+
+                <div class="col-md-3">
+                    <label>Country </label>
+                    @Html.DropDownListFor(m => m.iCountry, (IEnumerable<SelectListItem>)ViewBag.Country, null, new { @class = "form-control", @id = "ddlCountry" })
+                    @Html.ValidationMessageFor(m => m.iCountry, "", new { @class = "error" })
+                </div>
+                <div class="col-md-3">
+                    <label>City </label>
+                    @Html.DropDownListFor(m => m.iCity, (IEnumerable<SelectListItem>)ViewBag.City, null, new { @class = "form-control", @id = "ddlCity" })
+                    @Html.ValidationMessageFor(m => m.iCity, "", new { @class = "error" })
+                </div>
+                <div class="col-md-3">
+                    <label>Email </label>
+                    @Html.TextBoxFor(a => a.strEmailID, new { @class = "form-control  input-group-lg", @placeholder = "Enter Email Address" })
+                    @Html.ValidationMessageFor(m => m.strEmailID, "", new { @class = "error" })
+                </div>
+                 <div class="hdnDivForShowRoom col-md-3">
+                    <label>Phone Number </label>
+                    @Html.TextBoxFor(a => a.fltPhoneNumber, new { @class = "form-control  input-group-lg", @placeholder = "Enter Phone Number" })
+                    @Html.ValidationMessageFor(m => m.fltPhoneNumber, "", new { @class = "error" })
+                </div>
+
+                @*Feild For ShowRoom Start---*@
+                <div class="hdnDivForCustomer col-md-3">
+                    <label>Person Contact </label>
+                    @Html.TextBoxFor(a => a.strPersonPhoneNo, new { @class = "form-control  input-group-lg", @placeholder = "Enter  Number", @type = "number" })
+                    @Html.ValidationMessageFor(m => m.strPersonPhoneNo, "", new { @class = "error" })
+                </div>
+                @*Feild For ShowRoom End---*@
+
+                <div class="col-md-3">
+                    <label>Address </label>
+                    @Html.TextBoxFor(a => a.strAddress, new { @class = "form-control  input-group-lg", @placeholder = "Enter Address" })
+                    @Html.ValidationMessageFor(m => m.strAddress, "", new { @class = "error" })
+                </div>
+                <div class="col-md-3">
+                    <label>Pincode </label>
+                    @Html.TextBoxFor(a => a.strPincode, new { @class = "form-control  input-group-lg", @placeholder = "Enter Pincode", @type = "number" })
+                    @Html.ValidationMessageFor(m => m.strPincode, "", new { @class = "error" })
+                </div>
+               
+                 @*<div class="hdnDivForShowRoom col-md-3">*@
+                <div class="col-md-3">
+                    <label>Credit Limit </label>
+                    @Html.TextBoxFor(a => a.strCreditLimit, new { @class = "form-control  input-group-lg", @placeholder = "Enter Credit Limit", @type = "number" })
+                    @Html.ValidationMessageFor(m => m.strCreditLimit, "", new { @class = "error" })
+                </div>
+                    @*</div>*@
+
+                    <div class="hdnDivForShowRoom col-md-3">
+                        <label>Credit Category</label>
+
+                        @Html.DropDownListFor(m => m.iCreditCategoryID, (IEnumerable<SelectListItem>)ViewBag.CreditCategory, null, new { @class = "form-control", @id = "ddlCreditCategory" })
+                        @Html.ValidationMessageFor(m => m.iCreditCategoryID, "", new { @class = "error" })
+
+
+                        @*@Html.TextBoxFor(a => a.iCountry, new { @class = "form-control  input-group-lg", @placeholder = "Enter Country Name" })
+                @Html.ValidationMessageFor(m => m.iCountry, "", new { @class = "error" })*@
+
+
+                    </div>
+
+                    <div class="hdnDivForCustomer col-md-3">
+                        <label>ShowRoom Name </label>
+                        @Html.TextBoxFor(a => a.strShowRoomName, new { @class = "form-control  input-group-lg", @placeholder = "Enter ShowRoom Name" })
+                        @Html.ValidationMessageFor(m => m.strShowRoomName, "", new { @class = "error" })
+                    </div>
+                    <div class="hdnDivForCustomer col-md-3">
+                        <label>ShowRoom Number </label>
+                        @Html.TextBoxFor(a => a.strShowRoomNumber, new { @class = "form-control  input-group-lg", @placeholder = "Enter ShowRoom Number" })
+                        @Html.ValidationMessageFor(m => m.strShowRoomNumber, "", new { @class = "error" })
+                    </div>
+                    <div class="hdnDivForCustomer col-md-3">
+                        <label>ShowRoom Block </label>
+                        @Html.TextBoxFor(a => a.strBlock, new { @class = "form-control  input-group-lg", @placeholder = "Enter ShowRoom Block" })
+                        @Html.ValidationMessageFor(m => m.strBlock, "", new { @class = "error" })
+
+                    </div>
+                    <div class="hdnDivForCustomer col-md-3">
+                        <label>ShowRoom PhoneNo </label>
+                        @Html.TextBoxFor(a => a.strShowRoomPhoneNo, new { @class = "form-control  input-group-lg", @placeholder = "Enter ShowRoom PhoneNo", @type = "number" })
+                        @Html.ValidationMessageFor(m => m.strShowRoomPhoneNo, "", new { @class = "error" })
+                    </div>
+                <br/><br />
+                </div>
+        <br />
+        @if (RoleID == (int)AuctionInventory.Helpers.Enums.Roles.SuperAdmin)
+        {
+            <div class="col-md-2 options">
+                <label>BAN CUSTOMER </label>
+                @Html.HiddenFor(a => a.IsBlocked, new { @id = "hdnBlockstatus" })
+                @if (Model.IsBlocked == true)
+                {
+                    <input type="checkbox" id="chkBlock" class="options" onchange="blockUnblock();" checked="checked" />
+                }
+                else
+                {
+                    <input type="checkbox" id="chkBlock" onchange="blockUnblock();" />
+                }
+
+
+            </div>
+        }
+
+
+
+            <br />
+
+      
+    </div>
+    <div>
+        <br />
+        @if (Model != null && Model.iCustomerID > 0 && Model.iCustomerID != null)
+        {
+            <input type="submit" style="margin-left: 400px;" id="btnUpdate" class="btn btn-warning col-md-1" value="Update">
+        }
+        else
+        {
+            <input type="submit" style="margin-left: 400px;" id="btnSave" class="btn btn-success col-md-1" value="Save">
+        }
+
+        @*<input type="submit" value="Save" />*@
+
+        <input type="button" style="margin-left: 40px;" class="btn btn-warning col-md-1" value="Cancel" onclick="CancelCustomerInfo();" />
+
+    </div>
+}
+
+@{
+    <input type="hidden" id="hdniCity" value="@Model.iCity" />
+}
+
+<script type="text/javascript">
+
+    getCustomerType();
+
+    function CancelCustomerInfo() {
+        window.location.href = "/MCustomer/Index";
+    }
+
+    //$("#btnIDCopyImageData").click(function () {
+    //    $("#IDCopyImageData").click();
+
+    //    $("#divForIDCopy").show();
+    //    $("#divForHdnIDCopy").hide();
+    //});
+
+    //$("#btnVisaCopyImageData").click(function () {
+    //    $("#VisaCopyImageData").click();
+
+    //    $("#divForVisaCopy").show();
+    //    $("#divForHdnVisaCopy").hide();
+    //});
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers 
+
+
+    });
+
+    
+    function getCustomerType() {
+        debugger
+
+       
+
+        var CustomerTypeID = $("#ddlCutomerType").val();
+
+        if (CustomerTypeID == 1) {  //1 for showroom customer
+            $("#divForBothFiledSet").show();
+
+            $(".hdnDivForShowRoom").hide();
+            $(".hdnDivForCustomer").show();
+            //$("#showRoomFieldSet").show();
+            //$("#customerFieldSet").hide();
+        }
+        else if (CustomerTypeID == 2) { //2 for direct customer
+            $("#divForBothFiledSet").show();
+
+            $(".hdnDivForShowRoom").show();
+            $(".hdnDivForCustomer").hide();
+           
+        }
+        else { 
+            //$("#showRoomFieldSet").hide();
+            //$("#customerFieldSet").hide();
+            $("#divForBothFiledSet").hide();
+        }
+    }
+
+    function blockUnblock(val)
+    {
+        if ($('#chkBlock').is(":checked"))
+        {
+            
+            $('#hdnBlockstatus').val('true')
+           
+        } else { $('#hdnBlockstatus').val('false') }
+    }
+</script>
+
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+
+        $("#ddlCity").empty();
+        $.ajax({
+            type: "post",
+            url: "/MCustomer/GetCity",
+            data: { countryID: $('#ddlCountry').val() },
+            datatype: "json",
+            traditional: true,
+            success: function (data) {
+
+                $.each(data, function (i, city) {
+
+                    if ($("#hdniCity").val() == city.Value) {
+                        $("#ddlCity").append('<option value="' + city.Value + '" selected>' + city.Text + '</option>');
+                    }
+                    else {
+                        $("#ddlCity").append('<option value="' + city.Value + '" >' + city.Text + '</option>');
+                    }
+
+
+                });
+
+            }
+        });
+
+    });
+
+</script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#ddlCountry').change(function () {
+            $("#ddlCity").empty();
+            $.ajax({
+                type: "post",
+                url: "/MCustomer/GetCity",
+                data: { countryID: $('#ddlCountry').val() },
+                datatype: "json",
+                traditional: true,
+                success: function (data) {
+
+
+                    $.each(data, function (i, city) {
+                        $("#ddlCity").append('<option value="' + city.Value + '">' +
+                             city.Text + '</option>');
+                        // here we are adding option for States
+
+                    });
+
+                }
+            });
+        });
+    });
+</script>  
+
+
+
+<script type="text/javascript">
+
+
+   
+
+
+    function fileCheck(obj) {
+
+       
+        var fileExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp','pdf'];
+        if ($.inArray($(obj).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+            alert("Only '.jpeg','.jpg', '.png', '.gif', '.bmp','.pdf' formats are allowed.");
+        }
+        
+    }
+
+
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

@@ -1,0 +1,354 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+</style>
+<div class="tablecontainer">
+   
+    
+    <div class='form-group col-sm-3'>
+        <input id="txtSearchSupplier" class="form-control  input-group-sm" placeholder="Search By Supplier Name" />
+    </div>
+  
+    <br /><br /><br />
+    <div>
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        <br><br>
+    </div>
+    <div>
+        <input type="button" id="btnPrint" value="Print" class="btn btn-success col-lg-2" style="margin-left: 420px;" />
+    </div>
+</div>
+<script>
+
+    $(function () {
+        $("#txtSearchSupplier").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Reports/GetVehiclesBySupplierName/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+
+
+
+                                return {
+                                   
+                                    iSupplierID: item.iSupplierID,
+                                    strCompanyName: item.strCompanyName,
+
+
+
+                                    value: item.strCompanyName,
+
+                                }
+
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+
+                event.preventDefault();
+
+
+                $.ajax({
+                    url: '/Reports/GetVehiclesBySupplierID/',
+                    data: "{ 'id': '" + i.item.iSupplierID + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        debugger
+                        $("#dataGrid").jqGrid('GridUnload');
+
+
+                        var vehiclesList = data;
+
+                        $('#dataGrid').jqGrid({
+                            caption: "Vehicle Details Report list",
+                            datatype: "local",
+                            data: vehiclesList,                           
+
+                                colNames: ['iVehicleID', 'Chassis No', 'P-Date', 'Supplier Name', 'S-Date', 'Buyer Name', 'B-Price(YEN)', 'B-Price(DHM)', 'Veh Exp', 'Duty', 'T-Cost', 'S-Price', 'Margin'],
+                                colModel: [
+                                    { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+
+                                    { name: 'strChassisNum', index: 'strChassisNum',width:150, align: 'center' },
+                                     { name: 'strPurchaseInvoiceDate', index: 'strPurchaseInvoiceDate', align: 'center' },
+                                      { name: 'strSupplierName', index: 'strSupplierName', align: 'center' },
+                                       { name: 'strSalesDate', index: 'strSalesDate', align: 'center' },
+                                        { name: 'strFirstName', index: 'strFirstName', align: 'center' },
+                                         { name: 'iCustomValInJPY', index: 'iCustomValInJPY', align: 'center' },
+                                          { name: 'dirhams', index: 'dirhams', align: 'center' },
+                                           { name: 'dcmlExpenseAmount', index: 'dcmlExpenseAmount', align: 'center' },
+                                            { name: 'dmlDuty', index: 'dmlDuty', align: 'center' },
+                                             { name: 'TCost', index: 'TCost', align: 'center' },
+                                              { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+                                               { name: 'Margin', index: 'Margin', align: 'center' },
+                           
+                
+
+
+                                ],
+                                width: 1050,
+                                height: 350,
+                                rowNum: 1000,
+                                loadonce: true,
+                                ignoreCase: true,
+           
+                            });
+                        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+                    }
+
+
+                });
+
+
+
+
+
+
+            },
+            minLength: 1
+        });
+    });
+
+
+    $(function () {
+
+
+        //this grid is used to fill the Vehicle Details Report list
+
+        $('#dataGrid').jqGrid({
+            caption: "Vehicle Details Report list",
+            url: '/Reports/VehicleDetailsReport/',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iVehicleID', 'Chassis No', 'P-Date', 'Supplier Name', 'S-Date', 'Buyer Name', 'B-Price(YEN)', 'B-Price(DHM)', 'Veh Exp', 'Duty', 'T-Cost', 'S-Price', 'Margin'],
+            colModel: [
+                { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+
+                { name: 'strChassisNum', index: 'strChassisNum',width:150, align: 'center' },
+                 { name: 'strPurchaseInvoiceDate', index: 'strPurchaseInvoiceDate', align: 'center' },
+                  { name: 'strSupplierName', index: 'strSupplierName', align: 'center' },
+                   { name: 'strSalesDate', index: 'strSalesDate', align: 'center' },
+                    { name: 'strFirstName', index: 'strFirstName', align: 'center' },
+                     { name: 'iCustomValInJPY', index: 'iCustomValInJPY', align: 'center' },
+                      { name: 'dirhams', index: 'dirhams', align: 'center' },
+                       { name: 'dcmlExpenseAmount', index: 'dcmlExpenseAmount', align: 'center' },
+                        { name: 'dmlDuty', index: 'dmlDuty', align: 'center' },
+                         { name: 'TCost', index: 'TCost', align: 'center' },
+                          { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+                           { name: 'Margin', index: 'Margin', align: 'center' },
+                           
+                
+
+
+            ],
+            width: 1050,
+            height: 350,
+            rowNum: 1000,
+            loadonce: true,
+            ignoreCase: true,
+           
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        
+    });
+
+    //To Print All Sales Record
+    $("#btnPrint").click(function () {
+        debugger        
+        var grid = jQuery("#dataGrid").getRowData();
+        generateDetailVehicleReportPDF(grid);
+    });
+
+    function generateDetailVehicleReportPDF(data) {
+        debugger
+
+        //var griddata = jQuery("#dataGridByDate").getRowData();
+
+        var griddata = data;
+        var data = [];
+
+       
+
+
+        var columns = ['Chassis No', 'P-Date', 'Supplier Name', 'S-Date', 'Buyer Name', 'B-Price(YEN)', 'B-Price(DHM)', 'Veh Exp', 'Duty', 'T-Cost', 'S-Price', 'Margin'];
+
+    
+
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+            data.push([griddata[i].strChassisNum, griddata[i].strPurchaseInvoiceDate, griddata[i].strSupplierName, griddata[i].strSalesDate,
+                griddata[i].strFirstName, griddata[i].iCustomValInJPY, griddata[i].dirhams, griddata[i].dcmlExpenseAmount,
+                griddata[i].dmlDuty, griddata[i].TCost,
+                griddata[i].dmlSellingPrice, griddata[i].Margin]);
+        }
+
+
+        //Adding No OF vehicle and Sum OF Selling Price
+
+        //var TotalVehiclesCount = 0;
+        var TotalYENPrice = 0;
+        var TotalDHMPrice = 0;
+        var TotalSellPrice = 0;
+        var TotalDuty = 0;
+        var TotalExpAmount = 0;
+        var TotalCost = 0;
+        var TotalMargin = 0;
+
+        for (var i = 0; i < griddata.length; i++) {
+
+            //TotalVehiclesCount += parseInt(griddata[i].iVehicleID);
+            //TotalDuty += (isNaN(TotalDuty=griddata[i].dmlDuty) ? 0 : parseFloat(griddata[i].dmlDuty), 10);
+            //TotalExpAmount += (isNaN(griddata[i].dcmlExpenseAmount) ? 0 : parseFloat(griddata[i].dcmlExpenseAmount), 10);
+
+            //context = (isNaN(context = parseInt($("#context").val(), 10)) ? 0 : context),
+
+            //TotalExpAmount += (griddata[i].dmlDuty != null ? griddata[i].dmlDuty : 0) + (griddata[i].dcmlExpenseAmount != null ? griddata[i].dcmlExpenseAmount : 0)
+
+            TotalYENPrice += parseFloat(griddata[i].iCustomValInJPY);
+            TotalDHMPrice += parseFloat(griddata[i].dirhams);
+
+            TotalSellPrice += parseFloat(griddata[i].dmlSellingPrice);
+            TotalDuty += parseFloat(griddata[i].dmlDuty) || 0;
+            TotalExpAmount += parseFloat(griddata[i].dcmlExpenseAmount) || 0;
+            TotalCost += parseFloat(griddata[i].TCost);
+            TotalMargin += parseFloat(griddata[i].Margin);
+
+        }
+
+        var TotalVehiclesCount = $("#dataGrid").getGridParam("reccount");
+
+
+
+        data.push([ , , 'Total Veh', TotalVehiclesCount, 'Total', TotalYENPrice, TotalDHMPrice, TotalExpAmount, TotalDuty, TotalCost, TotalSellPrice, TotalMargin]);
+
+
+        //var fromDate = $("#fromDate").val();
+        //var toDate = $("#toDate").val();
+        //var sumOfSellingPrice = $('#hdnSellingPrice').val();
+
+        //var custFullName = $("#hdnCustomerName").val();
+        //var custAddr = $("#hdnCustomerAddress").val();
+        //var custPhone = $("#hdnCustomerContactNumber").val();
+
+        //data.push([, , , ,  'Total', ,,,,,,]);
+
+        //var d = new Date();
+
+        //var month = d.getMonth() + 1;
+        //var day = d.getDate();
+
+        //var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+
+       
+        var doc = new jsPDF('l', 'mm', [350, 300], '');
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("M.D.MOTORS", data.settings.margin.left + 140, 10);
+
+            doc.setFontStyle('normal');
+            doc.setFontSize(15);
+            doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            doc.setFontStyle('bold', 'underline');
+            doc.text("Detail Report", data.settings.margin.left + 140, 35);
+
+           
+
+
+
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 40 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+
+
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="~/Content/plugins/jsPDF-2/faker.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

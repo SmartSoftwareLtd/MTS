@@ -1,0 +1,244 @@
+﻿@{
+    ViewBag.Title = "DepositList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="box-body" id="divFillByVehicle">
+    <input type="hidden" id="hdnSumExpDeposite" />
+    <input type="hidden" id="hdnSumImpDeposite" />
+    <div class='form-group col-sm-3'>
+        <label>From Date:</label>
+        <input class='form-control datepicker input-group-sm' placeholder='Enter From date...' id='fromDate' />
+    </div>
+    <div class='form-group col-sm-3'>
+        <label>To Date:</label>
+        <input class='form-control datepicker input-group-sm' placeholder='Enter To date...' id='toDate' />
+
+    </div>
+    <div class='form-group col-sm-3' style="margin-top:25px;">
+        <input type="button" class="btn btn-success  input-group-sm" value="Sort List By Date" id="btnDate" />
+    </div>
+    <br /><br /><br /><br /><br />
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+
+    <br />
+    <input type="button" style="margin-left: -10px;display:none" class="btn btn-success col-md-2" id="btnPrint" value="Print Deposit" onclick="generateDepositPDF()" />
+
+</div>
+
+<script>
+
+    $("#btnDate").click(function () {
+        var from = $("#fromDate").val();
+        var to = $("#toDate").val();
+        var dates = (JSON.stringify({ fromDate: from, toDate: to }));
+        debugger
+
+        $.ajax({
+            url: '/Papers/GetDepositListData/',
+            dataType: 'json',
+            type: 'POST',
+            data: JSON.stringify({ 'fromDate': from, 'toDate': to }),
+            contentType: 'application/json; charset=utf-8',
+
+            success: function (result) {
+                $("#dataGrid").jqGrid('GridUnload');
+                //$('#btnPrintByDate').show();
+                var depostitData = result.DepositListDataByDate;
+
+                $('#dataGrid').jqGrid({
+                    caption: "Deposit List",
+                    data: depostitData,
+                    datatype: "local",
+
+
+                    colNames: ['ExpDepDate', 'ExpDepAmount', 'ImpDepDate', 'ImpDepAmount'],
+                    colModel: [
+                        { name: 'expDepositeDate', index: 'expDepositeDate', hidedlg: true },
+                        { name: 'dcmlExportDeposit', index: 'dcmlExportDeposit', hidedlg: true },
+                        { name: 'impDepositeDate', index: 'impDepositeDate', hidedlg: true },
+
+                         { name: 'dcmlImpDeposit', index: 'dcmlImpDeposit', hidedlg: true },
+
+
+                    ],
+                    width: 800,
+                    height: 300,
+                    rowNum: 100000,
+                    loadonce: true,
+                    rownumbers: true,
+                    //rowList: [10, 20, 30],
+                    //pager: 'pagingGrid',
+
+
+
+
+                });
+                jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+                $('#btnPrint').show();
+            }
+
+        });
+
+
+
+    });
+</script>
+
+<script type="text/javascript">
+
+
+
+    $(function () {
+
+        $("#fromDate").val("09/01/2017");
+        $("#toDate").val("09/30/2017");
+
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });
+
+    });
+
+</script>
+<script>
+
+    //Calculate Sum of AED and JPY From first grid
+    function CalculateSum() {
+
+        //caculating all rows AED and JPY
+        var allRows = jQuery('#dataGrid').getDataIDs();
+        var sumExpDeposit = 0;
+        var sumImpDeposit = 0;
+
+        for (var j = 0; j < allRows.length; j++) {
+            var rowData = jQuery("#dataGrid").getRowData(allRows[j]);
+            sumExpDeposit += Number(rowData['dcmlExportDeposit']);//Calculating Sum of AED column
+            sumImpDeposit += Number(rowData['dcmlImpDeposit']);//Calculating Sum of dcmlJYP column
+        }
+        $('#hdnSumExpDeposite').val(sumExpDeposit);
+        $('#hdnSumImpDeposite').val(sumImpDeposit);
+
+    }
+
+    $("#btnPrint").click(function () {
+        debugger
+        CalculateSum();
+        var grid = jQuery("#dataGrid").getRowData();
+        generatePurchaseReportPDF(grid);
+    });
+
+    function generatePurchaseReportPDF(data) {
+        debugger
+
+        //var griddata = jQuery("#dataGridByDate").getRowData();
+        var griddata = data;
+
+        var columns = ['ExpDeposite Date', 'Amount', 'ImpDeposite Date', 'Amount'];
+
+
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+
+            data.push([griddata[i].expDepositeDate, griddata[i].dcmlExportDeposit, griddata[i].impDepositeDate, griddata[i].dcmlImpDeposit]);
+
+        }
+
+        var fromDate = $("#fromDate").val();
+        var toDate = $("#toDate").val();
+        var sumExpDeposit = $("#hdnSumExpDeposite").val();
+        var sumImpDeposit = $("#hdnSumImpDeposite").val();
+
+        //var suppFullName = $("#hdnSupplierFullName").val();
+        //var suppAddress = $("#hdnSupplierAddress").val();
+        //var suppPhone = $("#hdnSupplierContactNumber").val();
+        //var suppEmail = $("#hdnSupplierEmail").val();
+
+        data.push(['Total', sumExpDeposit, 'Total', sumImpDeposit]);
+
+        var d = new Date();
+
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+
+        var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+
+        var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.text("Deposit Report", data.settings.margin.left + 65, 10);
+            doc.setFontSize(10);
+            doc.text("From Dt:", data.settings.margin.left + 40, 40);
+            doc.text(fromDate + '- ', data.settings.margin.left + 55, 40);
+            doc.text("To Dt:", data.settings.margin.left + 75, 40);
+            doc.text(toDate, data.settings.margin.left + 85, 40);
+            doc.text("Rprt Dt:", data.settings.margin.left + 130, 20);
+            doc.text(ReportDate, data.settings.margin.left + 145, 20);
+            //doc.setFontSize(20)
+            //doc.setTextColor(0, 0, 255)
+            //doc.text(suppFullName, data.settings.margin.left, 20);
+            //doc.setFontSize(10)
+            //doc.text(suppAddress, data.settings.margin.left, 25);
+            //doc.text(suppPhone, data.settings.margin.left, 30);
+            //doc.text(suppEmail, data.settings.margin.left, 35);
+
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 50 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    // doc.setFontSize(14);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>

@@ -1,0 +1,1699 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 15px;
+        color: #FFF;
+    }
+    .ui-autocomplete {
+        max-height: 180px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+</style>
+<div class="box-body" id="divForSalesVehicleGrid">
+    <div>
+        <a class="btn btn-primary" href="/Sales/SaleVehicle" style="margin-bottom:20px; margin-top:20px;">Add New</a>
+
+    </div>
+    <br />
+    <div>
+        <table id="dataGridForSalesList" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridForSalesList"></div>*@
+        <br><br>
+    </div>
+</div>
+
+
+<div id="divForUpdateSalesVehicle" style="display:none">
+
+
+
+
+
+    <div class="row">
+        <input type="hidden" id="hfSaleID" />
+        <input type="hidden" id="hfCustomer" />
+        <label style="display:none" id="hfSaleFrontEndID"></label>
+
+        <input type="hidden" id="hfCreditLimitDate" />
+
+        <input type="hidden" id="iImpExpTransfer" />
+        <input type="hidden" id="iPaymentType" />
+        <input type="hidden" id="txtInvoiceNum" />
+        <div class="form-group col-xs-4">
+            <input type="hidden" id="hdnReceiptNo" />
+            <label id="receiptLbl" style="display:none" class="label label-warning form-control input-group-lg">Rcpt No: Rpt-@(@DateTime.Now.Year % 100)-<span id="iReceiptNo"></span></label>
+            <h3><label id="invoiceLbl" class="label label-warning form-control input-group-lg">Sales Inv No: SI-@(@DateTime.Now.Year % 100)-<span id="spnInvoiceNum"></span></label></h3>
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Sales Date</label>
+            <input id="salesDate" class="form-control datepicker input-group-lg" type="text" name="Date"
+                   placeholder="Enter Drop-off date here..." />
+        </div>
+        <input type="button" class="btn btn-success col-md-2" style="margin-top: 25px;" id="btnsalesDate" value="Get Auction List By Date">
+    </div>
+
+    <div class="box-body" id="divFillByVehicle">
+        <br />
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGrid"></div>*@
+
+    </div>
+
+
+    <div class="box-body" id="divAddVehicle">
+        <table id="GridAddVehicle" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridAddVehicle"></div>*@
+        <br>
+
+        <div class="row" id="divForShowRoom" style="display:none">
+            <div class="form-group col-xs-4" style="margin-left: 15px;">
+                <label>Search By Customer Name</label>
+                <input id="txtShowRoomName" class="ui-autocomplete form-control input-group-lg" type="text"
+                       placeholder="Search By Customer Name" />
+            </div>
+        </div>
+        <div class="row" id="divForDirect" style="display:none">
+            <div class="form-group col-xs-4" style="margin-left: 15px;">
+                <label>Search By Customer Name</label>
+                <input id="txtBuyerName" class="ui-autocomplete form-control input-group-lg" type="text" name="BuyerName"
+                       placeholder="Search By Customer Name" />
+            </div>
+        </div>
+
+        @*<div class="row">
+                <div class="form-group col-xs-4">
+                    <label>Search By Customer Name</label>
+                    <input id="txtBuyerName" class="form-control input-group-lg" type="text" name="BuyerName"
+                           placeholder="Search By Customer Name" />
+                </div>
+            </div>*@
+        <br>
+        <div id="divCustomerInfo">
+
+            <div class="row" id="divForDirectData">
+                <div class="form-group col-xs-3">
+                    <label>Customer Name</label>
+                    <input id="txtCustomerName" class="form-control input-group-lg" type="text" name="CustomerName"
+                           placeholder="Customer Name" readonly />
+                </div>
+
+                <div class="form-group col-xs-3">
+                    <label>Customer Contact</label>
+                    <input id="txtCustomerContact" class="form-control input-group-lg" type="text" name="CustomerContact"
+                           placeholder="Customer Contact" readonly />
+                </div>
+
+                @*<div class="form-group col-xs-3">
+                        <label>Balance</label>
+                        <input id="txtBalance" class="form-control input-group-lg" type="text" readonly
+                               placeholder="Balance" />
+                    </div>*@
+
+                <div class="form-group col-xs-3">
+                    <label>Credit Limit</label>
+                    <input id="txtCreditLimit" class="form-control input-group-lg" type="text" readonly
+                           placeholder="Credit Limit" />
+                </div>
+                <div class="form-group col-xs-3">
+                    <label>Credit Category</label>
+                    <input id="txtCreditCategory" class="form-control input-group-lg" type="text" readonly
+                           placeholder="Credit Category" />
+                </div>
+            </div>
+
+
+            <div class="row" id="divForShowRoomData">
+                <div class="form-group col-xs-3">
+                    <label>Customer Name</label>
+                    <input id="showRoomPersonName" class="form-control input-group-lg" type="text" readonly />
+                </div>
+                <div class="form-group col-xs-3">
+                    <label>Customer PhoneNo</label>
+                    <input id="strPersonPhoneNo" class="form-control input-group-lg" type="text" readonly />
+                </div>
+                <div class="form-group col-xs-3">
+                    <label>ShowRoom Name</label>
+                    <input id="strShowRoomName" class="form-control input-group-lg" type="text" readonly />
+                </div>
+
+                <div class="form-group col-xs-3">
+                    <label>ShowRoom No</label>
+                    <input id="strShowRoomNumber" class="form-control input-group-lg" type="text" readonly />
+                </div>
+
+                @*<div class="form-group col-xs-3">
+                        <label>Balance</label>
+                        <input id="txtBalance" class="form-control input-group-lg" type="text" readonly
+                               placeholder="Balance" />
+                    </div>*@
+
+                <div class="form-group col-xs-3">
+                    <label>ShowRoom PhoneNo</label>
+                    <input id="strShowRoomPhoneNo" class="form-control input-group-lg" type="text" readonly />
+                </div>
+                <div class="form-group col-xs-3">
+                    <label>Block</label>
+                    <input id="strBlock" class="form-control input-group-lg" type="text" readonly />
+                </div>
+               
+            </div>
+
+            <div class="row">
+                <br />
+                <div class="form-group col-xs-4">
+                    <label>Book No</label>
+                    <input id="txtBookingID" class="form-control input-group-lg" type="text"
+                           placeholder="Enter Book Number" />
+                </div>
+
+                <div class="form-group col-xs-4">
+                    <label>Voucher No</label>
+                    <input id="txtVoucherNo" class="form-control input-group-lg" type="text"
+                           placeholder="Enter Voucher No" />
+                </div>
+                <div class='form-group col-xs-3'>
+                    <label>Reference No.:</label>
+                    <input class='form-control' name='' id='txtReferenceNum' maxlength="25" />
+                </div>
+            </div>
+
+            <div class="row">
+                <br />
+                <div class="form-group col-xs-4">
+                    <label>Selling Price</label>
+                    <input id="txtSellingPrice" class="form-control input-group-lg" type="text" oninput="calculateBalance()"
+                           placeholder="Selling Price" />
+                </div>
+
+                @*<div class="form-group col-xs-4">
+                        <label>Deposit</label>
+                        <input id="txtDeposit" class="form-control input-group-lg" type="text"
+                               placeholder="Deposit" />
+                    </div>*@
+                <div class="form-group col-xs-4">
+                    <label>Advance</label>
+                    <input id="txtAdvance" class="form-control input-group-lg" oninput="calculateBalance()" type="text"
+                           placeholder="Advance" />
+                </div>
+            </div>
+
+
+            <div class="row">
+
+                @*<div class="form-group col-xs-4">
+                        <label>Installment</label>
+                        <input id="txtInstallment" class="form-control input-group-lg" type="text"
+                               placeholder="Installment" />
+                    </div>*@
+
+                <div class="form-group col-xs-4">
+                    <label>Balance</label>
+                    <input id="txtSaleBalance" class="form-control input-group-lg" type="text"
+                           placeholder="Balance" readonly />
+                </div>
+
+                <div class="form-group col-xs-4">
+                    <label>Parking Fees</label>
+                    <input id="txtParkingFees" class="form-control input-group-lg" type="text"
+                           placeholder="Parking Fees" />
+                </div>
+            </div>
+
+
+            <label style="margin-left: -180px;">Select payment Option:</label>
+            <div class="options" style="margin-left: 1px;">
+
+                <label>Cash</label>
+                <input type="radio" name="PaymentOption" id="rdbCashOption" value="1" checked="checked" />
+                &nbsp;
+                <label>Credit</label>
+                <input type="radio" name="PaymentOption" id="rdbCreditOption" value="2" />
+            </div>
+
+            @*<label>Paper Type:</label>
+            <div class="options" id="divBoxGroup" style="margin-left: 1px;">
+                <label>
+                    <input type="radio" id="ckbImportOption" name="nam_GroupMode" value="1" checked="checked" />Import
+                </label>
+                <label>
+                    <input type="radio" id="ckbExportOption" name="nam_GroupMode" value="2" />Export
+                </label>
+                <label>
+                    <input type="radio" id="ckbTransferOption" name="nam_GroupMode" value="3" />Transfer
+                </label>
+            </div>
+
+            <label>Car Option:</label>
+            <div class="options">
+
+                <label>PickUP</label>
+                <input type="radio" name="CarOption" onclick="PickUPOption()" id="rdbPickUPOption" value="1" checked="checked" />
+                &nbsp;
+                <label>Withheld</label>
+                <input type="radio" name="CarOption" onclick="WithheldOption()" id="rdbWithheldOption" value="2" />
+            </div>*@
+
+            <label>Select Yard:</label>
+            <div class='form-group col-sm-2' id="divddlYard">
+                @*<label>Party</label>*@
+                <select class="form-control input-group-sm" style="margin-left: 400px;margin-top: 0;" id="ddlYard" name="DynamicYard" onchange='getYard(this);'>
+                    <option>Select Yard</option>
+                </select>
+            </div>
+            <br />
+            <div style="clear:both"></div>
+            @*<div class="form-group col-xs-4" style="margin-top:20px;">
+                    <label>Deposit</label>
+                    <input id="txtDeposit" class="form-control input-group-lg" type="text" placeholder="Deposit" style="float:right; width:250px;" />
+                </div>*@
+        </div>
+
+
+    </div>
+
+    <div>
+        <br />
+        <div id="dialog" style="display: none" align="center">
+            Do you want to Update this Sales?
+        </div>
+
+        <div id="dialog2" style="display: none" align="center">
+            Do you want to Delete this Sales?
+        </div>
+        <input type="button" style="margin-left: 330px;display:none" class="btn btn-success col-md-2" id="printInfo" value="Print" onclick="generateSalesInvoicetPDF();">
+
+        <input type="button" style="margin-left: 240px;" class="btn btn-success col-md-2" id="updateSaleInfo" value="Update">
+
+        <input type="button" style="margin-left: 40px" class="btn btn-warning col-md-2" value="Cancel" onclick="CancelSalesInfo();" id="cancelSaleInfo">
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+
+
+
+
+    function CancelSalesInfo() {
+        window.location.href = "/Sales/Index";
+    }
+
+    $(function () {
+
+        //this grid is used to fill the sales list
+
+        $('#dataGridForSalesList').jqGrid({
+            caption: "Sales List",
+            url: '/Sales/GetSalesData/',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iSaleID', 'iCutomerTypeID', 'showRoomPersonName', 'strPersonPhoneNo', 'strShowRoomName', 'strShowRoomNumber', 'strShowRoomPhoneNo', 'strBlock', 'iSaleFrontEndID',
+
+                'iSalesInvoiceID', 'dtCreditLimitDate', 'Sales InvNo', 'Chassis No', 'make', 'iImpExpTransfer', 'iPaymentType', 'iCustomerID', 'Book ID', 'Voucher No', 'BuyerName', 'SalesDate', 'SellingPrice', 'Advance', 'Balance', 'CashType', 'PaperMode', 'dmlParkingFees', 'iCarStatusID', 'iYardID','Reference Num', 'Action'],
+            colModel: [
+                { name: 'iSaleID', index: 'iSaleID', hidden: true, hidedlg: true },
+                 { name: 'iCutomerTypeID', index: 'iCutomerTypeID', hidden: true, hidedlg: true },
+
+                  { name: 'showRoomPersonName', index: 'showRoomPersonName', hidden: true, hidedlg: true },
+                   { name: 'strPersonPhoneNo', index: 'strPersonPhoneNo', hidden: true, hidedlg: true },
+
+                  { name: 'strShowRoomName', index: 'strShowRoomName', hidden: true, hidedlg: true },
+                  { name: 'strShowRoomNumber', index: 'strShowRoomNumber', hidden: true, hidedlg: true },
+                  { name: 'strShowRoomPhoneNo', index: 'strShowRoomPhoneNo', hidden: true, hidedlg: true },
+                  { name: 'strBlock', index: 'strBlock', hidden: true, hidedlg: true },
+
+                { name: 'iSaleFrontEndID', index: 'iSaleFrontEndID', hidden: true, hidedlg: true },
+                { name: 'iSalesInvoiceID', index: 'iSalesInvoiceID', hidden: true, hidedlg: true },
+                 { name: 'dtCreditLimitDate', index: 'dtCreditLimitDate', hidden: true, hidedlg: true },
+                { name: 'strSalesInvoiceNo', index: 'strSalesInvoiceNo', align: 'center', search: false, hidden: true, hidedlg: true },
+
+                  { name: 'strChassisNum', index: 'strChassisNum', search: false, width: 180 },
+                     { name: 'strMake', index: 'strMake', hidden: true, hidedlg: true, align: 'center', search: false },
+
+                 { name: 'iImpExpTransfer', index: 'iImpExpTransfer', hidden: true, hidedlg: true },
+                  { name: 'iPaymentType', index: 'iPaymentType', hidden: true, hidedlg: true },
+                  { name: 'iCustomerID', index: 'iCustomerID', hidden: true, hidedlg: true },
+
+
+                    { name: 'strBookingID', index: 'strBookingID', search: false, width: 100 },
+                    { name: 'strVoucherNo', index: 'strVoucherNo', search: false, width: 100 },
+
+              { name: 'strBuyerName', index: 'strBuyerName', formatter: formatBuyerName, search: false, width: 200 },
+                { name: 'strSalesDate', index: 'strSalesDate', search: false },
+                { name: 'dmlSellingPrice', index: 'dmlSellingPrice', search: false },
+                //{ name: 'dmlDeposit', index: 'dmlDeposit', align: 'center' },
+                { name: 'dmlAdvance', index: 'dmlAdvance', search: false },
+                { name: 'dmlBalance', index: 'dmlBalance', hidden: true, hidedlg: true },
+                //{ name: 'iInstallment', index: 'iInstallment', align: 'center' },
+                { name: 'strCashName', index: 'strCashName', align: 'center', hidden: true, hidedlg: true },
+                { name: 'strPaperModeName', index: 'strPaperModeName', hidden: true, hidedlg: true },
+
+                { name: 'dmlParkingFees', index: 'dmlParkingFees', hidden: true, hidedlg: true },
+                  { name: 'iCarStatusID', index: 'iCarStatusID', hidden: true, hidedlg: true },
+                  { name: 'iYardID', index: 'iYardID', hidden: true, hidedlg: true },
+                  { name: 'strReferenceNumber', index: 'strReferenceNumber', hidden: true, hidedlg: true },
+
+
+
+                 {
+                     name: 'Action', index: 'Action', width: 350, search: false, title: false,
+                     formatter: function (cellvalue, options, rowObject) {
+
+                         return "<input class='popup btn btn-warning' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  />"
+                         //+ "   " + '<a class="popup btn btn-danger"  href="/Sales/Delete/' + options.rowId + '">Delete</a>';
+
+                         + "   " + "<input class='btn btn-danger' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"deleteSalesRecord('" + options.rowId + "');\"  />"
+
+                         + "   " + "<input class='btn btn-info' style='margin-right: 5%; ' type='button' value='Print' onclick=\"generateSalesInvoicetPDF('" + options.rowId + "');\"  />";
+
+                     }
+
+                 },
+
+
+            ],
+            //shrinkToFit: false,
+            //forceFit: true,
+            width: 1150,
+            height: 300,
+            rowNum: 100000,
+            rownumbers: true,
+            rownumWidth:60,
+            loadonce: true,
+            ignoreCase: true,
+            cmTemplate: { sortable: false },
+            // rowList: [10, 20, 30],
+            // pager: 'pagingGridForSalesList',
+
+            //gridComplete: function () {
+
+            //    var ids = jQuery("#dataGrid").jqGrid('getDataIDs');
+
+            //    for (var i = 0; i < ids.length; i++) {
+            //        var cl = ids[i];
+            //        be = "<input class='popup btn btn-info' style='margin-right: 5%; margin-left: 8%;' type='button' value='Edit' onclick=\"editRowData('" + cl + "');\"  />";
+            //        //se = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Save'  onclick=\"saveExportRow('" + cl + "');\"/>";
+            //        //ce = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGridExport').restoreRow('" + cl + "');\" />";
+
+            //        jQuery("#dataGrid").jqGrid('setRowData', ids[i], { act: be });
+            //    }
+            //},
+
+
+        });
+        jQuery("#dataGridForSalesList").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //jQuery("#dataGridForSalesList").jqGrid('navGrid', '#pagingGridForSalesList', { edit: false, add: false, del: false, search: false });
+
+        function formatBuyerName(cellValue, options, rowObject) {
+            debugger
+            //var rowData = jQuery("#dataGridForSalesList").getRowData(options.rowId);
+
+            //var iCutomerTypeID = rowData['iCutomerTypeID'];
+            if (rowObject[1] == 1) {
+
+                return rowObject[19] = rowObject[2];
+
+
+            } else if (rowObject[1] == 2) {
+
+                return rowObject[19];
+            }
+            else {
+
+                return "";
+            }
+
+        }
+
+    });
+
+    var arr = new Array();
+    var arrRemoveSumJPY = new Array();
+    function editRowData(rowID) {
+        debugger
+        //arr = new Array();
+        $("#divForSalesVehicleGrid").hide();
+        $("#divForUpdateSalesVehicle").show();
+
+        var rowData = jQuery("#dataGridForSalesList").getRowData(rowID);
+
+        var iSaleID = rowData['iSaleID'];
+
+
+
+        var iSaleFrontEndID = rowData['iSaleFrontEndID'];
+
+        var dtCreditLimitDate = rowData['dtCreditLimitDate'];
+
+        var iSalesInvoiceID = rowData['iSalesInvoiceID'];
+
+        var strSalesInvoiceNo = rowData['strSalesInvoiceNo'];
+
+        var iCustomerID = rowData['iCustomerID'];
+
+
+
+        var iCutomerTypeID = rowData['iCutomerTypeID'];
+
+        
+        
+        var showRoomPersonName = rowData['showRoomPersonName'];
+        var strPersonPhoneNo = rowData['strPersonPhoneNo'];
+
+        var strShowRoomName = rowData['strShowRoomName'];
+
+        var strShowRoomNumber = rowData['strShowRoomNumber'];
+
+        var strShowRoomPhoneNo = rowData['strShowRoomPhoneNo'];
+
+        var strBlock = rowData['strBlock'];
+        var refNum = rowData['strReferenceNumber'];
+
+        if (iCutomerTypeID == 1)//showRoom Customer
+        {
+            $("#divForShowRoom").show();
+            $("#divForDirect").hide();
+            $("#divForDirectData").hide();
+
+
+        } else if (iCutomerTypeID == 2)//Direct Customer
+        {
+            $("#divForShowRoomData").hide();
+            $("#divForShowRoom").hide();
+            $("#divForDirect").show();
+        }
+
+
+        var strBuyerName = rowData['strBuyerName'];
+        var strSalesDate = rowData['strSalesDate'];
+
+
+        var strBookingID = rowData['strBookingID'];
+        var strVoucherNo = rowData['strVoucherNo'];
+
+
+        var dmlSellingPrice = rowData['dmlSellingPrice'];
+        //var dmlDeposit = rowData['dmlDeposit'];
+
+        var dmlAdvance = rowData['dmlAdvance'];
+        var dmlBalance = rowData['dmlBalance'];
+        //var iInstallment = rowData['iInstallment'];
+
+
+        var iImpExpTransfer = rowData['iImpExpTransfer'];
+        var iPaymentType = rowData['iPaymentType'];
+
+
+
+        var dmlParkingFees = rowData['dmlParkingFees'];
+
+
+        var iCarStatusID = rowData['iCarStatusID'];
+
+        var iYardID = rowData['iYardID'];
+
+        /////////////For payment,Paper and Car Mode radio as selected
+
+        $("input[name=PaymentOption][value=" + iPaymentType + "]").prop('checked', true);
+
+        //$("input[name=nam_GroupMode][value=" + iImpExpTransfer + "]").prop('checked', true);
+
+        //$("input[name=CarOption][value=" + iCarStatusID + "]").prop('checked', true);
+
+        /////////feching data from grid and passing value to textboxes
+        
+        $("#showRoomPersonName").val(showRoomPersonName);
+        $("#strPersonPhoneNo").val(strPersonPhoneNo);
+
+        $("#strShowRoomName").val(strShowRoomName);
+        $("#strShowRoomNumber").val(strShowRoomNumber);
+        $("#strShowRoomPhoneNo").val(strShowRoomPhoneNo);
+        $("#strBlock").val(strBlock);
+
+        $("#hfSaleID").val(iSaleID);
+        $("#hfCustomer").val(iCustomerID); $("#hfCreditLimitDate").val(dtCreditLimitDate);
+        $("#hfSaleFrontEndID").html(iSaleFrontEndID); $("#txtBuyerName").val("");
+        $("#txtCustomerName").val(strBuyerName); $('#txtBookingID').val(strBookingID); $('#txtVoucherNo').val(strVoucherNo);
+        $("#salesDate").val(strSalesDate); $("#txtSellingPrice").val(dmlSellingPrice); //$("#txtDeposit").val(dmlDeposit);$("#txtInstallment").val(iInstallment);
+        $("#txtAdvance").val(dmlAdvance); $("#txtSaleBalance").val(dmlBalance); $("#txtParkingFees").val(dmlParkingFees);
+        //$("input[name='nam_GroupMode']:checked").val(strCashName);
+        //$("input[name='PaymentOption']:checked").val(strPaperModeName);
+
+        $("#iImpExpTransfer").val(iImpExpTransfer);
+        $("#iPaymentType").val(iPaymentType);
+        $("#txtReferenceNum").val(refNum);
+
+         
+
+        $("#txtInvoiceNum").val(iSalesInvoiceID);
+
+
+        $("#spnInvoiceNum").text(iSalesInvoiceID);
+
+        //////////////this is used to fill the grid at load time by all vehicle
+
+        var salesDate = $("#salesDate").val();
+
+        fillDataGridBySaleDate(salesDate);
+
+
+        /////////taking sales FrontEnd id and pass to controller for getting all the vehicles associated with that frontEnd id
+
+        var request = iSaleFrontEndID;
+        jQuery.ajax({
+            url: '/Sales/GetSaleVehicleBySalesFrntID/',
+            data: "{ 'id': '" + request + "'}",
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                debugger
+                // arr.push(result);
+
+
+
+                var listVehicle = result.listVehicle;
+
+
+                for (var i = 0; i < listVehicle.length; i++) {
+
+                    arr.push({ VehicleID: listVehicle[i].iVehicleID })
+
+
+
+                    arrRemoveSumJPY.push({ VehicleID: listVehicle[i].iVehicleID, AED: listVehicle[i].DHM })
+                    //arr.push(listVehicle[i].iVehicleID)
+                    //alert(listVehicle[i].iVehicleID);
+                }
+
+
+
+                $('#GridAddVehicle').jqGrid({
+                    caption: "ADD Single Vehicle",
+                    data: listVehicle,
+                    datatype: "local",
+                    colNames: ['ID', 'Lot No', 'Make', 'Chasis No', 'Model', 'Color', 'JPY', 'DHMs', 'Action'],
+                    colModel: [
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                        { name: 'iLotNum', index: 'iLotNum', align: 'center', hidden: true, hidedlg: true },
+                        { name: 'strMake', index: 'strMake', align: 'center' },
+                        { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                        { name: 'iModel', index: 'iModel', align: 'center' },
+                        { name: 'strColor', index: 'strColor', align: 'center' },
+                        { name: 'iCustomValInJPY', index: 'iCustomValInJPY', align: 'center', hidden: true, hidedlg: true },
+
+                         {
+                             name: 'DHM', index: 'DHM', align: 'center', formatter: 'number',
+                             formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 3, defaultValue: '0.00' },
+                         },
+
+
+
+
+                        {
+                            name: 'Action', index: 'Action', align: 'center', width: 100, search: false, title: false,
+                            formatter: function (cellvalue, options, rowObject) {
+                                // return '<a href="/MAreas/Edit/' + options.rowId + '">' + "<img src='../Images/edit%20(2).png' '/>" + '</a>' + "     " + '<a href="/MAreas/Delete/' + options.rowId + '">' + "<img src='../Images/delete%20(2).png' />" + '</a>';
+                                //return $('#GridAddVehicle').jqGrid('delRowData', options.rowId);
+
+
+                                return "<input class='popup delete btn btn-info' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"delRowData('" + options.rowId + "');\"  />";
+
+
+
+
+                                //return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"RemoveSumOfJPY('" + options.rowId + "');\"  />";
+
+
+                            }
+
+                        },
+
+                    ],
+                    width: 1050,
+                    // width: 900,
+                    height: 250,
+                    rowNum: 100000,
+                    rownumbers: true,
+                    loadonce: false,
+                    //rowList: [10, 20, 30],
+                    // pager: 'pagingGridAddVehicle',
+                });
+                jQuery("#GridAddVehicle").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+                // jQuery("#GridAddVehicle").jqGrid('navGrid', '#pagingGridAddVehicle', { edit: false, add: false, del: false, search: false, rel: false });
+
+
+
+
+
+
+            }
+        });
+
+        //////////////taking customer ID  and pass to controller for getting all the customer information associated with that customer ID
+
+        ///////////////customer some data fill from here and remaing fill from griq data
+
+        var customerID = iCustomerID;
+
+        $.ajax({
+            url: '/Sales/GetCustomerDetailsBYCustomerID/',
+            data: "{ 'id': '" + customerID + "'}",
+
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+
+
+
+                //$("#txtCustomerName").val(data.strFirstName + " " + data.strLastName);
+                $("#txtCustomerContact").val(data[0].fltPhoneNumber);
+                $("#txtCreditLimit").val(data[0].strCreditLimit);
+
+            }
+        });
+
+        ////This is used to fill dropdownlist for Yard Name
+
+        $.ajax({
+            url: "/Sales/ShowYardName",
+            type: "Get",
+            success: function (data) {
+                $('#ddlYard').children().remove();
+                $('#ddlYard').append('<option value="" >Select Yard</option>');
+                $.each(data, function (i, yard) {
+                    if (yard.iYardLimit >= yard.CountYardID) {
+                        if (iYardID == yard.iYardID) {
+                            $("#ddlYard").append('<option value="' + yard.iYardID + '" selected>' + yard.strYardName + '</option>');
+                        }
+                        else {
+                            $("#ddlYard").append('<option value="' + yard.iYardID + '" >' + yard.strYardName + '</option>');
+                        }
+                    }
+
+                });
+
+            }
+
+        });
+
+
+
+
+        $.ajax({
+            url: '/Sales/GetReceiptNo/',
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+
+                $("#iReceiptNo").html(data);
+
+                $("#hdnReceiptNo").val(data);
+
+
+
+                var receipt = $('#receiptLbl').text().split(':');
+
+                $("#receiptLbl").html(receipt[1]);
+
+            }
+        });
+
+    }
+
+    function deleteSalesRecord(rowID) {
+        var rowData = jQuery("#dataGridForSalesList").getRowData(rowID);
+
+        var iSaleID = rowData['iSaleID'];
+        var iSaleFrontEndID = rowData['iSaleFrontEndID'];
+
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+                debugger
+
+                $.ajax({
+                    url: '/Sales/DeleteSalesRecord/',
+                    dataType: 'json',
+                    type: 'POST',
+                    data: JSON.stringify({ 'iSaleID': iSaleID, 'iSaleFrontEndID': iSaleFrontEndID }),
+                    contentType: 'application/json; charset=utf-8',
+
+                    success: function (result) {
+                        window.location.href = "/Sales/Index";
+
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+    }
+    ////////////////this function is used to delete vehicle from grid and array as well
+
+    function delRowData(rowid) {
+        //arr = new Array();
+        debugger
+
+        var rowData = jQuery("#GridAddVehicle").getRowData(rowid);
+        var rowDataVehicleID = rowData['iVehicleID'];
+
+
+        jQuery('#GridAddVehicle').delRowData(rowid);
+
+        //$.map(arr, function (elementOfArray, indexInArray) {
+        //    if (elementOfArray.VehicleID == rowDataVehicleID) {
+
+        //        //arr.pop(rowDataVehicleID);
+        //        arr.pop({ VehicleID: rowDataVehicleID })
+
+        //    }
+        //})
+
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].VehicleID == rowDataVehicleID) {
+
+                arr.splice(i, 1);
+                break;
+            }
+        }
+
+        for (var i = 0; i < arrRemoveSumJPY.length; i++) {
+            //alert(arrRemoveSumJPY[i].VehicleID);
+
+
+            if (arrRemoveSumJPY[i].VehicleID == rowDataVehicleID) {
+
+                arrRemoveSumJPY.splice(i, 1);
+                break;
+            }
+        }
+
+        //arr.splice($.inArray(rowDataVehicleID, arr), 1);
+        //calculateSum();
+        calculateBalance();
+
+    }
+
+
+    $("#btnsalesDate").click(function () {
+
+        var salesDate = $("#salesDate").val();
+
+        fillDataGridBySaleDate(salesDate);
+    });
+
+
+    function fillDataGridBySaleDate(salesDate) {
+        $.ajax({
+            url: '/Sales/GetVehiclesDataBySalesDate/',
+            dataType: 'json',
+            type: 'POST',
+            data: JSON.stringify({ 'salesDate': salesDate }),
+            contentType: 'application/json; charset=utf-8',
+
+            success: function (result) {
+
+                var vehicleByDate = result.VehiclesByDate;
+
+
+                $("#dataGrid").jqGrid('GridUnload');
+
+                $('#dataGrid').jqGrid({
+                    caption: "Vehicle List",
+                    data: vehicleByDate,
+                    datatype: "local",
+
+                    colNames: ['ID', 'Lot No', 'Make', 'Chasis No', 'Model', 'Color', 'JPY', 'dmlConversionRate'],
+                    colModel: [
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                        { name: 'iLotNum', index: 'iLotNum', align: 'center', hidden: true, hidedlg: true },
+                        { name: 'strMake', index: 'strMake', align: 'center' },
+                        { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                        { name: 'iModel', index: 'iModel', align: 'center' },
+                        { name: 'strColor', index: 'strColor', align: 'center' },
+                        { name: 'iCustomValInJPY', index: 'iCustomValInJPY', align: 'center', hidden: true, hidedlg: true },
+                        { name: 'dmlConversionRate', index: 'dmlConversionRate', align: 'center', hidden: true, hidedlg: true },
+                    ],
+                    width: 1050,
+                    height: 150,
+                    rowNum: 100000,
+                    rownumbers: true,
+                    loadonce: true,
+                    caption: 'Select Vehicle to Add',
+
+                    beforeSelectRow: function (rowid, celname, value, iRow, iCol) {
+                        debugger
+                        var rowCount = $("#GridAddVehicle").getGridParam("reccount");
+                        if (rowCount < 1) {
+                            var rowData = jQuery("#dataGrid").getRowData(rowid);
+                            var rowDataVehicleID = rowData['iVehicleID'];
+                            var rowDataJPY = rowData['iCustomValInJPY'];
+                            var rowDataRate = rowData['dmlConversionRate'];
+
+                            var jpyToDhm = (rowDataJPY * rowDataRate).toFixed(3);
+                            rowData['DHM'] = jpyToDhm;
+
+
+
+                            var addVehicleID = false;
+                            $.map(arr, function (elementOfArray, indexInArray) {
+                                if (elementOfArray.VehicleID == rowDataVehicleID) {
+
+                                    addVehicleID = true;
+                                }
+                            })
+                            if (!addVehicleID) {
+                                arr.push({ VehicleID: rowDataVehicleID })
+                                $('#GridAddVehicle').jqGrid('addRowData', rowDataVehicleID, rowData);
+
+                                arrRemoveSumJPY.push({ VehicleID: rowDataVehicleID, AED: jpyToDhm })
+
+
+                                $('#divAddVehicle').show();
+                                //calculateSum();
+                                calculateBalance();
+                            }
+                        }
+                    }
+                });
+                jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+            }
+        });
+
+    }
+
+</script>
+
+<script type="text/javascript">
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });//Initialise any date pickers
+    });
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        $("#txtBuyerName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Sales/GetCustomerDetails/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+                                return {
+
+                                    iCustomerID: item.iCustomerID,
+                                    strFirstName: item.strFirstName,
+                                    strMiddleName: item.strMiddleName,
+                                    strLastName: item.strLastName,
+                                    fltPhoneNumber: item.fltPhoneNumber,
+                                    strCreditLimit: item.strCreditLimit,
+                                    value: item.strFirstName
+
+                                }
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+
+                event.preventDefault();
+
+                $("#txtBuyerName").val(i.item.value);
+                $("#hfCustomer").val(i.item.iCustomerID);
+
+                $("#txtCustomerName").val(i.item.strFirstName + " " + i.item.strLastName);
+                $("#txtCustomerContact").val(i.item.fltPhoneNumber);
+                $("#txtCreditLimit").val(i.item.strCreditLimit);
+
+
+                return false;
+            },
+            minLength: 1
+        });
+    });
+    $(function () {
+        $("#txtShowRoomName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Sales/GetShowRoomCustomerDetails/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+
+                                //if (item.IsBlocked == false) {
+                                return {
+
+                                    iCustomerID: item.iCustomerID,
+                                    strShowRoomName: item.strShowRoomName,
+                                    strShowRoomNumber: item.strShowRoomNumber,
+                                    strShowRoomPhoneNo: item.strShowRoomPhoneNo,
+                                    strBlock: item.strBlock,
+                                    showRoomPersonName: item.showRoomPersonName,
+                                    strPersonPhoneNo: item.strPersonPhoneNo,
+                                    value: item.showRoomPersonName
+
+                                }
+                                //}
+                                //else {
+                                //    alert("This Customer Is Blocked.");
+                                //}
+
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+
+                event.preventDefault();
+
+                $("#txtShowRoomName").val(i.item.value);
+                $("#hfCustomer").val(i.item.iCustomerID);
+
+                $("#showRoomPersonName").val(i.item.showRoomPersonName);
+                $("#strPersonPhoneNo").val(i.item.strPersonPhoneNo);
+
+                $("#strShowRoomName").val(i.item.strShowRoomName);
+                $("#strShowRoomNumber").val(i.item.strShowRoomNumber);
+                $("#strShowRoomPhoneNo").val(i.item.strShowRoomPhoneNo);
+                $("#strBlock").val(i.item.strBlock);
+
+                debugger
+
+
+
+                $("#divCustomerInfo").show();
+                $("#divForDirectData").hide();
+                $("#divForShowRoomData").show();
+                return false;
+            },
+            minLength: 1
+        });
+    });
+</script>
+
+<script>
+
+    var parameters = new Array();
+    var paperModeID;
+    var ysnPaymentStatus;
+    $("#updateSaleInfo").click(function () {
+        parameters = new Array();
+        debugger;
+        if ($("#txtSaleBalance").val() == 0) {
+            ysnPaymentStatus = true;
+        }
+        else {
+            ysnPaymentStatus = false;
+        }
+        var data = $('#invoiceLbl').text().split(':');
+
+        $("#invoiceLbl").html(data[1]);
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+                if ($("#rdbCashOption").is(":checked")) {
+                    var paymentStatus = 1;    //1 for Paid
+                    //var paymentChoice = "Cash";
+                    //alert("you have selected" + paymentChoice + "payment method");
+                }
+                else {
+                    var paymentStatus = 2;  //2 for Credit
+                    //var paymentChoice = "Credit";
+                    //alert("you have selected" + paymentChoice + "payment method");
+                }
+
+                //$.each($("input[name='nam_GroupMode']:checked"), function () {
+                //    //var chkBoxvalue = $(this).val();
+                //    paperModeID = $(this).val();
+                //    //alert(chkBoxvalue);
+                //    //ModeValues.push($(this).val());
+
+                //})
+
+                ////for car options
+                //if ($("#rdbPickUPOption").is(":checked")) {
+                //    var carStatus = 1;    //1 for PickUP
+
+                //}
+                //else {
+                //    var carStatus = 2;  //2 for Withheld
+
+                //}
+
+                var YardID = $("#ddlYard").val();
+
+                var ids = jQuery("#GridAddVehicle").jqGrid('getDataIDs');
+
+                var gridRows = jQuery("#GridAddVehicle").getRowData();
+                var strMake = gridRows[0]['strMake'];
+                var strChassisNum = gridRows[0]['strChassisNum'];
+
+                var hfSaleFrontEndID = $('#hfSaleFrontEndID').html();
+
+
+                ////var iImpExpTransfer = $('#iImpExpTransfer').val();
+                ////var iPaymentType = $('#iPaymentType').val();
+
+
+
+                for (var i = 0; i < arr.length; i++) {
+
+
+                    parameters.push({
+                        iVehicleID: arr[i].VehicleID,
+                        iSaleFrontEndID: hfSaleFrontEndID
+                    });
+                }
+
+
+
+                var SaleData = {
+                    iCustomerID: $("#hfCustomer").val(),
+                    iSaleFrontEndID: $("#hfSaleFrontEndID").html(),
+                    iSaleID: $("#hfSaleID").val(),
+                    strBuyerName: $("#txtCustomerName").val(),
+                    strSalesDate: $("#salesDate").val(),
+
+                    // iSalesInvoiceID: $("#txtInvoiceNum").text(),
+                    iSalesInvoiceID: $("#txtInvoiceNum").val(),
+
+                    dtCreditLimitDate: $('#hfCreditLimitDate').val(),
+
+                    dmlSellingPrice: $("#txtSellingPrice").val(),
+                    //dmlDeposit: $("#txtDeposit").val(),
+                    dmlAdvance: $("#txtAdvance").val(),
+                    dmlBalance: $("#txtSaleBalance").val(),
+                    //iInstallment: $("#txtInstallment").val(),
+                    iPaymentType: paymentStatus,
+                    //iImpExpTransfer: paperModeID,
+                    dtSalesDate: $("#salesDate").val(),
+                    strSalesInvoiceNo: $("#invoiceLbl").html(),
+                    //iCarStatusID: carStatus,
+                    iYardID: YardID,
+                    dmlParkingFees: $('#txtParkingFees').val(),
+                    strBookingID: $('#txtBookingID').val(),
+                    strVoucherNo: $('#txtVoucherNo').val(),
+                    ysnPaymentStatus: ysnPaymentStatus,
+                    strReferenceNumber: $('#txtReferenceNum').val(),
+                }
+                var SalesPaymentParameter = {
+                    iCustomerID: $("#hfCustomer").val(),
+                    strPaymentDate: $("#salesDate").val(),
+                    dtPaymentDate: $("#salesDate").val(),
+                    dmlPaidAmount: $("#txtAdvance").val(),
+                    strSalesInvoiceNo: $("#invoiceLbl").text(),
+                    dmlPrevBalance: $("#txtSaleBalance").val(),
+                    iSaleID: $("#hfSaleID").val(),
+                    iSalesInvoiceID: $("#txtInvoiceNum").val(),
+                    iPaymentReceiptNo: $("#hdnReceiptNo").val(),
+                    strPaymentReceiptNo: $("#receiptLbl").text(),
+                    ysnPaymentStatus: ysnPaymentStatus,
+                    strReferenceNumber: $('#txtReferenceNum').val(),
+                    strDescription: strChassisNum + '  ' + strMake,
+                    ysnPaymentStatusFromSales: true
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Sales/Save",
+                    cache: false,
+                    data: JSON.stringify({ sale: SaleData, saleVehicles: parameters, salesPaymentModel: SalesPaymentParameter }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        alert("Save data Successfully");
+                        //$("#printInfo").show();
+                        //window.location.href = "/Sales/Index";
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to Save data.');
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+
+
+
+    });
+
+
+
+
+    //function Mode() {
+    //    // var values = new Array();
+    //    $.each($("input[name='nam_GroupMode']:checked"), function () {
+    //        var chkBoxvalue = $(this).val();
+    //        alert(chkBoxvalue);
+    //        //values.push($(this).val());
+
+    //    });
+    //}
+
+    ////This function is used to cal Advance Amount value
+    //function calculateSum() {
+    //    debugger;
+    //    var sum = 0;
+
+
+    //    for (var i = 0; i < arrRemoveSumJPY.length; i++) {
+
+    //        if (!isNaN(arrRemoveSumJPY[i].AED) && arrRemoveSumJPY[i].AED.length != 0) {
+    //            sum += parseFloat(arrRemoveSumJPY[i].AED);
+    //        }
+    //    }
+    //    //$('#txtSellingPrice').val(sum);
+    //    $('#txtAdvance').val(sum.toFixed(3));
+
+
+    //    // var SumOfJPY = $('#hdnSumOfJPY').val();
+    //    // if (!isNaN(SumOfJPY) && SumOfJPY.length != 0) {
+    //    //     sum += parseFloat(SumOfJPY);
+    //    // }
+
+    //    // //sum += parseFloat($('#hdnSumOfJPY').val());
+    //    // $('#txtSellingPrice').val(sum)
+    //    // $('#txtAdvance').val(sum)
+    //    //// alert(sum);
+
+
+    //    //for (var i = 0; i < arrRemoveSumJPY.length; i++) {
+    //    //    sum += parseFloat(arrRemoveSumJPY[i].JPY);
+    //    //}
+    //    //alert(sum);
+    //}
+
+
+    function RemoveSumOfJPY(rowid) {
+        debugger
+
+
+        var rowData = jQuery("#GridAddVehicle").getRowData(rowid);
+        var rowDataVehicleID = rowData['iVehicleID'];
+
+        //alert(rowDataVehicleID);
+
+        jQuery('#GridAddVehicle').delRowData(rowid);
+
+
+
+        //jQuery('#GridAddVehicle').delRowData(rowid);
+
+
+        for (var i = 0; i < arr.length; i++) {
+
+            //alert(iVehicleID);
+            //alert(VehicleID);
+            if (arr[i].iVehicleID == rowDataVehicleID) {
+
+                arr.splice(i, 1);
+                break;
+            }
+        }
+
+
+        $.each(arr, function (i, el) {
+            if (this.iVehicleID == rowDataVehicleID) {
+                data.splice(i, 1);
+            }
+        });
+
+
+        //arr.splice($.inArray(rowDataVehicleID, arr), 1);
+        //arrRemoveSumJPY.splice($.inArray(rowDataVehicleID, arrRemoveSumJPY), 1);
+
+
+
+        //calculateSum();
+    }
+
+</script>
+
+
+<script>
+    //For Credit Payment
+    function CreditPaymentOption() {
+
+        $('#divCredit').show();
+        $('#txtAdvance').focus();
+
+    }
+    //For Cash Payment
+    function CashPaymentOption() {
+        var total = parseFloat($('#txtSellingPrice').val());
+        if (!isNaN(total))
+        { $('#txtAdvance').val(total); }
+
+        $('#txtSaleBalance').val("0");
+        $('#divCredit').hide();
+    }
+
+    ////Calculate Balance amount
+    //function calculateBalance() {
+    //    var total = parseFloat($('#txtSellingPrice').val());
+    //    var paid = parseFloat($('#txtAdvance').val());
+    //    var balance = (total - paid).toFixed(3);
+    //    if (!isNaN(balance) && balance >= 0)
+    //    { $('#txtSaleBalance').val(balance); } else { $('#txtSaleBalance').val("0"); }
+
+    //}
+
+    //Calculate Balance amount
+    function calculateBalance() {
+        debugger
+        var total = parseFloat($('#txtSellingPrice').val());
+        var paid = parseFloat($('#txtAdvance').val());
+
+        if (paid > total) {
+            alert("Advance Amount should not be greater than Selling Price");
+            $('#txtAdvance').val("")
+        }
+        else {
+
+            var balance = (total - paid).toFixed(3);
+            if (!isNaN(balance) && balance >= 0)
+            { $('#txtSaleBalance').val(balance); } else { $('#txtSaleBalance').val("0"); }
+        }
+
+
+
+    }
+    //For PickUP Car
+    function PickUPOption() {
+
+
+        $('#ddlYard').hide();
+
+
+
+
+
+    }
+    //For Withheld Car
+    function WithheldOption() {
+
+
+        $('#ddlYard').show();
+
+    }
+
+
+</script>
+
+
+<script>
+    function generateSalesInvoicetPDF(rowID) {
+        debugger
+        var rowData = jQuery("#dataGridForSalesList").getRowData(rowID);
+
+        var strSalesInvoiceNo = rowData['strSalesInvoiceNo'];
+        var strBuyerName = rowData['strBuyerName'];
+        var strSalesDate = rowData['strSalesDate'];
+        var dmlSellingPrice = rowData['dmlSellingPrice'];
+
+        var dmlAdvance = rowData['dmlAdvance'];
+        var dmlBalance = rowData['dmlBalance'];
+        //var iInstallment = rowData['iInstallment'];
+
+        var ChassisNum = rowData['strChassisNum'];
+        var strMake = rowData['strMake'];
+
+
+
+
+        // var griddata = jQuery("#dataGrid").getRowData();
+
+
+
+
+
+
+
+        var invDate = strSalesDate;
+        var customerName = strBuyerName;
+        var From = 'DUBAI';
+        var To = '';
+
+        var data = [];
+        //for (var i = 0; i < griddata.length; i++) {
+        //    data.push([i + 1, griddata[i].strMake + ' ' + griddata[i].iModel + ' ' + 'Color:' + griddata[i].strColor + ' ' + 'Chassis Num:' + griddata[i].strChassisNum, SellingPriceInDHM]);
+        //}
+
+
+        ////Calculate total of Value
+        //   var allRows = jQuery('#GridAddVehicle').getDataIDs();
+        //   var subTotal = 0;
+        //   for (var j = 0; j < allRows.length; j++) {
+        //       var rowData = jQuery("#GridAddVehicle").getRowData(allRows[j]);
+        //       subTotal += Number(rowData['DHM']);//Calculating Sum of total column
+
+        //   }
+
+
+        //var fromDate = $("#fromDate").val();
+        //var toDate = $("#toDate").val();
+        var debit = $("#txtAdvance").val();
+        //var sumOfSellingPrice = $('#hdnSellingPrice').val();
+        var drmInwords = inWords(debit);
+        //var custFullName = $("#hdnCustomerName").val();
+        //var custAddr=$("#hdnCustomerAddress").val();
+
+
+        data.push([invDate, 'SALE PRICE', '', '', dmlSellingPrice]);
+        data.push([invDate, 'ADVANCE RECIEVED ', dmlAdvance, '', dmlSellingPrice - dmlAdvance]);
+        data.push([, , ]);
+        data.push([, , ]);
+        data.push([, , ]);
+        data.push([, , ]);
+        data.push([, , ]);
+        data.push([, , ]);
+        data.push([, , ]);
+        //data.push([, '', '8000']);
+        data.push(['TOTAL', , dmlAdvance, , dmlSellingPrice - dmlAdvance]);
+
+        //var columns3 = [''];
+        //var data3 = [];
+        //data3.push([drmInwords]);
+        ////data.push([, , , , , 'Total', sumOfSellingPrice]);
+
+        var d = new Date();
+
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+
+
+        var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+        //first table
+
+        var columns2 = ['', '', '', ''];
+        var data2 = [];
+        data2.push(['INVOICE NO.', strSalesInvoiceNo, 'CHASIS NO.', ChassisNum, ]);
+        data2.push(['DATE', invDate, 'CAR', strMake]);
+        data2.push(['CUSTOMER', strBuyerName, '', '']);
+        //data2.push(['CUSTOMER ID', '203030', '', '']);
+
+        var columns = ['Date', 'Description', 'DEBIT', 'CREDIT', 'BALANCE'];
+
+
+        var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(25);
+            doc.setTextColor(111, 168, 210);
+            doc.setFontStyle('normal');
+
+
+
+
+
+
+            doc.text("INVOICE", data.settings.margin.left + 145, 35);
+
+
+            doc.setTextColor(40);
+            doc.setFontSize(10);
+            doc.text("Invoice Number:", data.settings.margin.left + 120, 45);
+            doc.text(strSalesInvoiceNo, data.settings.margin.left + 145, 45);
+
+            doc.text("Invoice Date:", data.settings.margin.left + 120, 50);
+            doc.text(invDate, data.settings.margin.left + 145, 50);
+
+            //doc.text("CONSIGNEE:", data.settings.margin.left + 0, 60);
+            //doc.text("MR."+consignee, data.settings.margin.left + 0,65);
+
+            //doc.text("From:", data.settings.margin.left + 130, 50);
+            //doc.text(From, data.settings.margin.left + 140, 50);
+
+            //doc.text("To:", data.settings.margin.left + 130, 60);
+            //doc.text(To, data.settings.margin.left + 140, 60);
+
+            doc.setFontSize(15);
+            doc.text("DAA MOTORS FZCO", data.settings.margin.left + 0, 40);
+            doc.setFontSize(10);
+            doc.text("Show room # 118, DUCAMZ,RAS AL KHOR, DUBAI, U.A.E.", data.settings.margin.left + 0, 45);
+            doc.text("Tel : +971 4 333 8986", data.settings.margin.left + 0, 50);
+            doc.text("E-Mail : automan1@eim.ae", data.settings.margin.left + 0, 55);
+            //doc.text("Tel : +971 4 333 8986", data.settings.margin.left + 0, 60);
+            //doc.text("Fax : +971 4 333 2256", data.settings.margin.left + 0, 60);
+            //doc.text("E-Mail : automan1@eim.ae", data.settings.margin.left + 0, 65);
+            //doc.setFontSize(20)
+            //doc.setTextColor(0, 0, 255)
+            //doc.text("TOTAL AMOUNT IN WORDS (DHM):", data.settings.margin.left + 0, 170);
+            //doc.setFontStyle('bold');
+            //doc.text(totalInWords+' DHMS Only', data.settings.margin.left+65, 170);
+            doc.setFontSize(10);
+            doc.text("Make all checks payable to DAA MOTORS FZCO", data.settings.margin.left + 50, 250);
+            doc.setFontStyle('bold');
+            doc.text("THANK YOU FOR YOUR BUSINESS!", data.settings.margin.left + 55, 255);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+
+
+        doc.autoTable(columns2, data2, {
+            theme: 'gridWithNoHeader',
+
+            margin: { top: 60 },
+
+
+        });
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            headerStyles: {
+                //columnWidth: 'wrap',
+                cellPadding: 2,
+                lineWidth: 0,
+                valign: 'top',
+                fontStyle: 'bold',
+                halign: 'left',    //'center' or 'right'
+                fillColor: [111, 168, 210],
+                //textColor: [78, 53, 73], //Black
+                textColor: [255, 255, 255], //White
+                fontSize: 8,
+
+                rowHeight: 20
+            },
+            addPageContent: pageContent,
+            margin: { top: 100 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if ((data.row.index == rows.length - 1) || (data.row.index == rows.length - 2)) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(111, 168, 210);
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+
+
+        //doc.autoTable(columns3, data3, {
+        //    theme: 'gridWithNoHeader',
+
+        //    margin: { top: 190 },
+
+
+        //});
+        //To add Image
+        var img = new Image;
+        img.onload = function () {
+
+            this.width = 700;
+            this.height = 80;
+            doc.addImage(this, 13, 05);
+            // window.open(doc.output('bloburl'), '_blank');
+
+        };
+
+        img.crossOrigin = "";  // for demo as we are at different origin than image
+        img.src = "/Content/Images/invheader2.bmp";  // image
+
+        //img.crossOrigin = "";  // for demo as we are at different origin than image
+        //img.src = "/Content/Images/invheader.bmp";  // image
+        //add footer
+        var imgfooter = new Image;
+        imgfooter.onload = function () {
+
+            this.width = 700;
+            this.height = 80;
+            doc.addImage(this, 13, 260);
+            window.open(doc.output('bloburl'), '_blank');
+            // doc.output("dataurlnewwindow");
+        };
+
+        imgfooter.crossOrigin = "";  // for demo as we are at different origin than image
+        imgfooter.src = "/Content/Images/invFooter.bmp";  // image
+
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+
+    }
+</script>
+
+<script>
+    var a = ['', 'ONE ', 'TWO ', 'THREE ', 'FOUR ', 'FIVE ', 'SIX ', 'SEVEN ', 'EIGHT ', 'NINE ', 'TEN ', 'ELEVEN ', 'TWELVE', 'THIRTEEN ', 'FOURTEEN ', 'FIFTEEN ', 'SIXTEEN ', 'SEVENTEEN ', 'EIGHTEEN ', 'NINETEEN '];
+    var b = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
+
+    function inWords(num) {
+        if ((num = num.toString()).length > 9) return 'overflow';
+        n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return; var str = '';
+        str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'CRORE ' : '';
+        str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'LAKH ' : '';
+        str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'THOUSAND ' : '';
+        str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'HUNDRED ' : '';
+        str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'only ' : '';
+        str += 'DHMS'
+        return str;
+    }
+</script>
+
+<script src="~/Content/dist/js/Custom.js"></script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="http://www.ittutorials.in/js/demo/numtoword.js" type="text/javascript"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

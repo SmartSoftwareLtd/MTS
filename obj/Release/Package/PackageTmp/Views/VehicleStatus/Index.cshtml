@@ -1,0 +1,735 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="box-body">
+    <div class="form-group col-sm-3">
+        <label></label>
+        <select id="ddlVehicleStatusType" class="form-control input-group-sm" name="name_GroupMode" onchange="getVehicleStatusType(this);">
+            <option value="1">Sale Vehicle</option>
+            <option value="2">Vehicles In Stocks</option>
+            <option value="3">Vehicles In Yard</option>
+            <option value="4">Pending Cars</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label>From Date:</label>
+        <input type="text" id="txtFromDate" class='form-control datepicker input-group-sm' placeholder="Select FromDate" />
+    </div>
+    <div class="col-md-3">
+        <label>To Date:</label>
+        <input type="text" id="txtToDate" class='form-control datepicker input-group-sm' placeholder="Select ToDate" />
+    </div><br />
+    <div class="col-md-3">
+        <input type="button" id="btnFilter" class='btn btn-bitbucket' value="Filter" onclick="FilterResult();" />
+    </div>
+
+    <br />
+    <br /><br /><br />
+    <div id="divForSaleVehicle">
+        <table id="dataGridSaleVehicle" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridSaleVehicle"></div>*@
+        <br /><br />
+        <input type="button" class="btn btn-success col-md-2" style="margin-left: 450px;" value="Print" id="btnPrintSaleVehicle" onclick="PrintSaleVehicle()" />
+    </div>
+
+    <div id="divForRemainingVehicle" style="display:none">
+        <table id="dataGridRemainingVehicle" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridExport"></div>*@
+        <br /><br />
+        <input type="button" class="btn btn-success col-md-2" style="margin-left: 450px; display:none" value="Print" id="btnPrintRemainingVehicle" onclick="PrintRemainingVehicle()" />
+    </div>
+    <div id="divForVehiclesInYard">
+        <table id="dataGridVehiclesInYard" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridImport"></div>*@
+        <br /><br />
+        <input type="button" class="btn btn-success col-md-2" style="margin-left: 450px; display: none" value="Print" id="btnPrintVehiclesInYard" onclick="PrintVehiclesInYard()" />
+    </div>
+    <div id="divForPendingCars">
+        <table id="dataGridPendingCars" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridImport"></div>*@
+        <br /><br />
+        <input type="button" class="btn btn-success col-md-2" style="margin-left: 450px; display: none" value="Print" id="btnPrintPendingCars" onclick="PrintPendingCars()" />
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+
+
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });
+
+        var date = new Date();
+        var joindate = new Date(date.getFullYear(), date.getMonth(), 1);
+        var firstDay =
+        ("0" + (joindate.getMonth() + 1)).slice(-2) + "/" +
+        ("0" + joindate.getDate()).slice(-2) + "/" +
+        joindate.getFullYear();
+
+        $("#txtFromDate").val(firstDay);
+        $("#txtToDate").datepicker().datepicker("setDate", new Date());
+
+        GetSoldVehicles();
+    });
+
+</script>
+
+<script type="text/javascript">
+    function GetSoldVehicles() {
+        debugger
+        //this grid is used to fill the Vehicle Expense Report list
+        var fromDate = $("#txtFromDate").val();
+        var toDate = $("#txtToDate").val();
+        debugger
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: '/VehicleStatus/GetSoldVehicles/',
+            data: JSON.stringify({ 'fromDate': fromDate, 'ToDate': toDate }),
+            success: function (data) {
+            
+                debugger
+                $("#dataGridSaleVehicle").jqGrid('GridUnload');
+
+                $('#dataGridSaleVehicle').jqGrid({
+                    caption: "Sale Vehicle List",
+                    data:data,
+                    datatype: "local",
+                    //contentType: "application/json; charset-utf-8",
+                    //mtype: 'GET',
+
+                    colNames: ['iVehicleID', 'ChasisNo', 'Model', 'Color', 'Make', 'Supplier Name'],
+                    colModel: [
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                        { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                        { name: 'iModel', index: 'iModel', align: 'center' },
+                        { name: 'strColor', index: 'strColor', align: 'center' },
+                        { name: 'strMake', index: 'strMake', align: 'center' },
+                         { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+
+
+                    ],
+                    width: 1050,
+                    height: 250,
+                    rowNum: 100000,
+                    loadonce: true,
+                    rownumbers: true,
+                    ignoreCase: true,
+
+
+                });
+                jQuery("#dataGridSaleVehicle").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+              
+            }
+        });
+
+
+
+    };
+
+    function GetRemainingVehicles() {
+       
+        var fromDate = $("#txtFromDate").val();
+        var toDate = $("#txtToDate").val();
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: '/VehicleStatus/GetRemainingVehicles/',
+            data: JSON.stringify({ 'fromDate': fromDate, 'ToDate': toDate }),
+            success: function (data) {
+
+                debugger
+                $("#dataGridRemainingVehicle").jqGrid('GridUnload');
+
+                $('#dataGridRemainingVehicle').jqGrid({
+                    caption: "List of Vehicles In Stocks",
+                    data: data,
+                    datatype: "local",
+                    //contentType: "application/json; charset-utf-8",
+                    //mtype: 'GET',
+
+                    colNames: ['iVehicleID', 'ChasisNo', 'Model', 'Color', 'Make', 'Supplier Name'],
+                    colModel: [
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                        { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                        { name: 'iModel', index: 'iModel', align: 'center' },
+                        { name: 'strColor', index: 'strColor', align: 'center' },
+                        { name: 'strMake', index: 'strMake', align: 'center' },
+                         { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+
+
+
+
+                    ],
+                    width: 1050,
+                    height: 250,
+                    rowNum: 100000,
+                    loadonce: true,
+                    rownumbers: true,
+                    ignoreCase: true,
+
+
+                });
+                jQuery("#dataGridSaleVehicle").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+
+            }
+        });
+
+    };
+
+    function GetSoldVehiclesInYard() {
+
+        var fromDate = $("#txtFromDate").val();
+        var toDate = $("#txtToDate").val();
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: '/VehicleStatus/GetSoldVehiclesInYard/',
+            data: JSON.stringify({ 'fromDate': fromDate, 'ToDate': toDate }),
+            success: function (data) {
+
+                debugger
+                $("#dataGridVehiclesInYard").jqGrid('GridUnload');
+
+                $('#dataGridVehiclesInYard').jqGrid({
+                    caption: "Vehicles In Yard List",
+                    data: data,
+                    datatype: "local",
+                    //contentType: "application/json; charset-utf-8",
+                    //mtype: 'GET',
+
+                    colNames: ['iVehicleID', 'ChasisNo', 'Sales InvoiceNo', 'Sales Date', 'Supplier Name', 'Yard'],
+                    colModel: [
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                        { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                        { name: 'strSalesInvoiceNo', index: 'strSalesInvoiceNo', align: 'center' },
+                        { name: 'strSalesDate', index: 'strSalesDate', align: 'center' },
+                        { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                        { name: 'strYardName', index: 'strYardName', align: 'center' },
+
+
+
+
+                    ],
+                    width: 1050,
+                    height: 250,
+                    rowNum: 100000,
+                    loadonce: true,
+                    rownumbers: true,
+                    ignoreCase: true,
+
+
+                });
+                jQuery("#dataGridSaleVehicle").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+
+            }
+        });
+
+    };
+
+    function GetPendingCars() {
+
+        var fromDate = $("#txtFromDate").val();
+        var toDate = $("#txtToDate").val();
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: '/VehicleStatus/GetPendingCars/',
+            data: JSON.stringify({ 'fromDate': fromDate, 'ToDate': toDate }),
+            success: function (data) {
+
+                debugger
+                $("#dataGridPendingCars").jqGrid('GridUnload');
+
+                $('#dataGridPendingCars').jqGrid({
+                    caption: "Pending Cars List",
+                    data: data,
+                    datatype: "local",
+                    //contentType: "application/json; charset-utf-8",
+                    //mtype: 'GET',
+
+                    colNames: ['iVehicleID', 'ChasisNo', 'Model', 'Color', 'Make', 'Supplier Name'],
+                    colModel: [
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                        { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                        { name: 'iModel', index: 'iModel', align: 'center' },
+                        { name: 'strColor', index: 'strColor', align: 'center' },
+                        { name: 'strMake', index: 'strMake', align: 'center' },
+                         { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+
+
+
+
+                    ],
+                    width: 1050,
+                    height: 250,
+                    rowNum: 100000,
+                    loadonce: true,
+                    rownumbers: true,
+                    ignoreCase: true,
+
+
+                });
+                jQuery("#dataGridSaleVehicle").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+
+            }
+        });
+
+
+    };
+    //$(document).ready(function () {
+        
+    //});
+
+    var VehicleStatusTypeID;
+    function getVehicleStatusType(selectedType) {
+
+        VehicleStatusTypeID = $("#ddlVehicleStatusType").val();
+
+        if (VehicleStatusTypeID == 1) {
+            $('#divForSaleVehicle').show();
+            $('#divForRemainingVehicle').hide();
+            $('#divForVehiclesInYard').hide();
+            $('#divForPendingCars').hide();
+            
+            $('#btnPrintSaleVehicle').show();
+            $('#btnPrintRemainingVehicle').hide();
+            $('#btnPrintVehiclesInYard').hide();
+            $('#btnPrintPendingCars').hide();
+
+            GetSoldVehicles();
+        }
+
+
+        else if (VehicleStatusTypeID == 2) {
+            debugger
+            $('#divForSaleVehicle').hide();
+            $('#divForRemainingVehicle').show();
+            $('#divForVehiclesInYard').hide();
+            $('#divForPendingCars').hide();
+
+            $('#btnPrintSaleVehicle').hide();
+            $('#btnPrintRemainingVehicle').show();
+            $('#btnPrintVehiclesInYard').hide();
+            $('#btnPrintPendingCars').hide();
+
+            GetRemainingVehicles();
+         
+           
+        }
+        else if (VehicleStatusTypeID == 3) {
+            debugger
+            $('#divForSaleVehicle').hide();
+            $('#divForRemainingVehicle').hide();
+            $('#divForVehiclesInYard').show();
+            $('#divForPendingCars').hide();
+
+            $('#btnPrintSaleVehicle').hide();
+            $('#btnPrintRemainingVehicle').hide();
+            $('#btnPrintVehiclesInYard').show();
+            $('#btnPrintPendingCars').hide();
+
+            GetSoldVehiclesInYard();
+
+           
+        }
+        else if (VehicleStatusTypeID == 4) {
+            debugger
+            $('#divForSaleVehicle').hide();
+            $('#divForRemainingVehicle').hide();
+            $('#divForVehiclesInYard').hide();
+            $('#divForPendingCars').show();
+
+            $('#btnPrintSaleVehicle').hide();
+            $('#btnPrintRemainingVehicle').hide();
+            $('#btnPrintVehiclesInYard').hide();
+            $('#btnPrintPendingCars').show();
+
+            GetPendingCars();
+           
+        }
+    }
+
+    function FilterResult() {
+        getVehicleStatusType(0);
+    }
+
+    function PrintSaleVehicle() {
+        debugger
+  
+        var localGridData = jQuery("#dataGridSaleVehicle").getRowData();
+
+                var columns = ['VR No', 'Chasis No', 'Make', 'Color', 'Model', 'Supplier Name'];
+                var VRNO = 0;
+                var data = [];
+                for (var i = 0; i < localGridData.length; i++) {
+                    VRNO = VRNO + 1;
+                    data.push([VRNO, localGridData[i].strChassisNum, localGridData[i].strMake, localGridData[i].strColor, localGridData[i].iModel, localGridData[i].strCompanyName]);
+
+                }
+                data.push([, , , , , ]);
+
+                var doc = new jsPDF('l', 'mm', [220, 300], '');
+                //var doc = new jsPDF();
+
+                var totalPagesExp = "{total_pages_count_string}";
+
+                var pageContent = function (data) {
+                    // HEADER
+
+                    doc.setFontSize(20);
+                    doc.setTextColor(40);
+                    doc.setFontStyle('normal');
+
+
+
+                    doc.setFontSize(20);
+                    doc.setFontStyle('bold');
+                    doc.text("Sold Vehicle List", data.settings.margin.left + 110, 20);
+
+                    doc.setLineWidth(1)
+                    doc.line(120, 21, 185, 21);
+
+                    //doc.setFontStyle('normal');
+                    //doc.setFontSize(15);
+                    //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+                    //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+                    //doc.setFontStyle('bold', 'underline');
+                    //doc.text("AuctionList Report", data.settings.margin.left + 140, 35);
+                    //doc.setLineWidth(1)
+                    //doc.line(150, 36, 205, 36);
+                    ////doc.text("From Dt:", data.settings.margin.left + 80, 45);
+                    ////doc.text(fromDate, data.settings.margin.left + 105, 45);
+                    ////doc.text("To Dt:", data.settings.margin.left + 180, 45);
+                    ////doc.text(toDate, data.settings.margin.left + 200, 45);
+
+                    // FOOTER
+                    var str = "Page " + data.pageCount;
+                    // Total page number plugin only available in jspdf v1.0+
+                    if (typeof doc.putTotalPages === 'function') {
+                        str = str + " of " + totalPagesExp;
+                    }
+                    doc.setFontSize(10);
+                    doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+                    //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+                };
+
+                doc.autoTable(columns, data, {
+                    theme: 'grid',
+                    addPageContent: pageContent,
+                    margin: { top: 30 },
+
+                    drawCell: function (cell, data) {
+                        var rows = data.table.rows;
+                        if (data.row.index == rows.length - 1) {
+                            // doc.setFillColor(200, 200, 255);
+                            doc.setFillColor(26, 188, 156);
+                            doc.setFontStyle('bold');
+                            //doc.setFontSize(16);
+                        }
+                    },
+                });
+
+                // Total page number plugin only available in jspdf v1.0+
+                if (typeof doc.putTotalPages === 'function') {
+                    doc.putTotalPages(totalPagesExp);
+                }
+                //doc.output("dataurlnewwindow");
+                window.open(doc.output('bloburl'), '_blank');
+
+    }
+
+    function PrintRemainingVehicle() {
+        debugger
+
+        var localGridData = jQuery("#dataGridRemainingVehicle").getRowData();
+
+        var columns = ['VR No', 'Chasis No', 'Make', 'Color', 'Model', 'Supplier Name'];
+        var VRNO = 0;
+        var data = [];
+        for (var i = 0; i < localGridData.length; i++) {
+            VRNO = VRNO + 1;
+            data.push([VRNO, localGridData[i].strChassisNum, localGridData[i].strMake, localGridData[i].strColor, localGridData[i].iModel, localGridData[i].strCompanyName]);
+
+        }
+        data.push([, , , , , ]);
+
+        var doc = new jsPDF('l', 'mm', [220, 300], '');
+        //var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("List of Vehicles In Stocks", data.settings.margin.left + 90, 20);
+
+            doc.setLineWidth(1)
+            doc.line(100, 21, 195, 21);
+
+            //doc.setFontStyle('normal');
+            //doc.setFontSize(15);
+            //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            //doc.setFontStyle('bold', 'underline');
+            //doc.text("AuctionList Report", data.settings.margin.left + 140, 35);
+            //doc.setLineWidth(1)
+            //doc.line(150, 36, 205, 36);
+            ////doc.text("From Dt:", data.settings.margin.left + 80, 45);
+            ////doc.text(fromDate, data.settings.margin.left + 105, 45);
+            ////doc.text("To Dt:", data.settings.margin.left + 180, 45);
+            ////doc.text(toDate, data.settings.margin.left + 200, 45);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 30 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+
+    }
+
+    function PrintVehiclesInYard() {
+        debugger
+
+        var localGridData = jQuery("#dataGridVehiclesInYard").getRowData();
+
+
+        var columns = ['VR No', 'Chasis No', 'Invoice No', 'Sale Date', 'Supplier Name', 'Yard Name'];
+        var VRNO = 0;
+        var data = [];
+        for (var i = 0; i < localGridData.length; i++) {
+            VRNO = VRNO + 1;
+            data.push([VRNO, localGridData[i].strChassisNum, localGridData[i].strSalesInvoiceNo, localGridData[i].strSalesDate, localGridData[i].strCompanyName, localGridData[i].strYardName]);
+
+        }
+        data.push([, , , , , ]);
+
+        var doc = new jsPDF('l', 'mm', [220, 300], '');
+        //var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("List of Vehicles In Yard", data.settings.margin.left + 90, 20);
+
+            doc.setLineWidth(1)
+            doc.line(100, 21, 190, 21);
+
+            //doc.setFontStyle('normal');
+            //doc.setFontSize(15);
+            //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            //doc.setFontStyle('bold', 'underline');
+            //doc.text("AuctionList Report", data.settings.margin.left + 140, 35);
+            //doc.setLineWidth(1)
+            //doc.line(150, 36, 205, 36);
+            ////doc.text("From Dt:", data.settings.margin.left + 80, 45);
+            ////doc.text(fromDate, data.settings.margin.left + 105, 45);
+            ////doc.text("To Dt:", data.settings.margin.left + 180, 45);
+            ////doc.text(toDate, data.settings.margin.left + 200, 45);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 30 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+
+    }
+
+    function PrintPendingCars() {
+        debugger
+
+        var localGridData = jQuery("#dataGridPendingCars").getRowData();
+
+        var columns = ['VR No', 'Chasis No', 'Make', 'Color', 'Model', 'Supplier Name'];
+        var VRNO = 0;
+        var data = [];
+        for (var i = 0; i < localGridData.length; i++) {
+            VRNO = VRNO + 1;
+            data.push([VRNO, localGridData[i].strChassisNum, localGridData[i].strMake, localGridData[i].strColor, localGridData[i].iModel, localGridData[i].strCompanyName]);
+
+        }
+        data.push([, , , , , ]);
+
+        var doc = new jsPDF('l', 'mm', [220, 300], '');
+        //var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("List of Pending Vehicles", data.settings.margin.left + 90, 20);
+
+            doc.setLineWidth(1)
+            doc.line(100, 21, 190, 21);
+
+            //doc.setFontStyle('normal');
+            //doc.setFontSize(15);
+            //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            //doc.setFontStyle('bold', 'underline');
+            //doc.text("AuctionList Report", data.settings.margin.left + 140, 35);
+            //doc.setLineWidth(1)
+            //doc.line(150, 36, 205, 36);
+            ////doc.text("From Dt:", data.settings.margin.left + 80, 45);
+            ////doc.text(fromDate, data.settings.margin.left + 105, 45);
+            ////doc.text("To Dt:", data.settings.margin.left + 180, 45);
+            ////doc.text(toDate, data.settings.margin.left + 200, 45);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 30 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+
+    }
+
+</script>
+
+
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>

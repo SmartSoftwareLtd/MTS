@@ -1,0 +1,498 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+
+    #divDetails #divParsedExcel {
+        margin-right: 5%;
+        margin-left: 5%;
+    }
+
+    .ui-autocomplete {
+        max-height: 180px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+</style>
+<div class="box-body">
+    <input type="hidden" id="hdnSellingPrice" />
+    <input type="hidden" id="hdnCustomerID" />
+    <input type="hidden" id="hdnCustomerName" />
+    <input type="hidden" id="hdnCustomerAddress" />
+    <input type="hidden" id="hdnCustomerContactNumber" />
+    <input type="hidden" id="ReportDate" />
+    <div class='form-group col-sm-3'>
+        <label>From Date:</label>
+        <input class='form-control datepicker input-group-sm' placeholder='Enter drop of date...' id='fromDate' />
+    </div>
+    <div class='form-group col-sm-3'>
+        <label>To Date:</label>
+        <input class='form-control datepicker input-group-sm' placeholder='Enter drop of date...' id='toDate' />
+
+    </div>
+    <div class="form-group col-xs-3">
+        <label>Search By Customer Name</label><br />
+        <input id="txtBuyerName" class="ui-autocomplete form-control input-group-lg" type="text" name="BuyerName" style="margin-top: 25px;"
+               placeholder="Search By Customer Name" />
+    </div>
+    <div class='form-group col-sm-3' style="margin-top:25px;">
+
+        <input type="button" class="btn btn-success  input-group-sm" value="Sort List By Date" id="btnDate" />
+    </div>
+    <br />
+    <div id="divDataGrid">
+        <br /><br /><br />
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGrid"></div>*@
+        <br><br>
+        <input type="button" class="btn btn-success  input-group-sm" value="Print Report" id="btnPrintAll" style="margin-left: 400px; " />
+    </div>
+    <br />
+    <div id="divDataGridByDate">
+        <br /><br /><br />
+        <table id="dataGridByDate" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridByDate"></div>*@
+        <br><br>
+        <input type="button" class="btn btn-success  input-group-sm" value="Print Report" id="btnPrintByDate" style="display: none; margin-left: 400px; " />
+    </div>
+    <br />
+    <div class='form-group col-sm-2'>
+
+        
+
+        </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+            //this grid is used to fill the sales list
+
+        $('#dataGrid').jqGrid({
+                caption: "Sales List",
+                url:'/Sales/GetSalesData/',
+                datatype: "json",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+
+                colNames: ['iSaleID', 'iCutomerTypeID', 'showRoomPersonName', 'strPersonPhoneNo', 'strShowRoomName', 'strShowRoomNumber', 'strShowRoomPhoneNo', 'strBlock', 'iSaleFrontEndID',
+
+                'iSalesInvoiceID', 'dtCreditLimitDate', 'Sales Invoice No', 'Chassis Num', 'iImpExpTransfer', 'iPaymentType', 'iCustomerID', 'strBookingID', 'strVoucherNo', 'BuyerName', 'SalesDate', 'SellingPrice', 'Advance', 'Balance', 'CashType', 'PaperMode', 'dmlParkingFees', 'iCarStatusID', 'iYardID', 'Action'],
+                colModel: [
+                    { name: 'iSaleID', index: 'iSaleID', hidden: true, hidedlg: true },
+                     { name: 'iCutomerTypeID', index: 'iCutomerTypeID', hidden: true, hidedlg: true },
+
+                      { name: 'showRoomPersonName', index: 'showRoomPersonName', hidden: true, hidedlg: true },
+                       { name: 'strPersonPhoneNo', index: 'strPersonPhoneNo', hidden: true, hidedlg: true },
+
+                      { name: 'strShowRoomName', index: 'strShowRoomName', hidden: true, hidedlg: true },
+                      { name: 'strShowRoomNumber', index: 'strShowRoomNumber', hidden: true, hidedlg: true },
+                      { name: 'strShowRoomPhoneNo', index: 'strShowRoomPhoneNo', hidden: true, hidedlg: true },
+                      { name: 'strBlock', index: 'strBlock', hidden: true, hidedlg: true },
+
+                    { name: 'iSaleFrontEndID', index: 'iSaleFrontEndID', hidden: true, hidedlg: true },
+                    { name: 'iSalesInvoiceID', index: 'iSalesInvoiceID', hidden: true, hidedlg: true },
+                     { name: 'dtCreditLimitDate', index: 'dtCreditLimitDate', hidden: true, hidedlg: true },
+                    { name: 'strSalesInvoiceNo', index: 'strSalesInvoiceNo', align: 'center' },
+
+                      { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+
+                     { name: 'iImpExpTransfer', index: 'iImpExpTransfer', hidden: true, hidedlg: true },
+                      { name: 'iPaymentType', index: 'iPaymentType', hidden: true, hidedlg: true },
+                      { name: 'iCustomerID', index: 'iCustomerID', hidden: true, hidedlg: true },
+
+
+                        { name: 'strBookingID', index: 'strBookingID', align: 'center', hidden: true, hidedlg: true },
+                        { name: 'strVoucherNo', index: 'strVoucherNo', align: 'center', hidden: true, hidedlg: true },
+
+                    { name: 'strBuyerName', index: 'strBuyerName', align: 'center', formatter: formatBuyerName },
+                    { name: 'strSalesDate', index: 'strSalesDate', align: 'center' },
+                    { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+                    //{ name: 'dmlDeposit', index: 'dmlDeposit', align: 'center' },
+                    { name: 'dmlAdvance', index: 'dmlAdvance', align: 'center' },
+                    { name: 'dmlBalance', index: 'dmlBalance', align: 'center' },
+                    //{ name: 'iInstallment', index: 'iInstallment', align: 'center' },
+                    { name: 'strCashName', index: 'strCashName', align: 'center' },
+                    { name: 'strPaperModeName', index: 'strPaperModeName', align: 'center' },
+
+                    { name: 'dmlParkingFees', index: 'dmlParkingFees', hidden: true, hidedlg: true },
+                      { name: 'iCarStatusID', index: 'iCarStatusID', hidden: true, hidedlg: true },
+                      { name: 'iYardID', index: 'iYardID', hidden: true, hidedlg: true },
+
+
+
+                ],
+                shrinkToFit: false,
+                forceFit: true,
+                width: 1050,
+                height: 250,
+                rowNum: 1000,
+                rownumbers: true,
+                loadonce: true,
+                ignoreCase: true,
+
+            });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+        });
+</script>
+
+<script>
+
+
+
+    $("#btnDate").click(function () {
+        debugger
+        //$("#hdnCustomerID").val('2')
+        var fromDate = $("#fromDate").val();
+        var toDate = $("#toDate").val();
+       
+        if (isNaN(parseInt($("#hdnCustomerID").val()))) {
+            var custid = 0;
+        }
+        else { var custid=parseInt($("#hdnCustomerID").val()) }
+        //var custid =2;
+        //alert(fromDate);
+        //alert(toDate);
+        $.ajax({
+            url: '/Sales/GetAllSalesReportByDate/',
+            dataType: 'json',
+            type: 'POST',
+            data: JSON.stringify({ 'fromDate': fromDate, 'toDate': toDate, 'customerID': custid }),
+            contentType: 'application/json; charset=utf-8',
+
+            success: function (result) {
+                $("#dataGridByDate").jqGrid('GridUnload');
+                $('#btnPrintByDate').show();
+
+                var salesReportByDate = result.salesReportByDate.salesReportByDate;
+                var sumOfSellingPrice = result.salesReportByDate.sumOfSellingPrice;
+
+                $('#hdnSellingPrice').val(sumOfSellingPrice);
+
+                $('#dataGridByDate').jqGrid({
+                    data: salesReportByDate,
+                    datatype: "local",
+
+                    colNames: ['iCutomerTypeID', 'Sales Invoice No', 'Customer Name', 'Chassis No', 'showRoomPersonName', 'SalesDate', 'SellingPrice', 'Deposit', 'Advance', 'Balance', 'Installment', 'CashType'],
+                    colModel: [
+                        { name: 'iCutomerTypeID', index: 'iCutomerTypeID', align: 'center', hidden: true, hidedlg: true, formatter: frmtBuyerName },
+
+
+                        { name: 'strSalesInvoiceNo', index: 'strSalesInvoiceNo', align: 'center' },
+                        { name: 'strBuyerName', index: 'strBuyerName', align: 'center', width: 200 },
+                        { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+
+                         { name: 'showRoomPersonName', index: 'showRoomPersonName', align: 'center', hidden: true, hidedlg: true },
+
+                        { name: 'strSalesDate', index: 'strSalesDate', align: 'center' },
+                        { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+                        { name: 'dmlDeposit', index: 'dmlDeposit', align: 'center', hidden: true, hidedlg: true },
+                        { name: 'dmlAdvance', index: 'dmlAdvance', align: 'center' },
+                        { name: 'dmlBalance', index: 'dmlBalance', align: 'center' },
+                        { name: 'iInstallment', index: 'iInstallment', align: 'center', hidden: true, hidedlg: true },
+                        { name: 'strCashName', index: 'strCashName', align: 'center', hidden: true, hidedlg: true },
+                        //{ name: 'strPaperModeName', index: 'strPaperModeName', align: 'center' },
+
+
+                    ],
+                    shrinkToFit: false,
+                    forceFit: true,
+                    width: 1050,
+                    height: 250,
+                    rowNum: 1000000,
+                    rownumbers: true,
+                    rownumWidth: 50,
+                    ignoreCase: true,
+                    //rowList: [10, 20, 30],
+                    //pager: 'pagingGridByDate',
+                    caption: "Sales Report List Between Two Dates",
+
+
+                });
+                jQuery("#dataGridByDate").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+                //jQuery("#dataGridByDate").jqGrid('navGrid', '#pagingGridByDate', { edit: false, add: false, del: false, search: false });
+
+
+                $('#divDataGrid').hide();
+                $('#divDataGridByDate').show();
+
+            }
+        });
+    });
+
+
+    function frmtBuyerName(cellvalue, options, rowObject) {
+        debugger
+        if (cellvalue == 1) {
+            rowObject.strBuyerName = rowObject.showRoomPersonName
+        }
+        else if (cellvalue == 2) {
+            rowObject.strBuyerName = rowObject.strBuyerName
+        }
+
+    }
+
+
+    //Calculate Total Selling Price for First Grid
+    function CalculateSellingPrice() {
+
+        //caculating all rows Selling Price
+        var allRows = jQuery('#dataGrid').getDataIDs();
+        var Total = 0;
+        var totalDiscount = 0;
+        for (var j = 0; j < allRows.length; j++) {
+            var rowData = jQuery("#dataGrid").getRowData(allRows[j]);
+            Total += Number(rowData['dmlSellingPrice']);//Calculating Sum of total column
+        }
+        return Total;
+        
+    }
+    //To Print All Sales Record
+    $("#btnPrintAll").click(function () {
+        debugger
+        var totalSellingPrice = CalculateSellingPrice();
+        $('#hdnSellingPrice').val(totalSellingPrice);
+        var grid = jQuery("#dataGrid").getRowData();
+        generateSalesReportPDF(grid);
+    });
+
+    //To Print  Sales Record By Date
+    $("#btnPrintByDate").click(function () {
+
+        var grid = jQuery("#dataGridByDate").getRowData();
+        generateSalesReportPDF(grid);
+    });
+
+
+
+    function generateSalesReportPDF(data) {
+        debugger
+
+        //var griddata = jQuery("#dataGridByDate").getRowData();
+
+        var griddata = data;
+        var sno = 1;
+        var columns = ['SNO', 'SalesInvNo', 'Customer Name', 'Chassis No', 'SalesDate', 'SellingPrice', 'Advance', 'Balance'];
+
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+            data.push([sno, griddata[i].strSalesInvoiceNo, griddata[i].strBuyerName, griddata[i].strChassisNum,
+                griddata[i].strSalesDate, griddata[i].dmlSellingPrice, griddata[i].dmlAdvance, griddata[i].dmlBalance]);
+            sno=sno + 1;
+        }
+        
+        var griddata = jQuery("#dataGridByDate").getRowData();       
+        var TotalSellingPrice = 0;
+        var TotalAdvance = 0;
+        var TotalBalance = 0;
+
+        
+        for (var j = 0; j < griddata.length; j++) {
+           
+            TotalSellingPrice += parseFloat(griddata[j].dmlSellingPrice  || 0);//Calculating Sum of total column
+            TotalAdvance += parseFloat(griddata[j].dmlAdvance || 0);
+            TotalBalance += parseFloat(griddata[j].dmlBalance || 0);
+
+        }
+
+
+
+        var fromDate = $("#fromDate").val();
+        var toDate = $("#toDate").val();
+        //var sumOfSellingPrice = $('#hdnSellingPrice').val();
+
+        var custFullName = $("#hdnCustomerName").val();
+        var custAddr=$("#hdnCustomerAddress").val();
+        var custPhone=$("#hdnCustomerContactNumber").val();
+
+        data.push([, , , , 'Total', TotalSellingPrice, TotalAdvance, TotalBalance]);
+        
+        var d = new Date();
+
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+
+        var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' +(('' + month).length < 2 ? '0' : '') + month + '/'+ d.getFullYear();
+
+
+        var doc = new jsPDF('l', 'mm', [230, 250], '');
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+            doc.text("Sales Report", data.settings.margin.left + 90, 10);
+            doc.setFontSize(15);
+            doc.text("From Dt:", data.settings.margin.left + 60, 35);
+            doc.text(fromDate + '- ', data.settings.margin.left + 80, 35);
+            doc.text("To Dt:", data.settings.margin.left + 110, 35);
+            doc.text(toDate, data.settings.margin.left + 125, 35);
+            doc.text("Rprt Dt:", data.settings.margin.left + 85, 20);
+            doc.text(ReportDate, data.settings.margin.left + 105, 20);
+            doc.setFontSize(20)
+            doc.setTextColor(0, 0, 255)
+            doc.text(custFullName, data.settings.margin.left, 20);
+            doc.setFontSize(10)
+            doc.text(custAddr, data.settings.margin.left, 30);
+            doc.text(custPhone, data.settings.margin.left, 40);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 40 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                   // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        ////doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+ }
+
+
+</script>
+
+
+<script type="text/javascript">
+    $(function () {
+
+
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });
+
+
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });
+        var date = new Date();
+        var joindate = new Date(date.getFullYear(), date.getMonth(), 1);
+        var firstDay =
+        ("0" + (joindate.getMonth() + 1)).slice(-2) + "/" +
+        ("0" + joindate.getDate()).slice(-2) + "/" +
+        joindate.getFullYear();
+
+        $("#fromDate").val(firstDay);
+        $("#toDate").datepicker().datepicker("setDate", new Date());
+
+    });
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#txtBuyerName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    //url: '/Sales/GetCustomerDetailsForSalesReports/',
+                    url: '/Sales/GetCustomerDetails/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+
+                                
+                                    return {
+
+                                        iCustomerID: item.iCustomerID,
+                                        strFirstName: item.strFirstName,
+                                        strMiddleName: item.strMiddleName,
+                                        strLastName: item.strLastName,
+                                        fltPhoneNumber: item.fltPhoneNumber,
+                                        strAddress:item.strAddress,
+                                        strCreditLimit: item.strCreditLimit,
+                                        iCreditCategoryID: item.iCreditCategoryID,
+                                        value: item.strFirstName
+
+                                    }
+                                
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+                debugger
+                event.preventDefault();
+
+                //$("#").val(i.item.value);
+                $("#hdnCustomerID").val(i.item.iCustomerID);
+                $("#txtBuyerName").val(i.item.strFirstName);
+                $("#hdnCustomerName").val(i.item.strFirstName+'  '+i.item.strMiddleName+' '+i.item.strLastName);
+                $("#hdnCustomerAddress").val(i.item.strAddress);
+                $("#hdnCustomerContactNumber").val(i.item.fltPhoneNumber);
+
+                
+            },
+            minLength: 1
+        });
+    });
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="~/Content/plugins/jsPDF-2/faker.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

@@ -1,0 +1,731 @@
+﻿@*@model AuctionInventory.Models.Vehicles*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="box-body" id="divFillByAuctionList">
+    <div>
+        <a class="btn btn-primary" href="/Auction/Index" style="margin-bottom:20px; margin-top:20px;">Add New</a>
+
+    </div>
+    <br />
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+    @*<div id="pagingGrid"></div>*@
+</div>
+
+<div id="divForUpdateAuctionList" style="display:none">
+
+
+    <div class="col-sm-6">
+        <div class="form-group">
+
+            <input class="form-control " id="AuctionFrontEndID" type="hidden" />
+
+            <input id="dtAuctionDate" type="hidden" />
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="form-group pull-right" style="margin-right: 155px;">
+
+            <label>Auction Date:</label>
+            <input class="form-control datepicker" id="auctionDate" placeholder="Enter Drop-off date here..." />
+        </div>
+    </div>
+    <div class="box-body" id="divFillByVehicle">
+        <br />
+        <br />
+        <br />
+
+
+        <table id="dataGridForUpdateAuctionList" class="table table-bordered table-striped"></table>
+        <div id="pagingGridForUpdateAuctionList"></div>
+    </div>
+
+    <div class="box-body" id="divAddVehicle">
+        <table id="GridAddVehicleForUpdateAuctionList" class="table table-bordered table-striped"></table>
+        <div id="pagingGridAddVehicleForUpdateAuctionList"></div>
+        <br />
+    </div>
+    @*<div id="msg">
+
+
+        </div>*@
+    <div>
+        <br />
+        <div id="dialog" style="display: none" align="center">
+            Do you want to Save this Auction?
+        </div>
+        <div id="dialog2" style="display: none" align="center">
+            Do you want to Delete this Auction?
+        </div>
+        <input type="button" style="margin-left: 320px" class="btn btn-warning col-md-2" id="updateAuctionList" value="Update" />
+        <input type="button" style="margin-left: 320px; display: none; " class="btn btn-success col-md-2" id="btnPrint" value="Print" onclick="generateAuctionPDF()" />
+
+        <input type="button" style="margin-left: 40px" class="btn btn-warning col-md-2" value="Cancel" onclick="CancelAuctionInfo();" id="cancelSaleInfo">
+    </div>
+
+
+
+</div>
+
+
+<div class="box-body" id="divForAuctionRemainingVehicleList" style="display:none">
+    <br />
+
+    <input type="button" class="btn btn-warning col-md-2" value="Back To List" onclick="CancelAuctionInfo();" id="cancelSaleInfo">
+    <br />
+    <br />
+    <br />
+    <table id="dataGridForAuctionRemainingVehicle" class="table table-bordered table-striped"></table>
+    @*<div id="pagingGrid"></div>*@
+   </div>
+
+<script type="text/javascript">
+
+    function CancelAuctionInfo() {
+        window.location.href = "/Auction/AuctionList";
+    }
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });//Initialise any date pickers
+    });
+</script>
+<script>
+
+    $(function () {
+
+        $('#dataGrid').jqGrid({
+            caption: "Auction List",
+            url: '/Auction/GetAuctionListData/',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+            colNames: ['iAuctionFrontEndID', 'dtAuctionDate', 'Auction Date', 'No Of Vehicles', 'Action'],
+            colModel: [
+                { name: 'iAuctionFrontEndID', index: 'iAuctionFrontEndID', hidden: true, hidedlg: true },
+
+            { name: 'dtAuctionDate', index: 'dtAuctionDate', hidden: true, hidedlg: true },
+
+                { name: 'strAuctionDate', index: 'strAuctionDate', align: 'center' },
+                { name: 'iVehicleID', index: 'iVehicleID', align: 'center' },
+                //{ name: 'iModel', index: 'iModel' },
+                //{ name: 'iYear', index: 'iYear' },
+                //{ name: 'strColor', index: 'strColor' },
+                //{ name: 'iCustomValInJPY', index: 'iCustomValInJPY' },
+                 {
+                     name: 'Action', index: 'Action', width: 330, search: false, title: false,
+                     formatter: function (cellvalue, options, rowObject) {
+
+                         return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  />" + '   ' + "<input class='btn btn-danger' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"DeleteAuction('" + options.rowId + "');\"  />"
+
+                         + '   ' + "<input class='popup btn btn-warning' style='margin-right: 5%; ' type='button' value='Remaining Vehicle' onclick=\"remainingVehicleListData('" + options.rowId + "');\"  />";
+                     }
+
+                 },
+
+            ],
+            width: 800,
+            height: 300,
+            rowNum: 100000,
+            loadonce: true,
+            rownumbers: true,
+            //rowList: [10, 20, 30],
+            //pager: 'pagingGrid',
+
+
+            //beforeSelectRow: function (rowid, celname, value, iRow, iCol) {
+            //    debugger;
+            //    var rowData = jQuery("#dataGrid").getRowData(rowid);
+            //    var rowDataVehicleID = rowData['iVehicleID'];
+
+            //    var addVehicleID = false;
+            //    $.map(arr, function (elementOfArray, indexInArray) {
+            //        if (elementOfArray.VehicleID == rowDataVehicleID) {
+
+            //            addVehicleID = true;
+            //        }
+            //    })
+            //    if (!addVehicleID) {
+            //        arr.push({ VehicleID: rowDataVehicleID })
+            //        $('#GridAddVehicle').jqGrid('addRowData', rowDataVehicleID, rowData);
+
+            //        $('#divAddVehicle').show();
+            //    }
+
+
+
+            //    //// arr.push(rowDataVehicleID);
+            //    //$('#GridAddVehicle').jqGrid('addRowData', rowDataVehicleID, rowData);
+
+            //    //$('#divAddVehicle').show();
+            //}
+
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+
+
+    });
+
+
+    var arr = new Array();
+
+    function editRowData(rowID) {
+        debugger
+        //arr = new Array();
+        $("#divFillByAuctionList").hide();
+        $("#divForUpdateAuctionList").show();
+
+        var rowData = jQuery("#dataGrid").getRowData(rowID);
+
+        var strAuctionDate = rowData['strAuctionDate'];
+
+        var iAuctionFrontEndID = rowData['iAuctionFrontEndID'];
+
+        var dtAuctionDate = rowData['dtAuctionDate'];
+
+        $("#AuctionFrontEndID").val(iAuctionFrontEndID);
+
+        $("#auctionDate").val(strAuctionDate);
+        $("#dtAuctionDate").val(dtAuctionDate);
+
+        $(function () {
+            //arr = new Array();
+            $('#dataGridForUpdateAuctionList').jqGrid({
+
+                url: '/Auction/GetData/',
+                datatype: "json",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+                colNames: ['ID', 'Lot No', 'AuctionStatus', 'Chasis No', 'Make', 'Color', 'Model', 'Supplier Name', 'JPY'],
+                colModel: [
+                    { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                    { name: 'iLotNum', index: 'iLotNum', align: 'center', hidden: true, hidedlg: true },
+                    { name: 'AuctionStatus', index: 'AuctionStatus', align: 'center', hidden: true, hidedlg: true },
+                     { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                     { name: 'strMake', index: 'strMake', align: 'center' },
+                    { name: 'strColor', index: 'strColor', align: 'center' },
+                    { name: 'iModel', index: 'iModel', align: 'center' },
+
+                    { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                    { name: 'iCustomValInJPY', index: 'iCustomValInJPY', align: 'center', hidden: true, hidedlg: true },
+
+                ],
+                width: 1000,
+                height: 300,
+                rowNum: 100000,
+                loadonce: true,
+                rownumbers: true,
+                //rowList: [10, 20, 30],
+                //pager: 'pagingGridForUpdateAuctionList',
+                caption: 'Select Vehicle to Add',
+
+                beforeSelectRow: function (rowid, celname, value, iRow, iCol) {
+                    debugger;
+                    var rowData = jQuery("#dataGridForUpdateAuctionList").getRowData(rowid);
+                    var rowDataVehicleID = rowData['iVehicleID'];
+
+                    var addVehicleID = false;
+                    $.map(arr, function (elementOfArray, indexInArray) {
+                        if (elementOfArray.VehicleID == rowDataVehicleID) {
+
+                            addVehicleID = true;
+                        }
+                    })
+                    if (!addVehicleID) {
+                        arr.push({ VehicleID: rowDataVehicleID })
+                        $('#GridAddVehicleForUpdateAuctionList').jqGrid('addRowData', rowDataVehicleID, rowData);
+
+                        $('#divAddVehicle').show();
+                    }
+
+
+
+                    //// arr.push(rowDataVehicleID);
+                    //$('#GridAddVehicle').jqGrid('addRowData', rowDataVehicleID, rowData);
+
+                    //$('#divAddVehicle').show();
+                }
+
+            });
+            jQuery("#dataGridForUpdateAuctionList").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+            //jQuery("#dataGridForUpdateAuctionList").jqGrid('navGrid', '#pagingGridForUpdateAuctionList', { edit: false, add: false, del: false, search: false });
+
+
+
+        });
+
+
+
+
+
+        /////////taking Auction Date and pass to controller for getting all the auction associated with that frontEnd id
+
+        //var request = iAuctionFrontEndID;
+        var request = dtAuctionDate;
+
+        jQuery.ajax({
+            url: '/Auction/GetAuctionListDataBYAuctionDate/',
+            data: "{ 'date': '" + request + "'}",
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                debugger
+                // arr.push(result);
+
+
+
+                var listVehicle = result.listVehicle;
+
+                for (var i = 0; i < listVehicle.length; i++) {
+
+                    arr.push({ VehicleID: listVehicle[i].iVehicleID })
+                    //arr.push(listVehicle[i].iVehicleID)
+                }
+
+                $('#GridAddVehicleForUpdateAuctionList').jqGrid({
+                    caption: "ADD Single Vehicle",
+                    data: listVehicle,
+                    datatype: "local",
+                    colNames: ['ID', 'iAuctionFrontEndID', 'Lot No', 'AuctionStatus', 'Chasis No', 'Make', 'Color', 'Model', 'Supplier Name', 'JPY', 'Action'],
+                   
+                    colModel: [
+
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                        { name: 'iAuctionFrontEndID', index: 'iAuctionFrontEndID', hidden: true, hidedlg: true },
+
+                         { name: 'iLotNum', index: 'iLotNum', align: 'center', hidden: true, hidedlg: true },
+                          { name: 'AuctionStatus', index: 'AuctionStatus', align: 'center', hidden: true, hidedlg: true },
+                 { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                 { name: 'strMake', index: 'strMake', align: 'center' },
+                { name: 'strColor', index: 'strColor', align: 'center' },
+                { name: 'iModel', index: 'iModel', align: 'center' },
+
+                { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                { name: 'iCustomValInJPY', index: 'iCustomValInJPY', align: 'center', hidden: true, hidedlg: true },
+
+
+
+                        {
+                            name: 'Action', index: 'Action', align: 'center', width: 100, search: false, title: false,
+                            formatter: function (cellvalue, options, rowObject) {
+
+                                //return "<input class='popup delete btn btn-info' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"jQuery('#GridAddVehicle').delRowData('" + options.rowId + "');\"  />";
+
+                                return "<input class='popup delete btn btn-info' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"delRowData('" + options.rowId + "');\"  />";
+                            }
+
+                        },
+
+                    ],
+                    //width: 'auto',
+                    width: 1000,
+                    height: 250,
+                    rowNum: 100000,
+                    loadonce: false,
+                    rownumbers: true,
+                    //rowList: [10, 20, 30],
+                    //pager: 'pagingGridAddVehicleForUpdateAuctionList',
+
+                });
+                jQuery("#GridAddVehicleForUpdateAuctionList").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+                // jQuery("#GridAddVehicleForUpdateAuctionList").jqGrid('navGrid', '#pagingGridAddVehicleForUpdateAuctionList', { edit: false, add: false, del: false, search: false, rel: false });
+
+            }
+        });
+    }
+
+
+
+    function remainingVehicleListData(rowID) {
+        debugger
+        
+        $("#divFillByAuctionList").hide();       
+        $("#divForAuctionRemainingVehicleList").show();
+
+        var rowData = jQuery("#dataGrid").getRowData(rowID);
+
+  
+
+        var dtAuctionDate = rowData['dtAuctionDate'];
+
+        $.ajax({
+            type: "POST",
+            url: "/Auction/AuctionRemainingVehicleLists",
+            cache: false,
+            data: JSON.stringify({ AuctionDate: dtAuctionDate }),
+            // data: JSON.stringify(purchase),
+            dataType: this.dataType,
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                debugger
+                var auctionRemainingVehicleLists = result.listVehicle;
+                $('#dataGridForAuctionRemainingVehicle').jqGrid({
+
+                    data: auctionRemainingVehicleLists,
+                datatype: "local",               
+                colNames: ['ID', 'Chasis No', 'Make', 'Color', 'Model'],
+                colModel: [
+                    { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                    //{ name: 'iLotNum', index: 'iLotNum', align: 'center', hidden: true, hidedlg: true },
+                     { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                     { name: 'strMake', index: 'strMake', align: 'center' },
+                    { name: 'strColor', index: 'strColor', align: 'center' },
+                    { name: 'iModel', index: 'iModel', align: 'center' },                   
+
+                ],
+                width: 1000,
+                height: 300,
+                rowNum: 100000,
+                loadonce: true,
+                rownumbers: true,              
+                ignoreCase: true,
+                //rowList: [10, 20, 30],
+                //pager: 'pagingGridForUpdateAuctionList',
+                caption: 'Select Remaining Vehicle to Add for Auction',
+
+                //beforeSelectRow: function (rowid, celname, value, iRow, iCol) {
+                //    debugger;
+                //    var rowData = jQuery("#dataGridForUpdateAuctionList").getRowData(rowid);
+                //    var rowDataVehicleID = rowData['iVehicleID'];
+
+                //    var addVehicleID = false;
+                //    $.map(arr, function (elementOfArray, indexInArray) {
+                //        if (elementOfArray.VehicleID == rowDataVehicleID) {
+
+                //            addVehicleID = true;
+                //        }
+                //    })
+                //    if (!addVehicleID) {
+                //        arr.push({ VehicleID: rowDataVehicleID })
+                //        $('#GridAddVehicleForUpdateAuctionList').jqGrid('addRowData', rowDataVehicleID, rowData);
+
+                //        $('#divAddVehicle').show();
+                //    }
+
+
+
+                //    //// arr.push(rowDataVehicleID);
+                //    //$('#GridAddVehicle').jqGrid('addRowData', rowDataVehicleID, rowData);
+
+                //    //$('#divAddVehicle').show();
+                //}
+
+            });
+                jQuery("#dataGridForAuctionRemainingVehicle").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+            //jQuery("#dataGridForUpdateAuctionList").jqGrid('navGrid', '#pagingGridForUpdateAuctionList', { edit: false, add: false, del: false, search: false });
+
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to Save data.');
+            }
+        });
+       
+    }
+
+
+
+
+    var parameters = new Array();
+
+    $("#updateAuctionList").click(function () {
+        parameters = new Array();
+
+        debugger;
+
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+                debugger;
+
+                var AuctionFrontEndID = $('#AuctionFrontEndID').val();
+                var strAuctionDate = $('#auctionDate').val();
+
+                var dtAuctionDate = $("#dtAuctionDate").val();
+                for (var i = 0; i < arr.length; i++) {
+
+
+                    parameters.push({
+                        iVehicleID: arr[i].VehicleID,
+                        dtAuctionDate: dtAuctionDate,
+                        iAuctionFrontEndID: AuctionFrontEndID,
+                        strAuctionDate: strAuctionDate
+                    });
+                }
+
+
+
+
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Auction/Save",
+                    cache: false,
+                    data: JSON.stringify({ auctionList: parameters }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        alert("You are able print data");
+                        //window.location.href = "/Auction/AuctionList";
+                        $('#updateAuctionList').hide();
+                        $('#btnPrint').show();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to Save data.');
+                    }
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+
+
+
+    });
+
+
+
+
+</script>
+
+<script>
+    function delRowData(rowid) {
+        //arr = new Array();
+        debugger
+
+        var rowData = jQuery("#GridAddVehicleForUpdateAuctionList").getRowData(rowid);
+        var rowDataVehicleID = rowData['iVehicleID'];
+        jQuery('#GridAddVehicleForUpdateAuctionList').delRowData(rowid);
+        $.map(arr, function (elementOfArray, indexInArray) {
+            if (elementOfArray.VehicleID == rowDataVehicleID) {
+
+                //arr.pop(rowDataVehicleID);
+                arr.pop({ VehicleID: rowDataVehicleID })
+
+            }
+        })
+
+
+    }
+
+
+
+
+    function generateAuctionPDF() {
+        debugger
+
+
+        var localGridData = jQuery("#GridAddVehicleForUpdateAuctionList").getRowData();
+
+
+       
+
+
+        var columns = ['VR No', 'Chasis No', 'Make', 'Color', 'Model', 'Supplier Name'];
+        var VRNO = 0;
+        var data = [];
+        for (var i = 0; i < localGridData.length; i++) {
+            VRNO = VRNO + 1;
+            data.push([VRNO, localGridData[i].strChassisNum, localGridData[i].strMake, localGridData[i].strColor, localGridData[i].iModel, localGridData[i].strCompanyName]);
+
+        }
+
+
+        ////Calculate total of Value
+
+        //var TotalJPY = 0;
+
+
+        //for (var i = 0; i < localGridData.length; i++) {
+
+        //    TotalJPY += parseFloat(localGridData[i].iCustomValInJPY);
+        //}
+
+        data.push([, , , , , ]);
+
+
+
+        var doc = new jsPDF('l', 'mm', [350, 300], '');
+        //var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("M.D.MOTORS", data.settings.margin.left + 140, 10);
+
+            doc.setFontStyle('normal');
+            doc.setFontSize(15);
+            doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            doc.setFontStyle('bold', 'underline');
+            doc.text("AuctionList Report", data.settings.margin.left + 140, 35);
+            doc.setLineWidth(1)
+            doc.line(150, 36, 205, 36);
+            //doc.text("From Dt:", data.settings.margin.left + 80, 45);
+            //doc.text(fromDate, data.settings.margin.left + 105, 45);
+            //doc.text("To Dt:", data.settings.margin.left + 180, 45);
+            //doc.text(toDate, data.settings.margin.left + 200, 45);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 50 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+
+
+
+    //Delete Auction
+    function DeleteAuction(rowId) {
+        var rowData = jQuery("#dataGrid").getRowData(rowId);
+        var auctionDate = rowData['dtAuctionDate'];
+        //alert(auctionDate);
+        debugger;
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+                debugger
+                $.ajax({
+                    type: "POST",
+                    url: "/Auction/DeleteAuction",
+                    cache: false,
+                    data: JSON.stringify({ AucDate: auctionDate }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+
+                        $("#btnPrint").show();
+                        alert("Auction List Deleted");
+                        window.location.href = "/Auction/AuctionList";
+
+                    }
+
+
+
+
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    }
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

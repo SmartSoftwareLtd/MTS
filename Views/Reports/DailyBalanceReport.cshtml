@@ -1,0 +1,350 @@
+﻿
+@{
+   // ViewBag.Title = "DailyBalanceReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<style>
+    span.field-validation-error {
+        color: red;
+    }
+    /*we have overrides the css to change border color of menus*/
+    .navbar-inverse {
+        background-color: #337ab7;
+        border-color: #333;
+    }
+</style>
+<div class="tablecontainer">
+    <div class="col-md-4">
+        <input type="text" id="txtDate" class='form-control datepicker input-group-sm' placeholder="Select Date" />
+    </div>
+    @*<div class="col-md-4">
+            <input type="text" id="txtToDate" class='form-control datepicker input-group-sm' placeholder="Select ToDate" />
+        </div>*@
+    <div class="col-md-4">
+        <input type="button" id="btnFilter" class='btn btn-bitbucket' value="Filter" />
+    </div>
+    <br />
+    <div>
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        <br><br>
+    </div>
+    <br />
+    <div>
+        <table id="dataGrid2" class="table table-bordered table-striped"></table>
+        <br><br>
+    </div>
+    <br />
+    <input type="button" class="btn btn-success col-md-2" value="Print" style="margin-left: 400px;" onclick="PrintReport()" />
+</div>
+
+<script type="text/javascript">
+    $(function () {
+
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' });
+        var date = new Date();
+        var joindate = new Date(date.getFullYear(), date.getMonth(), 1);
+        var firstDay =
+        ("0" + (joindate.getMonth() + 1)).slice(-2) + "/" +
+        ("0" + joindate.getDate()).slice(-2) + "/" +
+        joindate.getFullYear();
+
+      
+        $("#txtDate").datepicker().datepicker("setDate", new Date());
+
+
+    });
+
+</script>
+
+<script>
+
+    $(function () {
+
+        //this grid is used to fill the Vehicle Details Report list
+
+        GetDailyBalanceList();
+
+        //$('#dataGrid').jqGrid({
+        //    caption: "Vehicle Details Report list",
+        //    url: '/Reports/SingleVehicleExpenseReport/',
+        //    datatype: "json",
+        //    contentType: "application/json; charset-utf-8",
+        //    mtype: 'GET',
+
+        //    colNames: ['iVehicleID', 'Chassis No', 'Expense Amount','SVExpense Amount', 'Expense Name'],
+        //    colModel: [
+        //        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+
+        //        { name: 'strChassisNum', index: 'strChassisNum',width:150, align: 'center' },
+        //         { name: 'dcmlExpenseAmount', index: 'dcmlExpenseAmount', align: 'center' },
+        //          { name: 'dcmlSVExpenseAmount', index: 'dcmlSVExpenseAmount', align: 'center' },
+        //           { name: 'strExpenseName', index: 'strExpenseName', align: 'center' },
+        //            //{ name: 'strFirstName', index: 'strFirstName', align: 'center' },
+        //            // { name: 'iCustomValInJPY', index: 'iCustomValInJPY', align: 'center' },
+        //            //  { name: 'dirhams', index: 'dirhams', align: 'center' },
+        //            //   { name: 'dcmlExpenseAmount', index: 'dcmlExpenseAmount', align: 'center' },
+        //            //    { name: 'dmlDuty', index: 'dmlDuty', align: 'center' },
+        //            //     { name: 'TCost', index: 'TCost', align: 'center' },
+        //            //      { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+        //            //       { name: 'Margin', index: 'Margin', align: 'center' },
+
+
+
+
+        //    ],
+
+
+
+        //    width: 1050,
+        //    height: 350,
+        //    rowNum: 1000,
+        //    loadonce: true,
+        //    ignoreCase: true,
+
+        //});
+        //jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+    });
+
+</script>
+
+<script>
+
+    $("#btnFilter").click(function () {
+        GetDailyBalanceList();
+    });
+
+
+    function GetDailyBalanceList() {
+        debugger
+        //this grid is used to fill the Vehicle Expense Report list
+        var Date = $("#txtDate").val();
+
+
+        $.ajax({
+            url: '/Reports/GetDailyBalanceData/',
+            dataType: 'json',
+            type: 'POST',
+            data: JSON.stringify({ 'date': Date }),
+            contentType: 'application/json; charset=utf-8',
+
+            success: function (result) {
+                $("#dataGrid2").jqGrid('GridUnload');
+                //alert(JSON.stringify(result));
+                var expenseReport = result
+
+                $('#dataGrid2').jqGrid({
+                    caption: "Daily Balance list",
+
+                    data: expenseReport,
+                    datatype: "local",
+
+
+                    colNames: ['iCutomerTypeID', 'BookingID', 'VoucherNo', 'ChassisNum', 'Balance', 'Customer Name', 'Supplier Name', 'showRoomPersonName', 'make'],
+                    colModel: [
+                        { name: 'iCutomerTypeID', index: 'iCutomerTypeID', align: 'center', hidden: true, hidedlg: true, formatter: frmtBuyerName },
+
+
+                        { name: 'strBookingID', index: 'strBookingID', width: 150, align: 'center' },
+                         //{ name: 'dcmlExpenseAmount', index: 'dcmlExpenseAmount', align: 'center' },
+                          { name: 'strVoucherNo', index: 'strVoucherNo', align: 'center' },
+                           { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                            //{ name: 'dmlPaidAmount', index: 'dmlPaidAmount', align: 'center' },
+                             { name: 'dmlBalance', index: 'dmlBalance', align: 'center' },
+                              
+
+
+                               { name: 'strBuyerName', index: 'strBuyerName', align: 'center', width: 230 },
+                                { name: 'strCompanyName', index: 'strCompanyName', align: 'center' },
+                             { name: 'showRoomPersonName', index: 'showRoomPersonName', align: 'center', hidden: true, hidedlg: true },
+                              { name: 'strMake', index: 'strMake', align: 'center', hidden: true, hidedlg: true },
+
+
+                            //    { name: 'dmlDuty', index: 'dmlDuty', align: 'center' },
+                            //     { name: 'TCost', index: 'TCost', align: 'center' },
+                            //      { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+                            //       { name: 'Margin', index: 'Margin', align: 'center' },
+
+
+
+
+
+                    ],
+
+
+                    shrinkToFit: false,
+                    forceFit: true,
+                    width: 1050,
+                    height: 350,
+                    rowNum: 10000,
+                    rownumWidth: 50,
+                    rownumbers: true,
+                    loadonce: true,
+                    ignoreCase: true,
+                    cmTemplate: { sortable: false },
+
+                });
+                jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+            }
+        });
+    };
+
+    function frmtBuyerName(cellvalue, options, rowObject) {
+        debugger
+        if (cellvalue == 1) {
+            rowObject.strBuyerName = rowObject.showRoomPersonName
+        }
+        else if (cellvalue == 2) {
+            rowObject.strBuyerName = rowObject.strBuyerName
+        }
+
+    }
+
+</script>
+<script>
+    function PrintReport() {
+        debugger
+
+        var griddata = jQuery("#dataGrid2").getRowData();
+
+        //var griddata = data;
+
+        var sno = 1;
+        var columns = ['S.NO.', 'BookingID', 'VoucherNo', 'ChassisNum', 'Customer Name', 'Supplier Name', 'Balance'];
+
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+            data.push([sno, griddata[i].strBookingID, griddata[i].strVoucherNo, griddata[i].strChassisNum, griddata[i].strBuyerName,
+                griddata[i].strCompanyName, griddata[i].dmlBalance]);
+            sno = sno + 1;
+        }
+
+        //Calculate total of Value
+        var allRows = jQuery('#dataGrid2').getDataIDs();
+        //var TotalPaidAmount = 0;
+        //var TotalAdvance = 0;
+        var TotalBalance = 0;
+
+        for (var j = 0; j < allRows.length; j++) {
+            var rowData = jQuery("#dataGrid2").getRowData(allRows[j]);
+            //TotalPaidAmount += Number(rowData['dmlPaidAmount']);//Calculating Sum of total column
+            TotalBalance += Number(rowData['dmlBalance']);
+
+        }
+
+        data.push(['Total', , , , ,, TotalBalance]);
+
+        var Date = $("#txtDate").val();
+
+        //var sumOfSellingPrice = $('#hdnSellingPrice').val();
+
+        //var custFullName = $("#hdnCustomerName").val();
+        //var custAddr = $("#hdnCustomerAddress").val();
+        //var custPhone = $("#hdnCustomerContactNumber").val();
+
+
+
+        //var d = new Date();
+
+        //var month = d.getMonth() + 1;
+        //var day = d.getDate();
+
+        //var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+
+        var doc = new jsPDF('l', 'mm', [350, 300], '');
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("D.A.A.", data.settings.margin.left + 140, 10);
+
+            doc.setFontStyle('normal');
+            //doc.setFontSize(15);
+            //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            doc.setFontStyle('bold', 'underline');
+            doc.text("Daily Balance Report", data.settings.margin.left + 120, 35);
+
+            doc.text("Date:", data.settings.margin.left + 130, 45);
+            doc.text(Date, data.settings.margin.left + 150, 45);
+
+            //doc.text("Rprt Dt:", data.settings.margin.left + 125, 20);
+            //doc.text(ReportDate, data.settings.margin.left + 145, 20);
+            //doc.setFontSize(20)
+            //doc.setTextColor(0, 0, 255)
+            //doc.text(custFullName, data.settings.margin.left, 20);
+            //doc.setFontSize(10)
+            //doc.text(custAddr, data.settings.margin.left, 30);
+            //doc.text(custPhone, data.settings.margin.left, 40);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 50 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+</script>
+
+
+
+
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="~/Content/plugins/jsPDF-2/faker.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

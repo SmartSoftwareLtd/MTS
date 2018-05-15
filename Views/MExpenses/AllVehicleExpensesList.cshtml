@@ -1,0 +1,1354 @@
+﻿@{
+    ViewBag.Title = "AllVehicleExpensesList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="box-body" id="divForAllVehicleExpensesListGrid">
+    <div>
+        <a class="btn btn-primary" href="/MExpenses/AllVehicleExpenses" style="margin-bottom:20px; margin-top:20px;">Add New</a>
+
+    </div>
+    <br />
+    <div>
+        <table id="dataGridForAllVehicleExpensesList" class="table table-bordered table-striped"></table>
+        @*<div id="pagingGridForAllVehicleExpensesList"></div>*@
+        <br><br>
+    </div>
+</div>
+
+<div id="divForUpdateAllVehicleExpense" style="width:90%; margin:0px auto;display:none" class="tablecontainer">
+
+    <div id="divDetails" class="row">
+        <input type="hidden" id="hfiVehicleExpenseID" />
+        <input type="hidden" id="hfStrPurchaseInvoiceNo" />
+        <input type="hidden" id="hdnNoOfUnits" />
+        
+
+        @*<div class='form-group col-sm-4'>
+                <label>Purchase Inv No: </label>
+                <input type="text" class='form-control input-group-sm' id="invno" placeholder="Search By Invoice ID" />
+
+            </div>
+            <div class='form-group col-sm-2'>
+                <input id="JQGridFill" style="margin-left: 25px;" class='btn btn-success form-control input-group-sm' type="button" value="Search" />
+            </div>*@
+
+        @*<label>Purchase Inv No: </label>*@
+        <div class='row'>
+
+
+            @*<div class='form-group col-sm-2'>
+
+
+                    <label class='form-control input-group-sm' id='lblExpense'></label>
+                </div>*@
+          
+               
+          
+
+            <div class='form-group col-sm-3'>
+                <input type='hidden' id="invno" />
+                <input type='hidden' id="strInvoiveNum" />
+
+                <label>BL NO:</label>
+                <input id="txtBLNO" class='form-control input-group-sm' style='margin-left: -20px;' placeholder='Search By BL No' readonly />
+           </div>
+         
+            @*<div class='form-group col-sm-2'>
+                <input type='button' value='Search' style='margin-left: -35px;' class='btn btn-success' id='JQGridFill' />
+            </div>*@
+
+            <div class='form-group col-sm-2'>
+                <input type="hidden" id="hdndtAllExpenseDate" />
+                <label>Date:</label>
+                <input class='form-control datepicker input-group-sm' name='AllExpDate' placeholder='Enter drop of date...' id='txtAllExpDate' />
+            </div>
+
+            <div class='form-group col-sm-3'>
+                <label>Reference No.:</label>
+                <input class='form-control' name='' placeholder='Enter reference No...' id='txtReferenceNum' maxlength="25" />
+            </div>
+
+        </div>
+
+
+        @*<input type="text" id="invno" class="form-control" />
+            <input type="button" value="Search" id="JQGridFill" />*@
+
+
+
+        <div class="row" id="divFordataGrid">
+            <br />
+
+            <table id="dataGrid" class="table table-bordered table-striped"></table>
+            <div id="pagingGrid"></div>
+            <br />
+
+        </div>
+        <div id="dialog" style="display: none" align="center">
+            Do you want to Delete this Expense?
+        </div>
+
+        <div class="row" id="divForUpdatedataGrid">
+          
+
+            <table id="UpdatedataGrid" class="table table-bordered table-striped"></table>
+            <div id="UpdatepagingGrid"></div>
+            <br />
+
+        </div>
+
+
+        <div id="AddExpenseDynamic" style="display:none">
+            @*<div class='row form-group col-sm-4'>
+                <input type="hidden" id="hfExpense" />
+                <input type="text" class='form-control input-group-sm' id="txtSearchExpense" name="name" placeholder="search Expenses" />
+            </div>*@
+
+
+            <div class='row'>
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Delivery Order</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtDOExpense" name='DynamicTextBox' placeholder="Enter D/O Expense" />
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>DP World</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtDPAExpense" name='DynamicTextBox' placeholder="Enter DPA Expense" />
+                </div>
+
+                
+            </div>
+
+            <div class='row'>
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Trailer Shipment</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtTrailerShipmentExpense" name='DynamicTextBox' placeholder="Enter Trailer Shipment Expense" />
+                </div>
+
+
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Comission </label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtComission" name='DynamicTextBox' placeholder="Enter Comission Expense" />
+                </div>
+
+
+            </div>
+
+            <div class='row'>
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Tawakal</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtTawakal" name='DynamicTextBox' placeholder="Enter Tawakal Expense" />
+                </div>
+
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Demurrage Expense</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+
+                    <input type="text" class=' form-control  input-group-sm' id="txtDemurrageExpense" name='DynamicTextBox' placeholder="Enter Demurrage Expense" />
+                </div>
+
+            </div>
+
+            <div class='row'>
+
+               
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Container Inspection Expense</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtContainerInspectionExpense" name='DynamicTextBox' placeholder="Enter Container Inspection Expense" />
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Services Expense</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtServicesExpense" name='DynamicTextBox' placeholder="Enter Services Expense" />
+                </div>
+
+            </div>
+
+            @*<div class='row'>
+
+                <div class='form-group col-sm-3'>
+                    <label class='form-control input-group-sm' style='background-color:orange'>Recovery Expense</label>
+                </div>
+
+                <div class='form-group col-sm-3'>
+                    <input type="text" class=' form-control  input-group-sm' id="txtRecoveryExpense" name='DynamicTextBox' placeholder="Enter Recovery Expense" />
+                </div>
+
+                <div class='form-group col-sm-3'>
+            <label class='form-control input-group-sm' style='background-color:orange'>Transport Expense</label>
+        </div>
+
+        <div class='form-group col-sm-3'>
+
+            <input type="text" class=' form-control  input-group-sm' id="txtTransportExpense" name='DynamicTextBox' placeholder="Enter Transport Expense" />
+        </div>
+              
+
+            </div>*@
+
+            <div class='row'>
+
+                <div class='form-group col-sm-2'>
+
+                    <h3><label class="label label-warning form-control input-group-sm" style='background-color:orange'>Total Sum :<span id="totalSum">0</span></label></h3>
+                </div>
+
+            </div>
+
+
+
+            @*<div class="col-md-4">
+
+                <label>D/O Expense</label>
+                <input type="text" class=' form-control  input-group-lg' id="txtDOExpense" name='DynamicTextBox' placeholder="Enter D/O Expense" />
+            </div>
+            <div class="col-md-4">
+                <label>DPA Expense</label>
+                <input type="text" class=' form-control  input-group-lg' id="txtDPAExpense" name='DynamicTextBox' placeholder="Enter DPA Expense" />
+            </div>
+
+            <div class="col-md-4">
+                <label>Transport Expense</label>
+                <input type="text" class=' form-control  input-group-lg' id="txtTransportExpense" name='DynamicTextBox' placeholder="Enter Transport Expense" />
+            </div>
+
+            <div class="col-md-4">
+                <label>Ramp Expense</label>
+                <input type="text" class=' form-control  input-group-lg' id="txtTawakal" name='DynamicTextBox' placeholder="Enter Ramp Expense" />
+            </div>
+
+            <div class="col-md-4">
+                <label>Recovery Expense</label>
+                <input type="text" class=' form-control  input-group-lg' id="txtRecoveryExpense" name='DynamicTextBox' placeholder="Enter Recovery Expense" />
+            </div>
+
+
+
+            <br /><br /><br />
+
+            <div class="form-group col-xs-4">
+                <h3><label class="label label-warning form-control input-group-lg" style='background-color:orange'>Total Sum :<span id="totalSum">0</span></label></h3>
+            </div>
+
+
+            <br />*@
+
+
+        </div>
+        <br />
+        <div>
+            <br />
+            <div id="dialog" style="display: none" align="center">
+                Do you want to Save this Expenses?
+            </div>
+            <div id="dialogSpread" style="display: none" align="center">
+                Do you want to Spread Total Expense Amount To this Invoice?
+            </div>
+
+            <div id="dialogUndo" style="display: none" align="center">
+                Do you want to Undo Spread Amount?
+            </div>
+            <br />
+            @*<input type="button" style="margin-left: 330px;" class="btn btn-success col-md-2" id="btnUpdateAllVehiclesExpense" value="Save">
+            <input type="button" style="margin-left: 330px; display: none" class="btn btn-success col-md-3" id="btnSpread" value="Spread Expense Amount">
+
+            <input type="button" style="margin-left: 40px;" class="btn btn-success col-md-1" id="btnUndo" value="Undo">
+
+            <input type="button" style="margin-left: 40px" class="btn btn-warning col-md-2" value="Cancel" onclick="CancelVehiclesExpenseInfo();" id="cancelVehiclesExpenseInfo">*@
+       
+        
+            <input type="button" style="margin-left: 185px;" class="btn btn-success col-md-1" id="btnUpdateAllVehiclesExpense" value="Save">
+            <input type="button" style="margin-left: 220px; display: none" class="btn btn-success col-md-3" id="btnSpread" value="Spread Expense Amount">
+
+            <button class="btn btn-success col-md-3" id="hdnBtnLoading" style="margin-left: 220px; display: none">
+                <i class="fa fa-refresh fa-spin"></i> Loading
+            </button>
+          
+            <input type="button" style="margin-left: 40px;display:none" class="btn btn-success col-md-1" id="btnUndo" value="Undo">
+
+
+            <input type="button" style="margin-left: 40px" class="btn btn-warning col-md-1" value="Cancel" onclick="CancelVehiclesExpenseInfo();" id="cancelVehiclesExpenseInfo">
+
+        
+        
+         </div>
+    </div>
+
+
+
+</div>
+
+<div style="display:none" id="divForViewRowData">
+
+    <div>
+        <table id="dataGridForViewRowData" class="table table-bordered table-striped"></table>
+
+    </div>
+    <br /><br />
+    <input type="button" class="btn btn-info col-md-2" style="margin-left: 350px;" value="Print" onclick="PrintViewRowDataReport()" />
+    <input type="button" style="margin-left: 40px" class="btn btn-warning col-md-1" value="Cancel" onclick="CancelVehiclesExpenseInfo();" id="cancelVehiclesExpenseInfo">
+
+</div>
+
+<script>
+   
+    function CancelVehiclesExpenseInfo() {
+        window.location.href = "/MExpenses/AllVehicleExpensesList";
+    }
+
+
+
+
+    $("#btnUndo").click(function () {
+
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialogUndo').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialogUndo").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+                debugger
+                $("#btnUndo").hide();
+                $("#hdnBtnLoading").show();
+                //calling function here for update
+
+                var purchaseInvoiceID = $("#invno").val();
+                var NoOfUnits = $('#hdnNoOfUnits').val();
+                var ExpenseTotalAmount = parseFloat($("#totalSum").html());
+
+                var value = ExpenseTotalAmount / NoOfUnits;
+
+
+                var spreadAmount = value.toFixed(2);
+
+
+                $.ajax({
+
+                    url: "/MExpenses/UndoSpreadExpenseAmount",
+                    data: JSON.stringify({ purchaseInvoiceID: purchaseInvoiceID, spreadAmount: spreadAmount }),
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        alert("Undo Success!!!");
+                        $("#btnSpread").show();
+                        $("#hdnBtnLoading").hide();
+                        $("#btnUndo").hide();
+                       
+                        $("#btnSaveAllVehiclesExpense").hide();
+                        //window.location.href = "/MExpenses/AllVehicleExpensesList";
+                    }
+                });
+
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    });
+
+
+
+    $("#btnSpread").click(function () {
+
+        $("#btnUndo").css('margin-left', '220px');
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialogSpread').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialogSpread").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+                $("#btnSpread").hide();
+                $("#hdnBtnLoading").show();
+                //calling function here for update
+                var ExpenseTotalAmount = parseFloat($("#totalSum").html());
+                var purchaseInvoiceID = $("#invno").val();
+
+
+                $.ajax({
+
+                    url: "/MExpenses/SpreadExpenseAmount",
+                    data: JSON.stringify({ totalAmount: ExpenseTotalAmount, purchaseInvoiceID: purchaseInvoiceID }),
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        alert("Amount Spread Succesfully!");
+                        // window.location.href = "/MExpenses/AllVehicleExpensesList";
+
+                      
+                        $("#btnUndo").show();
+
+                        //$("#btnSpread").show();
+                        //$("#btnUndo").show();
+                        $("#hdnBtnLoading").hide();
+                    }
+                });
+
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    });
+
+
+
+    //var ExpenseTotalAmount = 0;
+    var counter = 1;
+    var favorite = [];
+    var arrExpenseID = new Array();
+
+   
+
+    $(function () {
+
+        //this grid is used to fill All Vehicle Expenses
+
+        $('#dataGridForAllVehicleExpensesList').jqGrid({
+            caption: "All Vehicle Expenses List",
+            url: '/MExpenses/GetAllVehicleExpensesListData/',
+            datatype: "json",
+            contentType: "application/json; charset-utf-8",
+            mtype: 'GET',
+
+            colNames: ['iVehicleExpenseID', 'InvoiceID', 'Invoice No', 'BLNo', 'NoOfUnits', 'Date', 'DO Exp Amt', 'DPA Exp Amt', 'Trailer Shipment', 'Comission ', 'Tawakal', 'Demurrage Charges', 'Container Inspection', 'Services Charges', 'Total Exp Amt','Reference', 'Action'],
+            colModel: [
+
+                 
+
+                { name: 'iVehicleExpenseID', index: 'iVehicleExpenseID', hidden: true, hidedlg: true },
+                
+               // { name: 'strExpenseName', index: 'strExpenseName', hidden: true, hidedlg: true },
+
+                 { name: 'iPurchaseInvoiceID', index: 'iPurchaseInvoiceID', hidden: true, hidedlg: true },
+
+                { name: 'strPurchaseInvoiceNo', index: 'strPurchaseInvoiceNo', width: 130 },
+
+                 { name: 'strBLNo', index: 'strBLNo', width: 200 },//, width: 200
+
+                   { name: 'NoOfUnits', index: 'NoOfUnits', width: 100  },
+
+                { name: 'strExpenseDate', index: 'strExpenseDate',  width: 150 },//, width: 180
+              
+                //{ name: 'iExpenseID', index: 'iExpenseID', align: 'center' },
+                
+                 { name: 'dcmlDOExpenseAmount', index: 'dcmlDOExpenseAmount',  width: 100 },
+                 { name: 'dcmlDPAExpenseAmount', index: 'dcmlDPAExpenseAmount', width: 100 },
+                 { name: 'dcmlTrailerShipment', index: 'dcmlTrailerShipment', width: 100 },
+                 //{ name: 'dcmlTRANSPORTExpenseAmount', index: 'dcmlTRANSPORTExpenseAmount', align: 'center' },
+                 //{ name: 'dcmlRECOVERYExpenseAmount', index: 'dcmlRECOVERYExpenseAmount', align: 'center' },
+                  
+                   { name: 'dcmlComission', index: 'dcmlComission', width: 100 },
+                 { name: 'dcmlTawakal', index: 'dcmlTawakal', width: 100 },
+                
+                 { name: 'dcmlDemurrageCharges', index: 'dcmlDemurrageCharges', width: 100 },
+                 { name: 'dcmlContainerInspection', index: 'dcmlContainerInspection', width: 100 },
+                  { name: 'dcmlServicesCharges', index: 'dcmlServicesCharges', width: 100 },
+
+
+                //{ name: 'dcmlExpenseAmount', index: 'dcmlExpenseAmount', align: 'center' },
+                { name: 'dcmlTotalExpenseAmount', index: 'dcmlTotalExpenseAmount', width: 100 },
+
+                 { name: 'strReferenceNumber', index: 'strReferenceNumber', width: 100 },
+
+                //{ name: 'act', index: 'act', width: 350 },
+                //{
+                //    name: 'Action', index: 'Action', align: 'center', width: 200, search: false, title: false,
+                //    formatter: function (cellvalue, options, rowObject) {
+                //        return '<a class="popup btn btn-info" href="/Sales/UpdateSaleVehicle/' + options.rowId + '">' + "Edit" + '</a>' + "     " + '<a class="popup btn btn-info" href="/Sales/DeleteSales/' + options.rowId + '">' + "Delete" + '</a>';
+
+                //    }
+                //},
+
+                 {
+                     name: 'Action', index: 'Action', width: 300, search: false, title: false,//, width:450
+                     formatter: function (cellvalue, options, rowObject) {
+
+                         return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='View' onclick=\"viewRowData('" + options.rowId + "');\"  />" + ' ' + "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  />" + ' ' + "<input class='popup btn btn-danger' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"DeleteAllVehicleExpense('" + options.rowId + "');\"  />";
+                     }
+
+                 },
+
+
+            ],
+            shrinkToFit: false,
+            forceFit: true,
+            width: 1100,
+            height: 300,
+            rowNum: 100000,
+            loadonce: true,
+            //rowList: [10, 20, 30],
+            //pager: 'pagingGridForAllVehicleExpensesList',
+
+            //gridComplete: function () {
+
+            //    var ids = jQuery("#dataGrid").jqGrid('getDataIDs');
+
+            //    for (var i = 0; i < ids.length; i++) {
+            //        var cl = ids[i];
+            //        be = "<input class='popup btn btn-info' style='margin-right: 5%; margin-left: 8%;' type='button' value='Edit' onclick=\"editRowData('" + cl + "');\"  />";
+            //        //se = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Save'  onclick=\"saveExportRow('" + cl + "');\"/>";
+            //        //ce = "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Cancel' onclick=\"jQuery('#dataGridExport').restoreRow('" + cl + "');\" />";
+
+            //        jQuery("#dataGrid").jqGrid('setRowData', ids[i], { act: be });
+            //    }
+            //},
+
+
+        });
+        jQuery("#dataGridForAllVehicleExpensesList").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        //jQuery("#dataGridForAllVehicleExpensesList").jqGrid('navGrid', '#pagingGridForAllVehicleExpensesList', { edit: false, add: false, del: false, search: false });
+
+    });
+
+
+
+   
+
+
+    var arr = new Array();
+
+    function editRowData(rowID) {
+        
+        arr = new Array();
+        $("#divForAllVehicleExpensesListGrid").hide();
+        $("#divForUpdateAllVehicleExpense").show();
+
+        var rowData = jQuery("#dataGridForAllVehicleExpensesList").getRowData(rowID);
+
+        var iVehicleExpenseID = rowData['iVehicleExpenseID'];
+        var iPurchaseInvoiceID = rowData['iPurchaseInvoiceID'];
+
+        var strExpenseDate = rowData['strExpenseDate'];
+
+        var strPurchaseInvoiceNo = rowData['strPurchaseInvoiceNo'];
+
+        var strBLNo = rowData['strBLNo'];
+
+        //var strExpenseName = rowData['strExpenseName'];
+
+        //var dcmlExpenseAmount = rowData['dcmlExpenseAmount'];
+
+        var dcmlTotalExpenseAmount = rowData['dcmlTotalExpenseAmount'];
+
+
+        var dcmlDOExpenseAmount = rowData['dcmlDOExpenseAmount'];
+        var dcmlDPAExpenseAmount = rowData['dcmlDPAExpenseAmount'];
+        var dcmlTrailerShipment = rowData['dcmlTrailerShipment'];
+
+        //var dcmlTRANSPORTExpenseAmount = rowData['dcmlTRANSPORTExpenseAmount'];
+        //var dcmlRECOVERYExpenseAmount = rowData['dcmlRECOVERYExpenseAmount'];
+
+        var dcmlComission = rowData['dcmlComission'];
+        var dcmlTawakal = rowData['dcmlTawakal'];
+     
+        var dcmlDemurrageCharges = rowData['dcmlDemurrageCharges'];
+        var dcmlContainerInspection = rowData['dcmlContainerInspection'];
+        var dcmlServicesCharges = rowData['dcmlServicesCharges'];
+        var NoOfUnits = rowData['NoOfUnits'];
+        var refNo = rowData['strReferenceNumber'];
+
+        $("#hdnNoOfUnits").val(NoOfUnits);
+
+        $("#hfiVehicleExpenseID").val(iVehicleExpenseID);
+        $("#invno").val(iPurchaseInvoiceID);
+        $("#txtAllExpDate").val(strExpenseDate);
+        
+        $("#txtBLNO").val(strBLNo);
+
+        $("#strInvoiveNum").val(strPurchaseInvoiceNo);
+
+        $("#hfStrPurchaseInvoiceNo").val(strPurchaseInvoiceNo);
+
+        $("#totalSum").html(dcmlTotalExpenseAmount);
+        
+
+        $("#txtDOExpense").val(dcmlDOExpenseAmount);
+        $("#txtDPAExpense").val(dcmlDPAExpenseAmount);
+        $('#txtTrailerShipmentExpense').val(dcmlTrailerShipment);
+        $('#txtComission').val(dcmlComission);
+        $("#txtTawakal").val(dcmlTawakal);
+
+        //$("#txtRecoveryExpense").val(dcmlRECOVERYExpenseAmount);
+
+
+        $('#txtServicesExpense').val(dcmlServicesCharges),
+        $('#txtContainerInspectionExpense').val(dcmlContainerInspection),
+        $('#txtDemurrageExpense').val(dcmlDemurrageCharges),
+         $('#txtReferenceNum').val(refNo),
+      
+      
+       
+
+
+        $.ajax({
+
+            url: "/MExpenses/VehiclesByBLNO",
+            data: JSON.stringify({ request: strBLNo }),
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                
+                var listPurchase = result.listPurchase
+                bindGrid(listPurchase);
+               
+
+                function bindGrid(listPurchase) {
+
+                    $('#dataGrid').jqGrid({
+                        caption: "Expenses For All Vehicles",
+                        data: listPurchase,
+                        datatype: "local",
+                        // colNames: ['Action', 'Lot No', 'Chasis No', 'Model', 'Year', 'Color', 'JPY', 'Assessed Value', 'AED'],
+                        colNames: ['Invoice No', 'Invoice Date', 'No Of units', 'Master Dec No', 'BL NO'],
+                        colModel: [
+                            { name: 'strPurchaseInvoiceNo', index: 'strPurchaseInvoiceNo', align: 'center' },
+                            { name: 'strPurchaseInvoiceDate', index: 'strPurchaseInvoiceDate', align: 'center' },
+                            { name: 'NoOfUnits', index: 'NoOfUnits', align: 'center' },
+                            { name: 'strMasterDecNo', index: 'strMasterDecNo', align: 'center' },
+                            { name: 'strBLNo', index: 'strBLNo', align: 'center' },
+
+
+
+                        ],
+                        width: 850,
+                        height: 70,
+                        rowNum: 10,
+                        // loadonce: true,
+                        rowList: [10, 20, 30],
+                        pager: 'pagingGrid',
+                        // editurl: '/MVehicle/Save/',
+
+
+                    });
+                    jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+                    jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false, rel: false });
+
+                }
+
+                $('#AddExpenseDynamic').show();
+
+
+                //$(function () {
+
+                //    //var id = $("#hfExpense").val();
+
+
+                //    //$("#txtAmount").val(iExpenseAmount);
+
+
+
+                //    $.ajax({
+
+                //        url: "/MExpenses/GetExpenseByInvoiceID",
+                //        data: JSON.stringify({ id: iPurchaseInvoiceID }),
+                //        dataType: "json",
+                //        type: "POST",
+                //        contentType: "application/json; charset=utf-8",
+                //        success: function (result) {
+                //            debugger
+
+                //            //var test = result.listExpense;
+
+                //            for (var i = 0; i < result.length; i++) {
+
+                //                //alert(result[i].iExpenseID);
+
+                //                //alert(result[i].strExpenseName);
+
+                //                //alert(result[i].iExpenseAmount);
+
+                //                var id = result[i].iExpenseID;
+                //                var value = result[i].strExpenseName;
+                //                //$('.txtAmountClass').val(result[i].iExpenseAmount);
+
+                               
+
+                //                var addVehicleID = false;
+                //                $.map(arrExpenseID, function (elementOfArray, indexInArray) {
+                //                    if (elementOfArray.ExpenseID == id) {
+
+                //                        addVehicleID = true;
+                //                    }
+                //                })
+                //                if (!addVehicleID) {
+                //                    arrExpenseID.push({ ExpenseID: id })
+
+                //     //               $('#TextBoxContainer').append("<div  class='row' name='divForExpense'>"
+
+                //     //+ "<div class='form-group col-sm-2'>"
+                //     //+ "<label style='display:none' class='clsLblExpenseID'  id='lblExpenseID'>" + id + "</label>"
+                //     //+ "<label  class='form-control input-group-sm'  style='background-color:orange' id='lblExpense'>" + value + ":</label></div>"
+                //     // + "<div class='form-group col-sm-2'>"
+                //     //+ "<input  type='number' class='txtAmountClass form-control input-group-sm'  style='margin-left: -20px;' name='DynamicTextBox'  placeholder='Enter Amount' id='txtAmount' value='" + result[i].iExpenseAmount + "' /></div>"
+                //     // + "<div class='form-group col-sm-2'>"
+                //     //+ "<input type='button' value='Remove' style='margin-left: -35px;' class='remove btn btn-success' id='btnRemove' /></div></div>");
+
+
+
+                //                                  $('#TextBoxContainer').append("<div  class='row' name='divForExpense'>"
+
+                //                    + "<div class='form-group col-sm-2'>"
+                //                    + "<label style='display:none'  id='iVehicleExpenseID" + counter + "'>" + result[i].iVehicleExpenseID + "</label>"
+
+                //                    + "<label style='display:none'  id='lblExpenseID" + counter + "'>" + id + "</label>"
+                //                    + "<label  class='form-control input-group-sm'  style='background-color:orange' id='lblExpense" + counter + "'>" + value + ":</label></div>"
+                //                     + "<div class='form-group col-sm-2'>"
+                //                    + "<input  type='number' class='txtAmountClass form-control input-group-sm'  style='margin-left: -20px;' name='DynamicTextBox' min='1' max='5' placeholder='Enter Amount' id='txtAmount"
+                //                    + counter + "' value='" + result[i].dcmlExpenseAmount + "' /></div>"
+                //                     + "<div class='form-group col-sm-2'>"
+                //                    + "<input type='button' value='Remove' style='margin-left: -35px;'   onclick='myFunction(" + id + ")' class='remove btn btn-success' id='btnRemove"
+                //                    + counter + "' /></div></div>");
+
+
+                //                                  counter++;
+
+
+                //                    calculateSum();
+                //                }
+                //            }
+                //        }
+                //    });
+                //});
+
+
+
+
+            }
+        });
+    }
+
+
+    function viewRowData(rowID) {        
+
+        
+        
+        var rowData = jQuery("#dataGridForAllVehicleExpensesList").getRowData(rowID);
+
+        var iVehicleExpenseID = rowData['iVehicleExpenseID'];
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/MExpenses/ViewRowDataOfAllVehicleExpense",
+            data: JSON.stringify({ id: iVehicleExpenseID }),
+            success: function (result) {
+                $("#divForAllVehicleExpensesListGrid").hide();
+                $("#divForUpdateAllVehicleExpense").hide();
+                $("#divForViewRowData").show();
+
+                $("#dataGridForViewRowData").jqGrid('GridUnload');
+                //alert(JSON.stringify(result));
+                var expenseReport = result
+
+                $('#dataGridForViewRowData').jqGrid({
+                    caption: "Vehicle Expenses list",
+
+                    data: expenseReport,
+                    datatype: "local",
+
+                    //, 'DOExpense', 'DPAExpense', 'Trailer Shipment', 'Comission', 'Tawakal', 'Demurrage', 'Container Insp', 'Services', 'Total Expense'
+
+                    colNames: ['iVehicleID', 'Chassis No', 'Spread Amount', 'BLNo'],
+                    colModel: [
+                        { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+
+                        { name: 'strChassisNum', index: 'strChassisNum', width: 150, align: 'center' },
+                         {
+                             name: 'dcmlSpreadAmount', index: 'dcmlSpreadAmount', align: 'center', formatter: 'number',
+
+                             formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                         },
+                         
+                    { name: 'strBLNo', index: 'strBLNo', align: 'center' },
+
+                          //{
+                          //    name: 'dcmlDOExpenseAmount', index: 'dcmlDOExpenseAmount', align: 'center', formatter: 'number',
+
+                          //    formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+
+
+                          //},
+                          // {
+                          //     name: 'dcmlDPAExpenseAmount', index: 'dcmlDPAExpenseAmount', align: 'center', formatter: 'number',
+
+                          //     formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          // },
+                          //  {
+                          //      name: 'dcmlTrailerShipment', index: 'dcmlTrailerShipment', align: 'center', formatter: 'number',
+
+                          //      formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          //  },
+                          //   {
+                          //       name: 'dcmlComission', index: 'dcmlComission', align: 'center', formatter: 'number',
+
+                          //       formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          //   },
+                          //    {
+                          //        name: 'dcmlTawakal', index: 'dcmlTawakal', align: 'center', formatter: 'number',
+
+                          //        formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          //    },
+
+
+                          //     {
+                          //         name: 'dcmlDemurrageCharges', index: 'dcmlDemurrageCharges', align: 'center', formatter: 'number',
+
+                          //         formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          //     },
+                          //   {
+                          //       name: 'dcmlContainerInspection', index: 'dcmlContainerInspection', align: 'center', formatter: 'number',
+
+                          //       formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          //   },
+                          //    {
+                          //        name: 'dcmlServicesCharges', index: 'dcmlServicesCharges', align: 'center', formatter: 'number',
+
+                          //        formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          //    },
+
+                          //     {
+                          //         name: 'dcmlTotalExpenseAmount', index: 'dcmlTotalExpenseAmount', align: 'center', formatter: 'number',
+
+                          //         formatoptions: { decimalSeparator: ".", thousandsSeparator: ",", decimalPlaces: 2, defaultValue: '0.00' },
+                          //     },
+                            
+                    ],
+
+
+                    width: 1050,
+                    height: 350,
+                    rowNum: 1000,
+                    loadonce: true,
+                    ignoreCase: true,
+
+                });
+                jQuery("#dataGridForViewRowData").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+            }
+        });
+    }
+
+</script>
+
+
+
+<script type="text/javascript">
+
+
+
+    $(function () {
+
+        $("#btnUpdateAllVehiclesExpense").click(function () {
+            debugger
+            $("#hdndtAllExpenseDate").val($("#txtAllExpDate").val());
+
+            $(function () {
+                if ($(this).attr("rel") != "update") {
+                    $('#dialog').dialog('open');
+                    return false;
+                }
+            });
+
+            $("#dialog").dialog({
+                modal: true,
+                autoOpen: false,
+                title: "Confirmation",
+                width: 350,
+                height: 160,
+                buttons: [
+            {
+                id: "Yes",
+                text: "Yes",
+                click: function () {
+
+                    //calling function here for update
+
+
+
+                    // var ExpenseID = $("#lblExpenseID" + i).html();
+                    //var ExpenseName = $("#lblExpense" + i).html();
+                    //var ExpenseAmount = $("#txtAmount" + i).val();
+                    var ExpenseTotalAmount = parseInt($("#totalSum").html());
+                    var expenseAmount =
+                          {
+                              //iExpenseID: $("#hfExpense").val(),
+
+                              iPurchaseInvoiceID: $("#invno").val(),
+                              strExpenseDate: $("#txtAllExpDate").val(),
+                              dtExpenseDate: $("#hdndtAllExpenseDate").val(),
+                              //iExpenseID: ExpenseID,
+                              //dcmlExpenseAmount: ExpenseAmount,
+
+
+                              //iCategoryID: 2,
+                              //iSubCategoryID: 1,
+
+                              dcmlTotalExpenseAmount: ExpenseTotalAmount,
+                              iVehicleExpenseTypeID: 1,
+                              strPurchaseInvoiceNo: $('#hfStrPurchaseInvoiceNo').val(),
+
+
+                              dcmlDOExpenseAmount: $('#txtDOExpense').val(),
+                              dcmlDPAExpenseAmount: $('#txtDPAExpense').val(),
+                              dcmlTawakal: $('#txtTawakal').val(),
+
+                              //dcmlTRANSPORTExpenseAmount: $('#txtTransportExpense').val(),
+                              //dcmlRECOVERYExpenseAmount: $('#txtRecoveryExpense').val(),
+
+                              dcmlServicesCharges: $('#txtServicesExpense').val(),
+                              dcmlContainerInspection: $('#txtContainerInspectionExpense').val(),
+                              dcmlDemurrageCharges: $('#txtDemurrageExpense').val(),
+                          
+                              dcmlComission: $('#txtComission').val(),
+                              dcmlTrailerShipment: $('#txtTrailerShipmentExpense').val(),
+                              strReferenceNumber: $('#txtReferenceNum').val()
+
+                          }
+                    favorite.push(expenseAmount);
+
+                    SaveALLExpense(favorite);
+                    $(this).dialog('close');
+                }
+
+            },
+            {
+                id: "No",
+                text: "No",
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+                ]
+            });
+
+
+
+
+
+        });
+
+    });
+
+  
+
+    function myFunction(id) {
+        debugger
+        $("body").on("click", ".remove", function () {
+            $(this).closest("div[name='divForExpense']").remove();
+            calculateSum();
+        });
+        arrExpenseID.splice($.inArray(id, arrExpenseID), 1);        
+        
+    }
+
+
+
+
+
+
+    function SaveALLExpense(arr) {
+        debugger;
+
+        var invoiceID = $("#invno").val();
+
+       
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/MExpenses/SaveVehicleExpense",
+            data: JSON.stringify({ 'expense': arr, id: invoiceID }),
+            success: function (data) {
+                alert("Succsesfully Update All Vehicle Expense.");
+                //window.location.href = "/MExpenses/AllVehicleExpensesList";
+
+                $("#btnSpread").show();
+                $("#btnUpdateAllVehiclesExpense").hide();
+            }
+        });
+
+    }
+
+    function RemoveALLExpense(Removedata) {
+
+        $.ajax({
+            type: "POST",
+            url: "/MExpenses/Delete",
+            data: { expense: Removedata },
+            success: function (data) { alert("SUCCESS"); }
+        });
+    }
+    function ALLExpense() {
+        debugger;
+        for (var i = 1; i < counter; i++) {
+            var ExpenseID = $("#lblExpenseID" + i).html();
+            //var ExpenseName = $("#lblExpense" + i).html();
+            var ExpenseAmount = $("#txtAmount" + i).val();
+            var ExpenseTotalAmount = $("#totalSum").html();
+            var expenseAmount =
+                  {
+                      //iExpenseID: $("#hfExpense").val(),
+
+                      iPurchaseInvoiceID: $("#invno").val(),
+                      iExpenseID: ExpenseID,
+                      //iCategoryID: 2,
+                      //iSubCategoryID: 1,
+                      dcmlExpenseAmount: ExpenseAmount,
+                      dcmlTotalExpenseAmount: ExpenseTotalAmount,
+                      iVehicleExpenseTypeID: 1
+
+                  }
+
+            favorite.push(expenseAmount);
+            //If you to save all data in one by one then Save function here
+            //Save(textValue);
+        }
+    }
+
+
+
+
+
+
+</script>
+
+<script>
+
+
+
+
+
+
+    //jQuery(document).ready(function () {
+    //    //iterate through each textboxes and add keyup
+    //    //handler to trigger sum event
+    //    jQuery("input[name='DynamicTextBox']").each(function () {
+    //        alert("hi");
+    //        debugger;
+    //        jQuery(this).keyup(function () {
+    //            calculateSum()
+    //        });
+    //    });
+
+    //});
+
+
+    $(document).on('keyup', 'input[name="DynamicTextBox"]', function () {
+
+        calculateSum();
+    });
+
+
+    function calculateSum() {
+        debugger;
+
+        var sum = 0;
+        //iterate through each textboxes and add the values
+        $("input[name='DynamicTextBox']").each(function () {
+
+            //add only if the value is number
+            if (!isNaN(this.value) && this.value.length != 0) {
+                sum += parseFloat(this.value);
+            }
+
+        });
+        //.toFixed() method will roundoff the final sum to 2 decimal places
+        $("#totalSum").html(sum.toFixed(2));
+
+    }
+
+
+</script>
+<script type="text/javascript">
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+        //$('input[type=datetime]').datepicker();
+    });
+
+</script>
+
+
+
+
+
+<script>
+    //Delete AllVehicleExpense
+    function DeleteAllVehicleExpense(rowId) {
+        //var rowData = jQuery("#dataGrid").getRowData(rowId);
+        //var auctionDate = rowData['dtAuctionDate'];
+        //alert(rowId);
+        debugger;
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+
+
+                debugger
+                $.ajax({
+                    type: "POST",
+                    url: "/MExpenses/DeleteVehicleExpense",
+                    cache: false,
+                    data: JSON.stringify({ ExpenseID: rowId }),
+                    // data: JSON.stringify(purchase),
+                    dataType: this.dataType,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (Data) {
+
+                        $("#btnPrint").show();
+                        alert("Expense  Deleted");
+                        window.location.href = "/MExpenses/AllVehicleExpensesList";
+
+                    }
+
+
+
+
+                });
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+    }
+</script>
+
+
+<script>
+    function PrintViewRowDataReport() {
+        debugger
+
+        var griddata = jQuery("#dataGridForViewRowData").getRowData();
+
+        //var columns = ['Chassis No', 'Spread Amt', 'DOExpense', 'DPAExpense', 'Trailer', 'Comission ', 'Tawakal', 'Demurrage', 'Container Insp', 'Services', 'Total Expense'];
+
+        var columns = ['Chassis No', 'BLNO', 'Spread Amount'];
+
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+            
+            data.push([griddata[i].strChassisNum, griddata[i].strBLNo, griddata[i].dcmlSpreadAmount]);
+        }
+
+        //Calculate total of Value
+        var allRows = jQuery('#dataGridForViewRowData').getDataIDs();
+        var TotalSpreadAmount = 0;
+        //var TotalDOE = 0;
+        //var TotalDPA = 0;
+
+        //var TotalTrailer = 0;
+        //var TotalComission = 0;
+        //var TotalTawakal = 0;
+        //var TotalDemurrage = 0;
+        //var TotalContainerInspection = 0;
+        //var TotalServicesCharges = 0;
+
+        //var GrandTotalEexpense = 0;
+        for (var j = 0; j < allRows.length; j++) {
+            var rowData = jQuery("#dataGridForViewRowData").getRowData(allRows[j]);
+           
+
+            TotalSpreadAmount += Number(rowData['dcmlSpreadAmount']);
+
+            //TotalDOE += Number(rowData['dcmlDOExpenseAmount']);//Calculating Sum of total column
+            //TotalDPA += Number(rowData['dcmlDPAExpenseAmount']);
+            //TotalTrailer += Number(rowData['dcmlTrailerShipment']);
+            //TotalComission += Number(rowData['dcmlComission']);
+            //TotalTawakal += Number(rowData['dcmlTawakal']);
+            //TotalDemurrage += Number(rowData['dcmlDemurrageCharges']);
+            //TotalContainerInspection += Number(rowData['dcmlContainerInspection']);
+            //TotalServicesCharges += Number(rowData['dcmlServicesCharges']);
+            //GrandTotalEexpense += Number(rowData['dcmlTotalExpenseAmount']);
+
+        }
+
+        data.push([,'Total', TotalSpreadAmount.toFixed(2)]);
+
+      
+        //var doc = new jsPDF('l', 'mm', [350, 300], '');
+
+        var doc = new jsPDF();
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            //doc.setFontSize(20);
+            //doc.setTextColor(40);
+            //doc.setFontStyle('normal');
+
+
+
+            //doc.setFontSize(20);
+            //doc.setFontStyle('bold');
+            //doc.text("M.D.MOTORS", data.settings.margin.left + 140, 10);
+
+            //doc.setFontStyle('normal');
+            //doc.setFontSize(15);
+            //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            //doc.setFontStyle('bold', 'underline');
+            //doc.text("Particular Vehicle Expenses", data.settings.margin.left + 140, 35);
+
+            ////doc.text("From Dt:", data.settings.margin.left + 80, 45);
+            ////doc.text(fromDate, data.settings.margin.left + 105, 45);
+            ////doc.text("To Dt:", data.settings.margin.left + 180, 45);
+            ////doc.text(toDate, data.settings.margin.left + 200, 45);
+          
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 20 },
+
+            drawCell: function (cell, data) {
+                var rows = data.table.rows;
+                if (data.row.index == rows.length - 1) {
+                    // doc.setFillColor(200, 200, 255);
+                    doc.setFillColor(26, 188, 156);
+                    doc.setFontStyle('bold');
+                    //doc.setFontSize(16);
+                }
+            },
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+    }
+</script>
+
+
+
+
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="~/Content/plugins/jsPDF-2/faker.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />

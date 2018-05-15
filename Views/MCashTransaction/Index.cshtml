@@ -1,0 +1,589 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<style>
+    .ui-autocomplete {
+        max-height: 100px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 10px;
+        color: #FFF;
+    }
+
+    /*#UpdateAccountPopUP {
+        height: 400px;
+        overflow: auto;
+        width: 907px;
+        margin-left: -137px;
+    }*/
+
+    .dailogBoxWrapper {
+        z-index: 999 !important;
+    }
+</style>
+
+<div class="tablecontainer" id="divForIndex">
+    <div>
+        <a class="popup btn btn-primary" href="/MCashTransaction/save" style="margin-bottom:20px; margin-top:20px;margin-left:10px;">New Transaction</a>
+
+    </div>
+    <br />
+    <div class="col-md-4">
+        <label>From Date:</label>
+        <input type="text" id="txtFromDate" class='form-control datepicker input-group-sm' placeholder="Select From Date" />
+    </div>
+    <div class="col-md-4">
+        <label>To Date:</label>
+        <input type="text" id="txtToDate" class='form-control datepicker input-group-sm' placeholder="Select To Date" />
+    </div><br />
+    <div class="col-md-4">
+        <input type="button" id="btnFilter" class='btn btn-bitbucket' value="Filter" />
+    </div>
+    <br /><br /><br /><br />
+    <div id="divForGridData">
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+        <br><br>
+    </div>
+    <br />
+    <input type="button" style="margin-left: 400px;" class="btn btn-success col-md-2" value="Print" onclick="PrintReport()" />
+</div>
+
+@*<div class="box-body" id="divForIndex">
+    <div>
+        <a class="popup btn btn-primary" href="/MCashTransaction/save/0" style="margin-bottom:20px; margin-top:20px;">New Transaction</a>
+
+    </div>
+    <br />
+    <div>
+        <table id="dataGrid" class="table table-bordered table-striped"></table>
+      
+        <br><br>
+    </div>
+</div>*@
+
+<div class="box-body" id="divForUpdate" style="display:none;">
+    <div id="dialog" style="display: none" align="center">
+        Do you want to Delete ?
+    </div>
+
+
+    <input type="hidden" id="hdnTransID" />
+    <input type="hidden" id="hdnPartyID" />
+    <div class="col-md-12" id="divForPayment">
+        <div class="row">
+            <div class='form-group col-sm-4' id="divddlParty">
+                <label>Party</label>
+                <select class="form-control input-group-sm" id="ddlAccountParty" name="DynamicParty" onchange='getParty(this);'>
+                    <option>Select Party</option>
+                </select>
+            </div>
+
+
+            <div class="form-group col-md-4">
+                <label>Date </label>
+                <input id="strAccountDate" class="form-control input-group-lg datepicker" type="text"
+                       placeholder=" Enter drop off date..." />
+            </div>
+            <div class="form-group col-md-4">
+                <label>Amount(DHM) </label>
+                <input id="strAmountInDHM" class="form-control input-group-lg" type="text" oninput="calculateAmountInYEN();"
+                       placeholder="Enter Amount in DHM" />
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="options form-group col-md-4">
+                <label>Payment Option</label>
+                @*</div>
+                    <div class="options form-group col-md-4">*@
+                &nbsp; &nbsp;
+                <label>Debit</label>
+                <input type="radio" name="PaymentOption" id="rdbDebitOption" value="1" checked="checked" />
+                &nbsp;
+                <label>Credit</label>
+                <input type="radio" name="PaymentOption" id="rdbCreditOption" value="2" />
+            </div>
+
+            <div class="form-group col-md-4 options">
+                <label>Bank/Cash Option</label>
+                @*</div>
+                    <div class="options form-group col-md-4">*@
+                &nbsp; &nbsp;
+                <label>Cash</label>
+                <input type="radio" name="BankCashOption" id="rdbCashOption" value="1" checked="checked" />
+                &nbsp;
+                <label>Bank</label>
+                <input type="radio" name="BankCashOption" id="rdbBankOption" value="2" />
+            </div>
+
+
+            <div class="form-group col-md-4">
+                <label>Description </label>
+                <input id="strDescription" class="form-control input-group-lg" type="text"
+                       placeholder="Enter Description " />
+            </div>
+        </div>
+        <input type="button" style="margin-left: 85px;" class="btn btn-success col-md-2" id="btnPaymentSave" value="Save " />
+        <input type="button" style="margin-left: 40px;" class="btn btn-warning col-md-2" id="BtnCancelPay" value="Cancel  " onclick="CancelInfo();" />
+
+        <div id="dialog4" style="display: none" align="center">
+            Do you want to Save ?
+        </div>
+
+
+
+    </div><!-- /.row -->
+</div>
+
+
+
+
+<script>
+   
+   
+
+    $(function () { // will trigger when the document is ready
+        debugger
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+       
+        var date = new Date();
+        var joindate = new Date(date.getFullYear(), date.getMonth(), 1);
+        var firstDay =
+        ("0" + (joindate.getMonth() + 1)).slice(-2) + "/" +
+        ("0" + joindate.getDate()).slice(-2) + "/" +
+        joindate.getFullYear();
+
+        $("#txtFromDate").val(firstDay);
+        $("#txtToDate").datepicker().datepicker("setDate", new Date());
+    });
+
+
+
+    $(function () {
+        $.ajax({
+            url: "/Account/ShowPartyName",
+            type: "Get",
+            success: function (data) {
+                $('#ddlAccountParty').children().remove();
+                $('#ddlAccountParty').append('<option value="">Select Party</option>');
+                for (var i = 0; i < data.length; i++) {
+
+                    //var option = new Option(data[i].strFirstName, data[i].iPartyID);
+
+                    // $('#ddlParty' + j).append(option);
+
+
+                    $('#ddlAccountParty').append('<option value="' + data[i].iAccountPartyID + '">' + data[i].strPartyName + '</option>');
+
+                }
+
+            }
+
+        });
+    });
+    function CancelInfo() {
+        window.location.href = "/MCashTransaction/Index";
+    }
+
+    var arrTansactionsData = new Array();
+    var DebitAmount = 0;
+    var CreditAmount = 0;
+    var BalanceAmount = 0;
+    $(function () {
+        //$.ajax({
+        //    contentType: 'application/json; charset=utf-8',
+        //    dataType: 'json',
+        //    type: 'GET',
+        //    url: '/MCashTransaction/GetAllTransactions',
+        //    //data: JSON.stringify({ 'cashModel': model }),
+        //    success: function (data) {
+                
+        var txtFromDate = $("#txtFromDate").val();
+        var txtToDate = $("#txtToDate").val();
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/MCashTransaction/GetAllTransactionsByDate",
+            data: JSON.stringify({ fromDate: txtFromDate, toDate: txtToDate }),
+            success: function (data) {
+             debugger
+                arrTansactionsData = new Array();
+                DebitAmount = 0;
+                CreditAmount = 0;
+                BalanceAmount = 0;
+                for (var i = 0; i < data.CashTransactionsData.length; i++) {
+                    arrTansactionsData.push(data.CashTransactionsData[i]);
+                }
+                for (var i = 0; i < data.SalesPaymentsData.length; i++) {
+                    arrTansactionsData.push(data.SalesPaymentsData[i]);
+                }
+                for (var i = 0; i < data.AccountsData.length; i++) {
+                    arrTansactionsData.push(data.AccountsData[i]);
+                }
+               
+                FillDataGrid(arrTansactionsData);
+            }
+        });
+       
+
+        $("#btnFilter").click(function () {
+            arrTansactionsData = new Array();
+            DebitAmount = 0;
+            CreditAmount = 0;
+            BalanceAmount = 0;
+            var txtFromDate = $("#txtFromDate").val();
+            var txtToDate = $("#txtToDate").val();
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: "/MCashTransaction/GetAllTransactionsByDate",
+                data: JSON.stringify({ fromDate: txtFromDate, toDate: txtToDate }),
+                success: function (data) {
+                    debugger;
+                    for (var i = 0; i < data.CashTransactionsData.length; i++) {
+                        arrTansactionsData.push(data.CashTransactionsData[i]);
+                    }
+                    for (var i = 0; i < data.SalesPaymentsData.length; i++) {
+                        arrTansactionsData.push(data.SalesPaymentsData[i]);
+                    }
+                    for (var i = 0; i < data.AccountsData.length; i++) {
+                        arrTansactionsData.push(data.AccountsData[i]);
+                    }
+
+                    FillDataGrid(arrTansactionsData);
+
+                }
+            });
+
+        });
+
+
+        function FillDataGrid(arrTansactionsData) {
+            $("#dataGrid").jqGrid('GridUnload');
+
+            $('#dataGrid').jqGrid({
+                caption: "Journal Entry List",
+                data: arrTansactionsData,
+                datatype: "local",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+
+                colNames: ['DebitCreditOptions', 'Amount', 'Date', 'ReferenceNo', 'Description', 'Debit', 'Credit', 'Balance', ],
+                colModel: [
+                   { name: 'DebitCreditOptions', index: 'DebitCreditOptions', align: 'center', hidden: true, hidedlg: true },
+                    { name: 'Amount', index: 'Amount', align: 'center', hidden: true, hidedlg: true },
+
+
+                    { name: 'Date', index: 'Date', align: 'center', search: false, title: false },
+                    { name: 'ReferenceNo', index: 'ReferenceNo', align: 'center', search: false, title: false },
+                    { name: 'Description', index: 'Description', align: 'center', search: false, title: false },
+                     { name: 'Debit', index: 'Debit', align: 'center', formatter: CalDebit, search: false, title: false },
+                     { name: 'Credit', index: 'Credit', align: 'center', formatter: CalCredit, search: false, title: false },
+                    { name: 'Balance', index: 'Balance', align: 'center', formatter: CalBalance, search: false, title: false },
+
+                ],
+                width: 1050,
+                height: 450,
+                rowNum: 100000,
+                rownumbers: true,
+                rownumWidth: 50,
+                loadonce: false,
+                ignoreCase: true,
+                cmTemplate: { sortable: false },
+                //rowList: [10, 20, 30],
+                //pager: 'pagingGrid',
+            });
+            jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+            //jQuery("#dataGrid").jqGrid('navGrid', '#pagingGrid', { edit: false, add: false, del: false, search: false });
+
+   //         $("#dataGrid").setGridParam({ sortname: 'Date', sortorder: 'asc' })
+   //.trigger('reloadGrid');
+
+        }
+      
+     
+
+        function CalDebit(cellvalue, options, rowObject) {
+            debugger
+            if (rowObject.DebitCreditOptions == 1) {//Debit
+
+                DebitAmount += rowObject.Amount;
+                BalanceAmount += parseFloat(rowObject.Amount || 0);
+                // return rowObject.Debit = rowObject.Amount;
+                return cellvalue = rowObject.Amount;
+            } else {
+                return cellvalue = 0;
+            }
+           
+            
+        }
+
+        function CalCredit(cellvalue, options, rowObject) {
+            debugger
+             if (rowObject.DebitCreditOptions == 2) {//Credit
+
+                 CreditAmount += rowObject.Amount;
+                 BalanceAmount -= parseFloat(rowObject.Amount || 0);
+                //return rowObject.Credit = rowObject.Amount;
+                return cellvalue = rowObject.Amount;
+             } else {
+                 return cellvalue = 0;
+             }
+
+        }
+
+
+        function CalBalance(cellvalue, options, rowObject) {
+            debugger
+            
+            if (!isNaN(DebitAmount)  && !isNaN(CreditAmount)  && BalanceAmount != null && !isNaN(BalanceAmount)) {
+                
+                //BalanceAmount += parseFloat(DebitAmount || 0) - parseFloat(CreditAmount || 0);
+                return cellvalue = BalanceAmount.toFixed(2);
+            }
+        }
+    });
+   
+
+   
+</script>
+
+
+<script>
+    var arrAccountData = [];
+    $("#btnPaymentSave").click(function () {
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog4').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog4").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //$('#confirm')
+                //.modal({ backdrop: 'static', keyboard: false })
+                //.on('click', '#AlertUpdateSave', function (e) {
+                debugger
+                if ($("#rdbDebitOption").is(":checked")) {
+                    var paymentStatus = 1;    //1 for Debit
+
+                }
+                else {
+                    var paymentStatus = 2;  //2 for Credit
+                }
+
+                if ($("#rdbCashOption").is(":checked")) {
+                    var paymentOption = 1;    //1 for Debit
+
+                }
+                else {
+                    var paymentOption = 2;  //2 for Credit
+                }
+
+
+                var strAccountDate = $("#strAccountDate").val();
+                var strAmountInDHM = $("#strAmountInDHM").val();
+                var strDescription = $("#strDescription").val();
+                var iTransactionID = $("#hdnTransID").val();
+
+                var ddlParty = $("#ddlAccountParty").val();
+                var TransactionData =
+                      {
+
+                          iCashTransactionID: iTransactionID,
+                          iAccountPartyID: ddlParty,
+                          strCashDate: strAccountDate,
+                          dtCashDate: strAccountDate,
+                          dmlPaidAmount: strAmountInDHM,
+                          strDescription: strDescription,
+                          DebitCreditOptions: paymentStatus,
+                          BankCashOptions: paymentOption
+                      }
+                //arrAccountData.push(AccountData);
+                SaveAccountData(TransactionData);
+
+                $(this).dialog('close');
+            }
+        },
+                {
+                    id: "No",
+                    text: "No",
+                    click: function () {
+                        $(this).dialog('close');
+                    }
+                }
+            ]
+        });
+        //});
+        // });
+    });
+    function SaveAccountData(model) {
+        debugger;
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/MCashTransaction/SaveEdit",
+            data: JSON.stringify({ 'cashModel': model }),
+            success: function (data) {
+                debugger;
+                alert("Save Transaction Successfully");
+                window.location.href = "/MCashTransaction/Index";
+
+            }
+        });
+    }
+
+   
+
+
+    function PrintReport()
+    {
+      
+            debugger
+
+
+            var localGridData = jQuery("#dataGrid").getRowData();
+
+            var columns = ['SR No', 'Date', 'ReferenceNo', 'Description', 'Debit', 'Credit', 'Balance', ];
+            var SRNO = 0;
+            var data = [];
+            for (var i = 0; i < localGridData.length; i++) {
+                SRNO = SRNO + 1;
+                data.push([SRNO, localGridData[i].Date, localGridData[i].ReferenceNo, localGridData[i].Description, localGridData[i].Debit,
+                    localGridData[i].Credit, localGridData[i].Balance]);
+                
+            }
+
+
+            //Calculate total of Value
+
+            var TotalDebit = 0;
+            var TotalCredit = 0;
+           
+
+            for (var i = 0; i < localGridData.length; i++) {
+
+                TotalDebit += parseFloat(localGridData[i].Debit || 0);
+                TotalCredit += parseFloat(localGridData[i].Credit || 0);
+            }
+            var TotalBalance = (TotalDebit - TotalCredit).toFixed(2);
+
+            data.push(["TOTAL", , , , TotalDebit, TotalCredit, TotalBalance]);
+
+
+            var doc = new jsPDF("l", "mm", "a4");
+            //var doc = new jsPDF('l', 'mm', [350, 300], '');
+            //var doc = new jsPDF();
+
+            var totalPagesExp = "{total_pages_count_string}";
+
+            var pageContent = function (data) {
+                // HEADER
+
+                //doc.setFontSize(20);
+                //doc.setTextColor(40);
+                //doc.setFontStyle('normal');
+
+
+
+                //doc.setFontSize(20);
+                //doc.setFontStyle('bold');
+                //doc.text("M.D.MOTORS", data.settings.margin.left + 140, 10);
+
+                //doc.setFontStyle('normal');
+                //doc.setFontSize(15);
+                //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+                //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+                //doc.setFontStyle('bold', 'underline');
+                //doc.text("AuctionList Report", data.settings.margin.left + 140, 35);
+                //doc.setLineWidth(1)
+                //doc.line(150, 36, 205, 36);
+                ////doc.text("From Dt:", data.settings.margin.left + 80, 45);
+                ////doc.text(fromDate, data.settings.margin.left + 105, 45);
+                ////doc.text("To Dt:", data.settings.margin.left + 180, 45);
+                ////doc.text(toDate, data.settings.margin.left + 200, 45);
+
+                // FOOTER
+                var str = "Page " + data.pageCount;
+                // Total page number plugin only available in jspdf v1.0+
+                if (typeof doc.putTotalPages === 'function') {
+                    str = str + " of " + totalPagesExp;
+                }
+                doc.setFontSize(10);
+                doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+                //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+            };
+
+            doc.autoTable(columns, data, {
+                theme: 'grid',
+                addPageContent: pageContent,
+                margin: { top: 30 },
+
+                drawCell: function (cell, data) {
+                    var rows = data.table.rows;
+                    if (data.row.index == rows.length - 1) {
+                        // doc.setFillColor(200, 200, 255);
+                        doc.setFillColor(26, 188, 156);
+                        doc.setFontStyle('bold');
+                        //doc.setFontSize(16);
+                    }
+                },
+            });
+
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                doc.putTotalPages(totalPagesExp);
+            }
+            //doc.output("dataurlnewwindow");
+            window.open(doc.output('bloburl'), '_blank');
+        }
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+<script src="~/Content/dist/js/Custom.js"></script>
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="http://www.ittutorials.in/js/demo/numtoword.js" type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+

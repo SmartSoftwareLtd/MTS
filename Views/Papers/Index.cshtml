@@ -1,0 +1,2461 @@
+﻿@{
+    ViewBag.Title = "PaperDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .ui-autocomplete {
+        max-height: 100px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+
+    .options {
+        display: inline-block;
+        margin-left: 16px;
+        background-color: #3c8dbc;
+        padding: 5px 15px;
+        color: #FFF;
+    }
+
+    /*#UpdateAccountPopUP {
+        height: 400px;
+        overflow: auto;
+        width: 907px;
+        margin-left: -137px;
+    }*/
+
+    .dailogBoxWrapper {
+        z-index: 999 !important;
+    }
+</style>
+
+
+<div class="row">
+    <input id="strCutomerTypeName" type="hidden" />
+    <input id="txtVehicleID" type="hidden" />
+    <input id="hdnDeposit" type="hidden" />
+    <input id="hdnCustomerFullName" type="hidden" />
+    <input id="hdnPhoneNumber" type="hidden" />
+    <input id="hdniCutomerTypeID" type="hidden" />
+
+    <input id="hdnShowRoomName" type="hidden" />
+    <input id="hdnShowRoomNumber" type="hidden" />
+    <input id="hdnShowRoomPhoneNo" type="hidden" />
+    <input id="hdnBlock" type="hidden" />
+    <input id="hdnPersonPhoneNo" type="hidden" />
+    <input id="hdnPersonFullName" type="hidden" />
+    <input id="hdniUpdateAccountID" type="hidden" />
+    <input id="hdndtUpdateAccountDate" type="hidden" />
+    
+    
+
+    <div class="form-group col-xs-3" style="margin-left: 27px;">
+        <label>Search By Chassis Number</label>
+        <input id="txtChassisNumber" class="form-control input-group-lg" type="text" name="ChassisNumber"
+               placeholder="Search By Chassis Number" />
+    </div>
+
+    <div class="form-group col-xs-3">
+        <label>Date</label>
+        <input id="strDate" class="form-control datepicker input-group-lg" type="text"
+               placeholder="Enter drop off date..." />
+    </div>
+
+    
+
+    <div class="form-group col-xs-3" style="margin-top: 5px;">
+        @*<label></label>
+        <span id="CustomerType" style="background-color: orange;display:none" class='bling form-control input-group-sm'> </span>*@
+        
+        <h3>
+            <label id="CustomerInfo" style="display:none" class="label label-warning form-control input-group-lg col-lg">
+                <span id="CustomerName" class="label label-warning"></span>( <span id="CustomerType" class="label label-warning"></span>)
+
+            </label>
+        </h3>
+
+    </div>
+
+</div>
+
+<div class="box-body" id="divFillByVehicle">
+    <br />
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+    @*<div id="pagingGrid"></div>*@
+
+
+    <h3>
+        <label id="VehicleInfo" style="display:none" class="label label-warning form-control input-group-lg col-lg">
+            Chassis No: <span id="spnChassisNo" class="label label-success"></span> - Make: <span id="spnMake" class="label label-success"></span> -
+            Color: <span id="spnColor" class="label label-success"></span> - Year: <span id="spnYear" class="label label-success"></span>
+        </label>
+    </h3>
+   
+    <br />
+    <div class="col-md-4">
+        <label>Select Paper Mode</label>
+        <select id="ddlPaperType" class="form-control" name="nam_GroupMode" onchange="getPaperType();">
+            <option value="0">Select Type</option>
+            <option value="1">Import</option>
+            <option value="2">Export</option>
+            <option value="3">Transfer</option>
+
+        </select>
+    </div>
+    <br>
+
+    <button type="button" id="BtnPay" style="margin-top: 6px;margin-left: 30px;display:none" class="btn btn-info col-md-1">PAY</button>
+
+    @*<button type="button" id="UpdatePopUP" style="margin-top: 6px;margin-left: 30px;display:none" class="btn btn-info col-md-1" data-toggle="modal" data-target="#AccountUpdatePopUP">PAY</button>*@
+    @*<input type="button" id="AccountPopUP" class="btn btn-info col-md-1" value="PAY" style="margin-top: 6px;margin-left: 30px;display:none" />*@
+
+    <br><br><br><br>
+
+
+    <div class="row" style="display:none" id="divForCollapse">
+        <div class="col-md-12">
+            <div class="box box-warning">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Payment</h3>
+                    <div class="box-tools pull-right">
+                        <button id="btnMinus" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+
+                        @*<button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>*@
+                    </div>
+                </div><!-- /.box-header -->
+                <div class="box-body">
+
+                    <div class="row">
+
+                       
+
+                            <div class="col-md-6" style="padding-left: 50px; margin-left: -43px" id="divForPaymentGrid">
+
+                                <table id="dataGridForPayment" class="table table-bordered table-striped"></table>
+                                <br>
+                            </div>
+                       
+                       
+
+                        <div class="col-md-6" style="padding-left: 50px; display: none; margin-left: 43px;" id="divForPayment">
+                            <div class='form-group col-sm-4' id="divddlParty">
+                                <label>Party</label>
+                                <select class="form-control input-group-sm" id="ddlAccountParty" name="DynamicParty" onchange='getParty(this);'>
+                                    <option>Select Party</option>
+                                </select>
+                            </div>
+
+                            @*<div class="form-group col-xs-4">
+                                    <label>Party</label>
+                                    <input id="strAccountPartyName" class="form-control input-group-lg" type="text"
+                                           placeholder="Enter Party Name" />
+                                </div>*@
+
+
+
+                            @*<div class="form-group col-xs-4">
+                                    <label>Debit</label>
+                                    <input id="strDebit" class="form-control input-group-lg" type="text"
+                                           placeholder="Debit" />
+                                </div>
+                                <div class="form-group col-xs-4">
+                                    <label>Credit </label>
+                                    <input id="strCredit" class="form-control input-group-lg" type="text"
+                                           placeholder=" Credit" />
+                                </div>*@
+                           
+                            <div class="form-group col-xs-4">
+                                <label>Date </label>
+                                <input id="strAccountDate" class="form-control input-group-lg datepicker" type="text"
+                                       placeholder=" Enter drop off date..." />
+                            </div>
+                            <div class="form-group col-xs-4">
+                                <label>Amount(DHM) </label>
+                                <input id="strAmountInDHM" class="form-control input-group-lg" type="text" oninput="calculateAmountInYEN();"
+                                       placeholder="Enter Amount in DHM" />
+                            </div>
+
+                            <div class='form-group col-sm-6'>
+                                <label>Reference No.:</label>
+                                <input class='form-control' name='' placeholder='Enter reference No...' id='txtReferenceNum' maxlength="25" />
+                            </div>
+                            @*<div class="form-group col-xs-4">
+                                    <label>Conversion Rate</label>
+                                    <input id="strConvRate" class="form-control input-group-lg" type="text" oninput="calculateAmountInYEN();"
+                                           placeholder="Enter Conversion Rate" />
+                                </div>
+                                <div class="form-group col-xs-4">
+                                    <label>Amount(YEN) </label>
+                                    <input id="strAmountInYEN" class="form-control input-group-lg" type="text" readonly />
+                                </div>*@
+                            <div class="options form-group col-xs-6">
+
+                                <label>Debit</label>
+                                <input type="radio" name="PaymentOption" id="rdbDebitOption" value="1" checked="checked" />
+                                &nbsp;
+                                <label>Credit</label>
+                                <input type="radio" name="PaymentOption" id="rdbCreditOption" value="2" />
+                            </div>
+                            <div class="form-group col-xs-9">
+                                <label>Description </label>
+                                <input id="strDescription" class="form-control input-group-lg" type="text"
+                                       placeholder="Enter Description " />
+                            </div>
+                            
+                            <input type="button" style="margin-left: 85px;" class="btn btn-success col-md-2" id="btnPaymentSave" value="Save " />
+                            <input type="button" style="margin-left: 85px;display:none" class="btn btn-success col-md-2" id="BtnUpdatePayment" value="Update" />
+                            <input type="button" style="margin-left: 40px;" class="btn btn-warning col-md-3" id="BtnCancelPay" value="Cancel Pay " />
+
+                          
+                        </div>
+
+                       
+
+                        </div><!-- /.row -->
+                </div><!-- ./box-body -->
+                <!-- /.box-footer -->
+            </div><!-- /.box -->
+        </div><!-- /.col -->
+    </div><!-- /.row -->
+
+    <br>
+
+  
+    <div id="divForAppendedImportTextBox" style="display:none">
+
+    </div>
+
+
+    <div id="divForAppendedExportTextBox" style="display:none">
+
+    </div>
+    <br><br><br><br><br><br>
+    <div id="divForAllBtn">
+        <div style="margin-left: 222px;">
+
+
+            <input type="button" style="margin-left: -100px;" class="btn btn-success col-md-1" id="btnAdd" value="ADD " />
+
+            <input type="button" style="margin-left: -20px;" class="btn btn-success col-md-3" id="btnPrintDepositReceipt" value="Print Deposit Receipt" onclick="generateDepositReceipt()" />
+
+            @*<input type="button" id="btnUpdate" value="Update " />*@
+            @*<input type="button" style="margin-left: -10px;display:none" class="btn btn-success col-md-2" id="btnPrintMainDO" value="Print Main DO" onclick="generateMainDOPDF()" />
+
+            <input type="button" style="margin-left: -10px;display:none" class="btn btn-success col-md-3" id="btnPrintTempDO" value="Print Temporary DO" onclick="generateTempDOPDF()" />*@
+            @*<input type="button" style="margin-left: 15px;" class="btn btn-success col-md-2" id="btnPending" value="Pending Bills " />
+                <input type="button" style="margin-left: 15px;" class="btn btn-success col-md-2" id="btnExpired" value="Expired Bills " />*@
+            <input type="button" style="margin-left: 15px;" class="btn btn-warning col-md-2" value="Back To List" onclick="Cancel();">
+
+        </div>
+
+    </div>
+</div>
+
+
+<div id="dialog" style="display: none; " align="center">
+    Do you want to ADD ?
+</div>
+<div id="dialog2" style="display: none; " align="center">
+        Do you want to Update ?
+    </div>
+    <div id="dialog3" style="display: none; " align="center">
+        Do you want to Delete ?
+    </div>
+    <div id="dialog4" style="display: none" align="center">
+        Do you want to Save ?
+    </div>
+<div id="confirm" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" style="z-index: 999999; margin-left: 150px;">
+            <div class="box-body">
+                <div class="modal-body">
+                    Do you want to Save ?
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="AlertUpdateSave">Yes</button>
+                <button type="button" data-dismiss="modal" class="btn">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmUpdate" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" style="z-index: 999999; margin-left: 150px;">
+            <div class="box-body">
+                <div class="modal-body">
+                    Do you want to Update ?
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="AlertUpdateAccount">Yes</button>
+                <button type="button" data-dismiss="modal" class="btn">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmDelete" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" style="z-index: 999999; margin-left: 150px;">
+            <div class="box-body">
+                <div class="modal-body">
+                    Do you want to Delete ?
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="AlertUpdateDelete">Yes</button>
+                <button type="button" data-dismiss="modal" class="btn">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    //function AccountCancel() {
+    //    window.location.href = "/Account/Index";
+    //}
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+
+    });
+
+
+
+    $(function () {
+        $.ajax({
+            url: "/Account/ShowPartyName",
+            type: "Get",
+            success: function (data) {
+                $('#ddlAccountParty').children().remove();
+                $('#ddlAccountParty').append('<option value="" >Select Party</option>');
+                for (var i = 0; i < data.length; i++) {
+
+                    //var option = new Option(data[i].strFirstName, data[i].iPartyID);
+
+                    // $('#ddlParty' + j).append(option);
+
+
+                    $('#ddlAccountParty').append('<option value="' + data[i].iAccountPartyID + '" >' + data[i].strPartyName + '</option>');
+
+                }
+
+            }
+
+        });
+    });
+
+
+    $("#BtnPay").click(function () {
+
+        $("#divForPayment").show();
+        $("#divForPaymentGrid").hide();
+
+        $("#btnPaymentSave").show();//hide save payment btn
+        $("#BtnUpdatePayment").hide();//show update payment btn
+        clearFields();
+    });
+    $("#BtnCancelPay").click(function () {
+
+        $("#divForPayment").hide();
+        $("#divForPaymentGrid").show();
+        clearFields();
+    });
+
+
+
+    var arrAccountData = [];
+    $("#btnPaymentSave").click(function () {
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog4').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog4").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //$('#confirm')
+                //.modal({ backdrop: 'static', keyboard: false })
+                //.on('click', '#AlertUpdateSave', function (e) {
+                debugger
+                if ($("#rdbDebitOption").is(":checked")) {
+                    var paymentStatus = 1;    //1 for Debit
+
+                }
+                else {
+                    var paymentStatus = 2;  //2 for Credit
+                }
+
+                var strAccountPartyName = $("#strAccountPartyName").val();
+                var strChassisNum = $("#txtChassisNumber").val();
+                //var strCredit = $("#strCredit").val();
+                var strAccountDate = $("#strAccountDate").val();
+                var strAmountInDHM = $("#strAmountInDHM").val();
+                //var strAmountInYEN = $("#strAmountInYEN").val();
+                var strDescription = $("#strDescription").val();
+                //var strConvRate = $("#strConvRate").val();
+                var refNum = $("#txtReferenceNum").val();
+                var ddlParty = $("#ddlAccountParty").val();
+                var AccountData =
+                      {
+                          strAccountPartyName: strAccountPartyName,
+                          strChassisNum: strChassisNum,
+                          iAccountPartyID: ddlParty,
+
+                          strAccountDate: strAccountDate,
+                          dtAccountDate: strAccountDate,
+                          strAmountInDHM: strAmountInDHM,
+                          //strAmountInYEN: strAmountInYEN,
+                          strDescription: strDescription,
+                          //strConvRate: strConvRate,
+                          DebitCreditOptions: paymentStatus,
+                          strReferenceNumber: refNum
+                      }
+                //arrAccountData.push(AccountData);
+                SaveAccountData(AccountData);
+
+                $(this).dialog('close');
+            }
+        },
+                {
+                    id: "No",
+                    text: "No",
+                    click: function () {
+                        $(this).dialog('close');
+                    }
+                }
+            ]
+        });
+        //});
+        // });
+    });
+    function SaveAccountData(model) {
+        debugger;
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/Account/SaveEdit",
+            data: JSON.stringify({ 'acntModel': model }),
+            success: function (data) {
+                debugger;
+                //alert("Save Account Successfully");
+                clearFields();
+                PaymentGrid();
+                calculateDeductionAmount();
+
+                //$('#btnSave').off('click').on('click', function () {
+                //    // function body
+                //});
+                //$("#btnClose").click();
+                $("#divForPayment").hide();
+                $("#divForPaymentGrid").show();
+                //$('#AccountPopUP').on('shown.bs.modal', function (e) {
+                //    alert('close modal');
+                //    $(this).off('shown.bs.modal');
+                //});
+                //UpdateAccountFunction();
+                //window.location.href = "/Account/Index";
+            }
+        });
+    }
+
+    function clearFields() {
+        //$("#strAccountPartyName").val();
+        //$("#txtChassisNumber").val();
+        //$("#strCredit").val();
+        $("#strAccountDate").val("");
+        $("#strAmountInDHM").val("");
+        //$("#strAmountInYEN").val();
+        $("#strDescription").val("");
+        //$("#ddlAccountParty").val();
+        $("#txtReferenceNum").val("");
+
+    }
+    //Sumation of all Deduction applied on Vehicle
+
+    function calculateDeductionAmount() {
+        debugger
+        var strChassis = $("#txtChassisNumber").val();
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/Papers/GetDeductionAmount",
+            data: JSON.stringify({ 'strChassisNum': strChassis }),
+            success: function (data) {
+                debugger
+                //var DeductionAmount = 0;
+                //for (var i = 0; i < data.length; i++) {
+                //    if (data[i].DebitCreditOptions == 1) {//1 for debit(add)
+                //        DeductionAmount += parseFloat(data[i].strAmountInDHM) || 0;
+                //    } else if (data[i].DebitCreditOptions == 2) {//1 for debit(add)
+                //        DeductionAmount -= parseFloat(data[i].strAmountInDHM) || 0;
+                //    }
+                //    //DeductionAmount += parseFloat(data[i].strAmountInDHM) || 0;
+                //}
+                //if (!isNaN(DeductionAmount) && DeductionAmount >= 0) {
+                //    $('#txtDeduction').val(DeductionAmount);
+                //    $('#txtExpDeduction').val(DeductionAmount);
+                //}
+                //var remainingBal = parseFloat($('#txtDeposit').val()) - DeductionAmount;
+
+                //var remainingExpBal = parseFloat($('#txtExpDeposit').val()) - DeductionAmount;
+
+                //if (!isNaN(DeductionAmount) && DeductionAmount >= 0 && !isNaN(remainingBal) && remainingBal >= 0) {
+
+                //    $('#txtBal').val(remainingBal);
+
+
+                //} else if (!isNaN(DeductionAmount) && DeductionAmount >= 0 && !isNaN(remainingExpBal) && remainingExpBal >= 0) {
+
+                //    //for Export deduction
+
+                //    $('#txtExpBal').val(remainingExpBal);
+
+                //}
+                //else {
+                //    //$('#txtDeduction').val("0");
+                //    $('#txtBal').val("0");
+
+                //    //$('#txtExpDeduction').val("0");
+                //    $('#txtExpBal').val("0");
+                //}
+
+
+
+                var DebitAmount = 0;
+                var CreditAmount = 0;
+                for (var i = 0; i < data.length; i++) {
+
+                    if (data[i].DebitCreditOptions == 1) {//1 for debit(add)
+                        DebitAmount += parseFloat(data[i].strAmountInDHM) || 0;
+                    } else if (data[i].DebitCreditOptions == 2) {//2 for Credit
+                        CreditAmount += parseFloat(data[i].strAmountInDHM) || 0;
+                    }
+                    //DeductionAmount += parseFloat(data[i].strAmountInDHM) || 0;
+                }
+                if (!isNaN(DebitAmount) && DebitAmount >= 0) {
+                    $('#txtDeposit').val(DebitAmount);
+                    $('#txtExpDeposit').val(DebitAmount);
+                }
+
+                if (!isNaN(CreditAmount) && CreditAmount >= 0) {
+                    $('#txtDeduction').val(CreditAmount);
+                    $('#txtExpDeduction').val(CreditAmount);
+                }
+
+                var deductableBal = parseFloat($('#txtDeposit').val()) - parseFloat($('#txtDeduction').val());
+
+                var deductableExpBal = parseFloat($('#txtExpDeposit').val()) - parseFloat($('#txtExpDeduction').val());
+
+                if (!isNaN(deductableBal) && deductableBal >= 0) {
+
+                    $('#txtBal').val(deductableBal);
+                    //$('#txtExpBal').val(deductableExpBal);
+
+                }
+                else if (!isNaN(deductableExpBal) && deductableExpBal >= 0) {
+
+                    //$('#txtBal').val(deductableBal);
+                    $('#txtExpBal').val(deductableExpBal);
+
+                }
+                else {
+                    //$('#txtDeduction').val("0");
+                    $('#txtBal').val("0");
+
+                    //$('#txtExpDeduction').val("0");
+                    $('#txtExpBal').val("0");
+                }
+
+
+            }
+        });
+    }
+
+
+    ////Calculate Amount In YEN
+    //function calculateAmountInYEN() {
+    //    debugger
+    //    var strAmountInDHM = parseFloat($('#strAmountInDHM').val());
+    //    var strConvRate = parseFloat($('#strConvRate').val());
+    //    var AmountInYEN = (strAmountInDHM * strConvRate).toFixed(3);
+    //    if (!isNaN(AmountInYEN) && AmountInYEN >= 0)
+    //    { $('#strAmountInYEN').val(AmountInYEN); } else { $('#strAmountInYEN').val("0"); }
+
+    //}
+
+    function PaymentGrid() {
+        var chassisNo = $("#txtChassisNumber").val();
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/Papers/GetAccountListData",
+            data: JSON.stringify({ 'chassisNum': chassisNo }),
+            success: function (data) {
+                debugger
+                $("#dataGridForPayment").jqGrid('GridUnload');
+
+                $('#dataGridForPayment').jqGrid({
+                    caption: "Account Payment List",
+                    data: data,
+                    datatype: "local",
+                    colNames: ['iAccountID', 'DebitCreditOptions', 'Chassis Num', 'Party', 'Date', 'dtAccountDate', 'Amount(DHM)', 'Pay Mode', 'Description', 'iAccountPartyID', 'Reference No.', 'Action'],
+                    colModel: [
+
+                          { name: 'iAccountID', index: 'iAccountID', hidden: true, hidedlg: true },
+                           { name: 'DebitCreditOptions', index: 'DebitCreditOptions', hidden: true, hidedlg: true },
+                             { name: 'strChassisNum', index: 'strChassisNum', align: 'center', width: 200 },
+                        { name: 'strPartyName', index: 'strPartyName', align: 'center' },
+
+                        //{ name: 'strDebit', index: 'strDebit', align: 'center', hidden: true, hidedlg: true },
+                        //{ name: 'strCredit', index: 'strCredit', align: 'center', hidden: true, hidedlg: true },
+                        { name: 'strAccountDate', index: 'strAccountDate', align: 'center' },
+                          { name: 'dtAccountDate', index: 'dtAccountDate', hidden: true, hidedlg: true },
+
+                        { name: 'strAmountInDHM', index: 'strAmountInDHM', align: 'center' },
+                        { name: 'PayMode', index: 'PayMode', align: 'center', formatter: setDebitCreditName },
+
+                        { name: 'strDescription', index: 'strDescription', align: 'center', width: 300 },
+                        //{ name: 'strConvRate', index: 'strConvRate', align: 'center' },
+                          { name: 'iAccountPartyID', index: 'iAccountPartyID', hidden: true, hidedlg: true },
+                           { name: 'strReferenceNumber', index: 'strReferenceNumber', hidden: true, hidedlg: true },
+
+                         {
+                             name: 'Action', index: 'Action', align: 'center', width: 300, search: false, title: false,
+                             formatter: function (cellvalue, options, rowObject) {
+
+                                 return "<input class='popup btn btn-info' style='margin-right: 5%;width: 60px; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  />" + '   ' + "<input class='btn btn-danger' style='margin-right: 5%; width: 60px;' type='button' value='Delete' onclick=\"DeleteAccountData('" + options.rowId + "');\"  />";
+                             }
+
+                         },
+
+                    ],
+                    width: 1000,
+                    height: 150,
+                    rowNum: 100000,
+                    loadonce: true,
+                    rownumbers: true,
+                    ignoreCase: true,
+
+                });
+                jQuery("#dataGridForPayment").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+            }
+        });
+    }
+
+    function setDebitCreditName(cellvalue, options, rowObject) {
+        debugger
+        if (rowObject.DebitCreditOptions == 1) {
+            return rowObject.PayMode = "Debit";   //1 for Debit
+
+        }
+        else if (rowObject.DebitCreditOptions == 2) {
+            return rowObject.PayMode = "Credit";  //2 for Credit
+        }
+    }
+
+
+    function generateDepositReceipt() {
+        debugger
+
+        var rowCount = $("#dataGridForPayment").getGridParam("reccount");
+
+
+        if (rowCount > 0) {
+
+            //var vehicleGridData = jQuery("#dataGrid").getRowData();
+
+            var strChassisNum = $("#spnChassisNo").text(), strMake = $("#spnMake").text()
+                , iModel = $("#spnYear").text(), strColor = $("#spnColor").text();
+            var CustomerName = $("#CustomerName").text();
+
+            //for (var i = 0; i < vehicleGridData.length; i++)
+            //{
+            //    strChassisNum = vehicleGridData[i].strChassisNum,
+            //   strMake = vehicleGridData[i].strMake,
+            //   iModel = vehicleGridData[i].iModel,
+            //   strColor= vehicleGridData[i].strColor
+            //}
+
+            var doc = new jsPDF("p", "mm", "a4");
+            var columns = ["DATE", "PARTY", "DESCRIPTION", "DEBIT", "CREDIT", "REFUND"];
+            var data = [];
+
+            var columns2 = [""];
+            var data2 = [];
+
+            var paymentGridData = jQuery("#dataGridForPayment").getRowData();
+
+            var TotalDebitAmount = 0;
+            var TotalCreditAmount = 0;
+
+            for (var i = 0; i < paymentGridData.length; i++) {
+                if (paymentGridData[i].DebitCreditOptions == 1) {
+                    data.push([paymentGridData[i].strAccountDate, paymentGridData[i].strPartyName, paymentGridData[i].strDescription,
+                   paymentGridData[i].strAmountInDHM, , ])
+
+                    TotalDebitAmount += parseFloat(paymentGridData[i].strAmountInDHM);
+                }
+                else if (paymentGridData[i].DebitCreditOptions == 2) {
+                    data.push([paymentGridData[i].strAccountDate, paymentGridData[i].strPartyName, paymentGridData[i].strDescription, , paymentGridData[i].strAmountInDHM, ])
+
+                    TotalCreditAmount += parseFloat(paymentGridData[i].strAmountInDHM);
+                }
+
+            }
+            if (TotalDebitAmount > TotalCreditAmount) {
+
+                data.push(["TOTAL", , , TotalDebitAmount, TotalCreditAmount, ])
+
+                data.push(["BALANCE REFUND", , , , , TotalDebitAmount - TotalCreditAmount])
+
+                data2.push(["TERMS & CONDITIONS:-"])
+                data2.push(["1) PLEASE BRING ORIGINAL DEPOSIT RECEIPT  FOR RECEIVING DEPOSIT MONEY."])
+                data2.push(["2) EXIT PAPER TO BE CLEARED IN 25 DAYS FROM PAPER MAKING DATE."])
+                data2.push(["3) DEPOSIT WILL BE REFUNDED AFTER 10 WORKING DAYS IF ALL  PAPER FOUND PROPER "])
+                data2.push(["   BY DUCAMZ."])
+                data2.push(["4) _________DHS.DUCAMZ CHARGES WILL BE DEDUCTED FROM DEPOSIT AMOUNT AS "])
+                data2.push(["   CLAIM PROCESSING FEES BY DUCAMZ."])
+                data2.push(["5) CUSTOMER HAVE TO PAY PARKING FINE EXCEEDING DATE SPECIFIED AT AED=10/- PER DAY."])
+                data2.push(["6) D.O. CHARGES WILL BE DEUCTED IF ORIGINAL D.O. EXPIRED OR LOST. AT 10 AED EACH."])
+
+                //data2.push(["--------------------------------------------------------------------------------------------------------------------------------------------------------"])
+                //data2.push(["                                                             Account Information                              "])
+                //data2.push(["--------------------------------------------------------------------------------------------------------------------------------------------------------"])
+
+               
+                //data2.push(["--------------------------------------------------------------------------------------------------------------------------------------------------------"])
+                //data2.push(["Remarks:"])
+                //data2.push(["             ---------------------------------------------------------------------"])
+                //data2.push(["             ---------------------------------------------------------------------"])
+                //data2.push(["             ---------------------------------------------------------------------"])
+
+                //data2.push(["--------------------------------------------------------------------------------------------------------------------------------------------------------"])
+                //data2.push(["                                                             Signature & Stamp                              "])
+                //data2.push(["--------------------------------------------------------------------------------------------------------------------------------------------------------"])
+             
+               
+                //var doc = new jsPDF('l', 'mm', [217, 150], '');
+
+                var totalPagesExp = "{total_pages_count_string}";
+
+                var pageContent = function (data) {
+                    // HEADER
+
+                    doc.setFontSize(20);
+                    doc.setTextColor(40);
+                    doc.setFontStyle('normal');
+
+                    doc.text("DEPOSIT RECEIPT", data.settings.margin.left + 60, 20);
+                    doc.setFontSize(15);
+                    doc.text(CustomerName, data.settings.margin.left + 70, 30);
+                    doc.setTextColor(40);
+                    doc.text(strChassisNum + " - " + strMake + " - " + iModel + " - " + strColor, data.settings.margin.left + 25, 43);
+
+
+                    //doc.setFontSize(20)
+                    //doc.setLineWidth(1)
+                    //doc.line(13, doc.autoTableEndPosY() + 85, 195, doc.autoTableEndPosY() + 85)
+                    //doc.text("Account Information", 80, doc.autoTableEndPosY() + 92);
+                    //doc.line(13, doc.autoTableEndPosY() + 95, 195, doc.autoTableEndPosY() + 95)
+
+                    //doc.setLineWidth(0.5)
+                    //doc.text("Remarks:", 13, doc.autoTableEndPosY() + 110)
+                    //doc.line(50, doc.autoTableEndPosY() + 120, 195, doc.autoTableEndPosY() + 120)
+                    //doc.line(50, doc.autoTableEndPosY() + 130, 195, doc.autoTableEndPosY() + 130)
+                    //doc.line(50, doc.autoTableEndPosY() + 110, 195, doc.autoTableEndPosY() + 110)
+                    ////doc.text("Account Information", data.settings.margin.left + 60, 240);
+
+
+                    //doc.setLineWidth(1)
+                    //doc.line(13, doc.autoTableEndPosY() + 143, 195, doc.autoTableEndPosY() + 143)
+                    //doc.text("Signature & Stamp", 80, doc.autoTableEndPosY() + 150);
+                    //doc.line(13, doc.autoTableEndPosY() + 152, 195, doc.autoTableEndPosY() + 152)
+
+
+                    //doc.setFont('courier');
+                    //doc.setFontType('bolditalic');
+
+                    //doc.text("Terms & Conditions:", data.settings.margin.left + 0, doc.internal.pageSize.height-150);
+
+                    //doc.text("1)", data.settings.margin.left + 0, doc.internal.pageSize.height - 145);
+                    //doc.text("PLEASE TAKE THIS DELIVERY WITHIN 02 DAYS FROM THIS DO ISSUE DATE", data.settings.margin.left + 6, doc.internal.pageSize.height -145);
+                    //doc.text("OTHERWISE THIS DO WILL BE CONSIDERED 'CANCELLED'AND", data.settings.margin.left + 6, doc.internal.pageSize.height - 135);
+                    //doc.text("CUSTOMER HAVE TO PAY AED10 FOR DUPLICATE DO.", data.settings.margin.left ++, doc.internal.pageSize.height - 125);
+
+
+
+                    //// FOOTER
+                    //var str = "Page " + data.pageCount;
+                    //// Total page number plugin only available in jspdf v1.0+
+                    //if (typeof doc.putTotalPages === 'function') {
+                    //    str = str + " of " + totalPagesExp;
+                    //}
+                    //doc.setFontSize(10);
+                    //doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+                    //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+                };
+
+
+            //    var pageContent2 = function (data2) {
+            
+            //    doc.setFontSize(20)
+            //    doc.setLineWidth(1)
+            //    doc.line(13, doc.autoTableEndPosY() + 85, 195, doc.autoTableEndPosY() + 85)
+            //    doc.text("Account Information", 80, doc.autoTableEndPosY() + 92);
+            //    doc.line(13, doc.autoTableEndPosY() + 95, 195, doc.autoTableEndPosY() + 95)
+
+            //    doc.setLineWidth(0.5)
+            //    doc.text("Remarks:", 13, doc.autoTableEndPosY() + 110)
+            //    doc.line(50, doc.autoTableEndPosY() + 120, 195, doc.autoTableEndPosY() + 120)
+            //    doc.line(50, doc.autoTableEndPosY() + 130, 195, doc.autoTableEndPosY() + 130)
+            //    doc.line(50, doc.autoTableEndPosY() + 110, 195, doc.autoTableEndPosY() + 110)
+            //    //doc.text("Account Information", data.settings.margin.left + 60, 240);
+
+
+            //    doc.setLineWidth(1)
+            //    doc.line(13, doc.autoTableEndPosY() + 143, 195, doc.autoTableEndPosY() + 143)
+            //    doc.text("Signature & Stamp", 80, doc.autoTableEndPosY() + 150);
+            //    doc.line(13, doc.autoTableEndPosY() + 152, 195, doc.autoTableEndPosY() + 152)
+
+
+
+            //    //doc.setLineWidth(1)
+            //    //doc.line(0, doc.autoTableEndPosY() + 10, 230, doc.autoTableEndPosY() + 10)
+            //    //doc.text("Account Information", 80, doc.autoTableEndPosY() + 15);
+            //    //doc.line(0, doc.autoTableEndPosY() + 21, 230, doc.autoTableEndPosY() + 21)
+
+            //    //doc.setLineWidth(0.5)
+            //    //doc.text("Remarks:", 13, doc.autoTableEndPosY() + 30)
+            //    //doc.line(50, doc.autoTableEndPosY() + 30, 190, doc.autoTableEndPosY() + 30)
+            //    //doc.line(50, doc.autoTableEndPosY() + 40, 190, doc.autoTableEndPosY() + 40)
+            //    //doc.line(50, doc.autoTableEndPosY() + 50, 190, doc.autoTableEndPosY() + 50)
+            //    ////doc.text("Account Information", data.settings.margin.left + 60, 240);
+
+
+            //    //doc.setLineWidth(1)
+            //    //doc.line(0, doc.autoTableEndPosY() + 63, 230, doc.autoTableEndPosY() + 63)
+            //    //doc.text("Signature & Stamp", 80, doc.autoTableEndPosY() + 70);
+            //    //doc.line(0, doc.autoTableEndPosY() + 72, 230, doc.autoTableEndPosY() + 72)
+
+            //};
+
+
+                doc.autoTable(columns, data, {
+                    theme: 'grid',
+                    addPageContent: pageContent,
+                    margin: { top: 50 },
+                    //startY: doc.autoTableEndPosY() + 20,
+                    headerStyles: {
+                        //columnWidth: 'wrap',
+                        cellPadding: 2,
+                        lineWidth: 0,
+                        valign: 'top',
+                        fontStyle: 'bold',
+                        halign: 'left',    //'center' or 'right'
+                        fillColor: [169, 169, 169],
+                        //textColor: [78, 53, 73], //Black
+                        textColor: [255, 255, 255], //White
+                        fontSize: 8,
+
+                        rowHeight: 20
+                    },
+                    drawCell: function (cell, data) {
+                        var rows = data.table.rows;
+                        if ((data.row.index == rows.length - 1)) {
+                            doc.setFillColor(255, 255, 51);
+                            //doc.setFillColor(169, 169, 169);
+                            doc.setTextColor(0, 0, 0);
+                            doc.setFontStyle('bold');
+                            //doc.setFontSize(16);
+                        } else if ((data.row.index == rows.length - 2)) {
+                            //doc.setFillColor(255, 255, 0);
+                            doc.setFillColor(169, 169, 169);
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontStyle('bold');
+                            //doc.setFontSize(16);
+                        }
+                    },
+
+                });
+
+                doc.setFontSize(5);
+                doc.autoTable(columns2, data2, {
+                    theme: 'plain',
+                    //fontSize: 8,
+                    addPageContent: data2,
+                   margin: { top: doc.autoTableEndPosY()},
+
+                });
+
+
+                var img = new Image;
+                img.onload = function () {
+
+                    this.width = 160;
+                    this.height = 100;
+                    doc.addImage(this, 13, 05);
+                    window.open(doc.output('bloburl'), '_blank');
+                   // window.location.href = "/Papers/PapersList";
+                };
+
+                img.crossOrigin = "";  // for demo as we are at different origin than image
+                img.src = "/Content/Images/DepositRcptLOGO.bmp";  // image
+
+                //terms and condition image of deposit
+                //var imgfooter = new Image;
+                //imgfooter.onload = function () {
+
+                //    this.width = 700;
+                //    this.height = 250;
+                //    //doc.addImage(this, 13, 110);
+                //    doc.addImage(this, 13, doc.autoTableEndPosY() + 10);
+                //    window.open(doc.output('bloburl'), '_blank');
+                //    // doc.output("dataurlnewwindow");
+                //};
+
+                //imgfooter.crossOrigin = "";  // for demo as we are at different origin than image
+                //imgfooter.src = "/Content/Images/DepositRcptFooter.bmp";  // image
+
+                //pageHeight = doc.internal.pageSize.height;
+
+                //// Before adding new content
+                //y = 500 // Height position of new content
+                //if (y >= pageHeight) {
+                //    doc.addPage();
+                //    y = 0 // Restart height position
+                //}
+                
+              
+                doc.setFontSize(20)
+                //doc.setLineWidth(1)
+                doc.text("------------------------------------------------------------------------------", 13, doc.autoTableEndPosY() + 10)
+                doc.text("Account Information", 80, doc.autoTableEndPosY() + 15);
+                doc.text("------------------------------------------------------------------------------", 13, doc.autoTableEndPosY() + 20)
+                
+                //doc.setLineWidth(0.5)
+                doc.text("Remarks:", 13, doc.autoTableEndPosY() + 30)
+                doc.text("------------------------------------------------------------", 50, doc.autoTableEndPosY() + 30)
+                
+                doc.text("------------------------------------------------------------", 50, doc.autoTableEndPosY() + 40)
+               
+                doc.text("------------------------------------------------------------", 50, doc.autoTableEndPosY() + 50)
+              
+                doc.text("------------------------------------------------------------------------------", 13, doc.autoTableEndPosY() + 60)
+                doc.text("Signature & Stamp", 80, doc.autoTableEndPosY() + 65);
+                doc.text("------------------------------------------------------------------------------", 13, doc.autoTableEndPosY() + 70)
+
+
+
+                // Total page number plugin only available in jspdf v1.0+
+                if (typeof doc.putTotalPages === 'function') {
+                    doc.putTotalPages(totalPagesExp);                   
+                }
+            }
+            else {
+                alert("Deposit amount should be greater than credit amount.");
+            }
+
+        }
+        else {
+            alert("Payment First Please.");
+        }
+    }
+
+
+</script>
+
+
+
+<script type="text/javascript">
+
+    var arrVehicle = [];
+    var arrSubGridData = [];
+
+    $(function () {
+        $("#txtChassisNumber").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Papers/GetCustomerDetails/',
+                    data: "{ 'prefix': '" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (!data.length) {
+                            var result = [
+                             {
+                                 label: 'No matches found',
+                                 value: response.term
+                             }
+                            ];
+                            response(result);
+                        }
+                        else {
+                            // normal response
+                            response($.map(data, function (item) {
+                                return {
+
+                                    iVehicleID: item.iVehicleID,
+                                    strChassisNum: item.strChassisNum,
+                                    strMake: item.strMake,
+                                    iModel: item.iModel,
+                                    strColor: item.strColor,
+                                    dmlSellingPrice: item.dmlSellingPrice,
+                                    CustomerFullName: item.CustomerFullName,
+                                    fltPhoneNumber: item.fltPhoneNumber,
+                                    dmlAdvance: item.dmlAdvance,
+                                    dmlBalance: item.dmlBalance,
+                                    dmlDeposit: item.dmlDeposit,
+                                    iInstallment: item.iInstallment,
+                                    TotalReceived: item.TotalReceived,
+                                    strCutomerTypeName: item.strCutomerTypeName,
+                                    iCutomerTypeID: item.iCutomerTypeID,
+
+                                    strShowRoomName: item.strShowRoomName,
+                                    strShowRoomNumber: item.strShowRoomNumber,
+                                    strShowRoomPhoneNo: item.strShowRoomPhoneNo,
+                                    strBlock: item.strBlock,
+                                    strPersonPhoneNo: item.strPersonPhoneNo,
+                                    PersonFullName: item.PersonFullName,
+
+                                    value: item.strChassisNum
+
+                                }
+                            }));
+                        }
+                    }
+
+
+                });
+            },
+            select: function (event, i) {
+                debugger
+                event.preventDefault();
+
+                $("#txtChassisNumber").val(i.item.value);
+                $("#txtVehicleID").val(i.item.iVehicleID);
+                $("#CustomerInfo").show();
+                $("#VehicleInfo").show();
+
+               
+                $("#hdniCutomerTypeID").val(i.item.iCutomerTypeID);
+
+                if ($("#hdniCutomerTypeID").val() == 1) {
+
+                    $("#CustomerName").text(i.item.PersonFullName);
+                }
+                else if ($("#hdniCutomerTypeID").val() == 2) {
+                    $("#CustomerName").text(i.item.CustomerFullName);
+                }
+
+                $("#CustomerType").text(i.item.strCutomerTypeName);
+
+                $("#hdnDeposit").val(i.item.dmlDeposit);
+                $("#hdnCustomerFullName").val(i.item.CustomerFullName);
+                $("#hdnPhoneNumber").val(i.item.fltPhoneNumber);
+
+               
+                $("#hdnShowRoomName").val(i.item.strShowRoomName);
+                $("#hdnShowRoomNumber").val(i.item.strShowRoomNumber);
+                $("#hdnShowRoomPhoneNo").val(i.item.strShowRoomPhoneNo);
+                $("#hdnBlock").val(i.item.strBlock);
+                $("#hdnPersonPhoneNo").val(i.item.strPersonPhoneNo);
+                $("#hdnPersonFullName").val(i.item.PersonFullName);
+              
+
+                //----Added on 26-10-2017-------
+                $("#spnChassisNo").text(i.item.strChassisNum);
+                $("#spnMake").text(i.item.strMake);
+                $("#spnColor").text(i.item.strColor);
+                $("#spnYear").text(i.item.iModel);
+
+
+                //---------------------------commented on 26-10-2017---------------------------
+                //setInterval(function () {
+                //    $(".bling").fadeToggle();
+                //}, 500);
+
+                //if($("#hdniCutomerTypeID").val()==1){
+                //    var result = {
+                //        iVehicleID: i.item.iVehicleID,
+                //        strChassisNum: i.item.strChassisNum,
+                //        strMake: i.item.strMake,
+                //        iModel: i.item.iModel,
+                //        strColor: i.item.strColor,
+                //        dmlSellingPrice: i.item.dmlSellingPrice,
+                //        CustomerFullName: i.item.strShowRoomName
+                //    };
+                //    arrVehicle.push(result);
+                //} else if ($("#hdniCutomerTypeID").val() == 2) {
+                //    var result = {
+                //        iVehicleID: i.item.iVehicleID,
+                //        strChassisNum: i.item.strChassisNum,
+                //        strMake: i.item.strMake,
+                //        iModel: i.item.iModel,
+                //        strColor: i.item.strColor,
+                //        dmlSellingPrice: i.item.dmlSellingPrice,
+                //        CustomerFullName: i.item.CustomerFullName
+                //    };
+                //    arrVehicle.push(result);
+                //}
+                ////var result = {
+                ////    iVehicleID: i.item.iVehicleID,
+                ////    strChassisNum: i.item.strChassisNum,
+                ////    strMake: i.item.strMake,
+                ////    iModel: i.item.iModel,
+                ////    strColor: i.item.strColor,
+                ////    dmlSellingPrice: i.item.dmlSellingPrice,
+                ////    CustomerFullName: i.item.CustomerFullName
+                ////};
+                ////arrVehicle.push(result);
+
+                //var resultForSubGrid = {
+                //    dmlSellingPrice: i.item.dmlSellingPrice,
+                //    dmlAdvance: i.item.dmlAdvance,
+                //    iInstallment: i.item.iInstallment,
+                //    TotalReceived: i.item.TotalReceived,
+                //    dmlBalance: i.item.dmlBalance,
+                //    //dmlDeposit: i.item.dmlDeposit,
+
+                //};
+                //arrSubGridData.push(resultForSubGrid);
+
+                //dataGridForVehicle(arrVehicle, arrSubGridData);
+                //arrVehicle = [];
+                //arrSubGridData = [];
+                ////return false;
+                $("#BtnPay").show();
+                $("#divForCollapse").show();
+                
+                PaymentGrid();
+            },
+            minLength: 1
+        });
+    });
+
+
+
+
+    function dataGridForVehicle(VehiclesData, subGridData) {
+        debugger
+
+
+
+        $("#dataGrid").jqGrid('GridUnload');
+
+        $('#dataGrid').jqGrid({
+            caption: "Vehicle List",
+            data: VehiclesData,
+            datatype: "local",
+
+            colNames: ['ID', 'Customer Name', 'Chasis No', 'Make', 'Model', 'Color', 'Sale Price'],
+            colModel: [
+                { name: 'iVehicleID', index: 'iVehicleID', hidden: true, hidedlg: true },
+                  { name: 'CustomerFullName', index: 'CustomerFullName', align: 'center' },
+                { name: 'strChassisNum', index: 'strChassisNum', align: 'center' },
+                { name: 'strMake', index: 'strMake', align: 'center' },
+                { name: 'iModel', index: 'iModel', align: 'center' },
+                { name: 'strColor', index: 'strColor', align: 'center' },
+                { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+            ],
+            width: 1000,
+            height: 200,
+            rowNum: 100000,
+            rownumbers: true,
+            ignoreCase: true,
+            loadonce: false,
+
+            //Adding Subgrid for additional details of vehicle
+
+            multiselect: false,
+            subGrid: true,
+
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                debugger
+
+                //var subgrid_table_id, pager_id;
+                subgrid_table_id = subgrid_id + "_t";
+                pager_id = "p_" + subgrid_table_id;
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+
+
+                //$.ajax({
+                //    type: "POST",
+                //    url: "/TPurchase/GetAllVehicles",
+                //    cache: false,
+                //    data: JSON.stringify({ 'id': row_id }),
+                //    // data: JSON.stringify(purchase),
+                //    dataType: this.dataType,
+                //    contentType: "application/json; charset=utf-8",
+                //success: function (Data) {
+                debugger
+
+                //var vehicleList = Data.listVehicle;
+
+                jQuery("#" + subgrid_table_id).jqGrid({
+                    data: subGridData,
+                    caption: "Additional Details of Vehicles",
+                    datatype: "local",
+                    colNames: ['SellingPrice', 'Advance', 'Installment', 'TotalReceived', 'Balance'],
+                    colModel: [
+                        { name: 'dmlSellingPrice', index: 'dmlSellingPrice', align: 'center' },
+                        { name: 'dmlAdvance', index: 'dmlAdvance', align: 'center' },
+                         { name: 'iInstallment', index: 'iInstallment', align: 'center', hidden: true, hidedlg: true },
+                           { name: 'TotalReceived', index: 'TotalReceived', align: 'center' },
+                        { name: 'dmlBalance', index: 'dmlBalance', align: 'center' },
+                        //{ name: 'dmlDeposit', index: 'dmlDeposit', align: 'center' },
+
+
+                    ],
+                    width: 'auto',
+                    height: 100,
+                    ignoreCase: true,
+                    loadonce: false,
+                    jsonReader: {
+                        root: 'gridModel',
+                        repeatitems: false
+                    }
+
+                });
+                jQuery("#" + subgrid_table_id).jqGrid('navGrid', "#" + pager_id, { edit: false, add: false, del: false })
+
+
+                //}
+                //});
+
+            }
+
+
+
+        });
+        jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+    }
+
+
+</script>
+
+
+<script type="text/javascript">
+
+    function Cancel() {
+        window.location.href = "/Papers/PapersList";
+    }
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+
+    });
+
+    var PapertypeID;
+    function getPaperType() {
+        debugger
+
+        PapertypeID = $("#ddlPaperType").val();
+
+
+        /////////////////////////////////////  for Import   //////////////////////////////////////////////
+        if (PapertypeID == 1) {
+            debugger
+            $("#divForAppendedExportTextBox").html("");
+            $("#divForAppendedImportTextBox").show();
+
+            $("#divForAppendedExportTextBox").hide();
+
+            $('#divForAppendedImportTextBox').append("<div class='form-group col-sm-3'>" + "<label id='lblDecNo'>" + "DecNo" + "</label>" + "<input class='form-control input-group-sm'  type='text' maxlength='20'    name='DynamicDecNo' placeholder='Enter Dec No' id='txtDecNo'/></div>"
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label id='lblDecDate'>" + "DecDate" + "</label>" + "<input  class='form-control datepicker input-group-sm'  name='DynamicDecDate' placeholder='Enter Dec Date' id='txtDecDate' /></div>"
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label id='lblDeposit'>" + "Deposit" + "</label>" + "<input class='form-control input-group-sm'  type='text' name='DynamicDeposit' placeholder='Enter Deposit' id='txtDeposit'  oninput='calculateDeductionAmount()'/></div>"
+          //+ "<div class='form-group col-sm-1' style='padding-left: 0px;'>" + "<label id='lblDuty'>" + "Duty" + "</label>" + "<input class='form-control input-group-sm' type='text'  name='DynamicDuty'  placeholder='Enter' id='txtDuty' /></div>"
+          //+ "<div class='form-group col-sm-1' style='padding-left: 0px;'>" + "<label id='lblPaper'>" + "Paper" + "</label>" + "<input class='form-control input-group-sm'  type='text' name='DynamicPaper' placeholder='Enter' id='txtPaper' /></div>"
+          //+ "<div class='form-group col-sm-1' style='padding-left: 0px;'>" + "<label id='lblTotal'>" + "Total" + "</label>" + "<input class='form-control input-group-sm' type='text' name='DynamicTotal' placeholder='Enter' id='txtTotal' /></div>"
+
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label id='lblDeduction'>" + "Deduction" + "</label>" + "<input class='form-control input-group-sm' type='text' name='DynamicDeduction' placeholder='Enter' id='txtDeduction' readonly/></div>"
+
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label id='lblBal'>" + "Bal" + "</label>" + "<input class='form-control input-group-sm'  type='text' name='DynamicBal' placeholder='Enter' id='txtBal' readonly/></div>");
+
+            $("#txtDecDate").datepicker({ dateFormat: 'mm/dd/yy' });
+
+            ////give deposit value of sale
+            //$("#txtDeposit").val($("#hdnDeposit").val());
+            //$("#divForAllBtn").show();
+            calculateDeductionAmount();
+           
+        }
+            //////////////////////////////////////////// // for Export///////////////////////////////////////////////////////////////////////////
+
+        else if (PapertypeID == 2) {
+            debugger
+            $("#divForAppendedImportTextBox").html("");
+            $("#divForAppendedExportTextBox").show();
+            $("#divForAppendedImportTextBox").hide();
+
+
+            $('#divForAppendedExportTextBox').append("<div class='form-group col-sm-2'>" + "<label>" + "Receiving" + "</label>" + "<input class='form-control datepicker input-group-sm'  name='DynamicReceivingDate' placeholder='Enter Receiving Date' id='txtReceivingDate' /></div>"
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label>" + "Submit" + "</label>" + "<input class='form-control datepicker input-group-sm'  name='DynamicSubmitDate'  placeholder='Enter Submit Date' id='txtSubmitDate' /></div>"
+          //+ "<div class='form-group col-sm-1'>" + "<label>" + "CApproval" + "</label>" + "<input class='form-control input-group-sm' type='text' name='DynamicApproval'  placeholder='Enter' id='txtApproval" + counterExport + "' /></div>"
+
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label>" + "CustApproval" + "</label>"
+          + "<select class='form-control input-group-sm' id='ddlApproval' name='DynamicApproval' onchange='getApproval(this);'>"
+          + "<option>Select Approval</option>" + "<option value='1'>Yes</option>" + "<option value='0'>No</option>" + "</select></div>"
+
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label>" + "Deposit" + "</label>" + "<input class='form-control input-group-sm' type='text' name='DynamicExpDeposit'  placeholder='Enter Deposit' id='txtExpDeposit' oninput='calculateDeductionAmount()'/></div>"
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label>" + "Deduction" + "</label>" + "<input class='form-control input-group-sm'  type='text' name='DynamicDeduction'  placeholder='Enter' id='txtExpDeduction' readonly/></div>"
+          //+ "<div class='form-group col-sm-1' style='padding-left: 0px;'>" + "<label>" + "Fine" + "</label>" + "<input class='form-control input-group-sm' type='text' name='DynamicFine' placeholder='Enter' id='txtFine' /></div>"
+          //+ "<div class='form-group col-sm-1' style='padding-left: 0px;'>" + "<label>" + "Misc" + "</label>" + "<input class='form-control input-group-sm'  type='text' name='DynamicMisc'  placeholder='Enter' id='txtMisc' /></div>"
+
+          + "<div class='form-group col-sm-2' style='padding-left: 0px;'>" + "<label>" + "Bal" + "</label>" + "<input class='form-control input-group-sm'  type='text' name='DynamicExpBal' placeholder='Enter' id='txtExpBal' readonly/></div>");
+            //$("#divForAllBtn").show();
+            $("#txtReceivingDate").datepicker({ dateFormat: 'mm/dd/yy' });
+            $("#txtSubmitDate").datepicker({ dateFormat: 'mm/dd/yy' });
+
+            ////give sale deposit to export deposit
+            //$("#txtExpDeposit").val($("#hdnDeposit").val());
+            calculateDeductionAmount();
+        }
+        else if (PapertypeID == 0 || PapertypeID == 3) {
+
+            $("#divForAppendedImportTextBox").html("");
+            $("#divForAppendedExportTextBox").html("");
+            //$("#divForAppendedExportTextBox").show();
+            //$("#divForAppendedImportTextBox").hide();
+        }
+    }
+
+</script>
+
+
+<script>
+    var Approval;
+    function getApproval(CID) {
+        Approval = $("#ddlApproval").val();
+        //alert(Approval);
+    }
+    var arrImportDataToTransfer = new Array();
+    var arrExportDataToTransfer = new Array();
+
+    $("#btnAdd").click(function () {
+        debugger
+        //if ($("#txtDeposit").val() > $("#txtDeduction").val()) {
+
+       
+       
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                //calling function here for update
+                if (PapertypeID == 1) {
+                    debugger;
+
+
+                    var vehicleID = $("#txtVehicleID").val();
+                    var DecNo = $("#txtDecNo").val();
+                    var DecDate = $("#txtDecDate").val();
+                    var Deposit = $("#txtDeposit").val();
+                    //var Duty = $("#txtDuty").val();
+                    //var Paper = $("#txtPaper").val();
+                    //var Total = $("#txtTotal").val();
+                    var dcmlDeduction = $("#txtDeduction").val();
+                    var Bal = $("#txtBal").val();
+                    var Date = $("#strDate").val();
+                    var paperImportData =
+                          {
+                              iVehicleID: vehicleID,
+                              iDecNo: DecNo,
+                              strDecDate: DecDate,
+                              dcmlImpDeposit: Deposit,
+                              //dcmlDuty: Duty,
+                              //dcmlPaper: Paper,
+                              //dcmlTotal: Total,
+                              dcmlDeduction: dcmlDeduction,
+                              dcmlImpBalance: Bal,
+                              strDate: Date,
+                              dtDate: Date,
+                          }
+                    arrImportDataToTransfer.push(paperImportData);
+                    SaveImportData(arrImportDataToTransfer);
+
+
+                    function SaveImportData(model) {
+                        debugger;
+
+                        $.ajax({
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: 'json',
+                            type: 'POST',
+                            url: "/Papers/SaveImport",
+                            data: JSON.stringify({ 'importModel': model }),
+                            success: function (data) {
+                                alert("Succsesfully Saved Import Data.");
+                                //if ($("#hdniCutomerTypeID").val()==1) {
+                                //    $("#btnPrintTempDO").show();
+                                //}
+                                //else if ($("#hdniCutomerTypeID").val() == 2) {
+                                //    $("#btnPrintMainDO").show();
+                                //}
+                               
+                                //$("#btnAdd").hide();
+
+                                //window.location.href = "/Papers/PapersList";
+                            }
+                        });
+                    }
+
+                }
+                else if (PapertypeID == 2) {
+                    debugger;
+                    function getApproval(CID) {
+                        var Approval = $("#ddlApproval").val();
+
+                    }
+
+                    var vehicleID = $("#txtVehicleID").val();
+                    var ReceivingDate = $("#txtReceivingDate").val();
+                    var SubmitDate = $("#txtSubmitDate").val();
+                    var Deduction = $("#txtExpDeduction").val();
+                    //var Fine = $("#txtFine").val();
+                    //var Misc = $("#txtMisc").val();
+                    var ExpDeposit = $("#txtExpDeposit").val();
+                    var ExpBal = $("#txtExpBal").val();
+                    var Date = $("#strDate").val();
+                    var paperExportData =
+                          {
+                              iVehicleID: vehicleID,
+                              strReceivingDate: ReceivingDate,
+                              strSubmitDate: SubmitDate,
+                              iCustApproval: Approval,
+                              dcmlDeduction: Deduction,
+                              //dcmlFine: Fine,
+                              //dcmlMisc: Misc,
+                              dcmlExportDeposit: ExpDeposit,
+                              dcmlExportBalance: ExpBal,
+                              strDate: Date,
+                              dtDate: Date,
+
+                          }
+                    arrExportDataToTransfer.push(paperExportData);
+                    SaveExportData(arrExportDataToTransfer);
+
+
+                    function SaveExportData(modelExp) {
+                        debugger;
+
+                        $.ajax({
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: 'json',
+                            type: 'POST',
+                            url: "/Papers/SaveExport",
+                            data: JSON.stringify({ 'exportModel': modelExp }),
+                            success: function (data) {
+                                alert("Succsesfully Saved Export Data.");
+                                //if ($("#hdniCutomerTypeID").val() == 1) {
+                                //    $("#btnPrintTempDO").show();
+                                //}
+                                //else if ($("#hdniCutomerTypeID").val() == 2) {
+                                //    $("#btnPrintMainDO").show();
+                                //}
+                                //$("#btnAdd").hide();
+                                //window.location.href = "/Papers/PapersList";
+                            }
+                        });
+
+                    }
+                }
+                $(this).dialog('close');
+            }
+
+        },
+        {
+            id: "No",
+            text: "No",
+            click: function () {
+                $(this).dialog('close');
+            }
+        }
+            ]
+        });
+
+        //}
+        //else {
+        //    alert("Deposit amount should be greater than Deduction amount.");
+        //}
+
+
+
+
+
+    });
+
+</script>
+
+<script>
+
+
+
+    $(document).on('keyup', 'input[name="DynamicDuty"]', function () {
+
+        calculateTotalSum();
+    });
+
+    $(document).on('keyup', 'input[name="DynamicPaper"]', function () {
+
+        calculateTotalSum();
+    });
+
+    function calculateTotalSum() {
+        debugger;
+
+        //iterate through each textboxes and add the values
+        var Total = 0;
+        var Bal = 0;
+
+        var Deposit = $("#txtDeposit").val();
+        var Duty = $("#txtDuty").val();
+        var Paper = $("#txtPaper").val();
+
+
+        Total += parseFloat(Duty) + parseFloat(Paper);
+        //Total = (Duty + Paper);
+        Bal += parseFloat(Deposit - Total);
+
+        if (!isNaN(Total) && Total >= 0 && !isNaN(Bal) && Bal >= 0) {
+
+            $("#txtTotal").val(Total.toFixed(2));
+
+            $("#txtBal").val(Bal.toFixed(2));
+        }
+    }
+
+</script>
+
+
+
+@*<script>
+    function generateMainDOPDF() {
+        debugger
+
+        var columns = [];
+        var data = [];
+
+
+        var Date = $("#strDate").val();
+        var CustomerName = $("#hdnCustomerFullName").val();
+        var PhoneNum = $("#hdnPhoneNumber").val();
+        var ChassisNum = $("#txtChassisNumber").val();
+
+        var doc = new jsPDF("p", "mm", "a4");
+        //var doc = new jsPDF('l', 'mm', [217, 150], '');
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent1 = function (data) {
+            // HEADER
+
+            doc.setFontSize(30);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+            doc.text("DAA MOTORS FZCO", data.settings.margin.left + 35, 20);
+            doc.setFontSize(13);
+            doc.text("MAIN DO", data.settings.margin.left + 70, 30);
+
+            //doc.setLineWidth(1)
+            doc.text("DATE:", data.settings.margin.left + 0, 40);
+            doc.text(Date, data.settings.margin.left + 13, 40);
+            doc.line(data.settings.margin.left + 0, 41, 200, 41)
+
+            doc.text("CUSTOMER NAME", data.settings.margin.left + 0, 50);
+            doc.text(":", data.settings.margin.left + 45, 50);
+            doc.text(CustomerName, data.settings.margin.left + 50, 50);
+            //doc.line(data.settings.margin.left + 35, 51, data.settings.margin.left + 70, 51)
+
+            doc.text("PHONE NO.", data.settings.margin.left + 0, 60);
+            doc.text(":", data.settings.margin.left + 45, 60);
+            doc.text(PhoneNum, data.settings.margin.left + 50, 60);
+            doc.line(data.settings.margin.left + 0, 65, 200, 65)
+
+            doc.text("DATE OF DELIVERY", data.settings.margin.left + 90, 75);
+            doc.text(":", data.settings.margin.left + 135, 75);
+            doc.text("00/00/2017", data.settings.margin.left + 140, 75);
+            //doc.line(data.settings.margin.left + 127, 61, data.settings.margin.left + 160, 61)
+
+            doc.text("CHASSIS NO.", data.settings.margin.left + 0, 75);
+            doc.text(":", data.settings.margin.left + 45, 75);
+            doc.text(ChassisNum, data.settings.margin.left + 50, 75);
+            doc.line(data.settings.margin.left + 0, 80, 200, 80)
+            // last line
+            doc.line(data.settings.margin.left + 0, 100, 200, 100)
+
+            doc.setFont('helvetica');
+            doc.setFontType('bold');
+
+            doc.text("Receiver Sign & Mobile No:", data.settings.margin.left + 0, 85);
+            doc.setLineWidth(1);
+            doc.setDrawColor(0, 0, 0);
+            //doc.line(15, 95, 45, 95);
+            //doc.text("(Mob:", 45, 95); doc.text(")", 90, 95);
+            doc.text("Mob:", data.settings.margin.left + 0, 95);
+            doc.text("Sign.", 140, 95);
+            doc.line(150, 95, 180, 95);
+
+
+            doc.setFont('courier');
+            doc.setFontType('bolditalic');
+
+            doc.text("Terms & Conditions:", data.settings.margin.left + 0, 105);
+
+            doc.text("1)", data.settings.margin.left + 0, 113);
+            doc.text("PLEASE TAKE THIS DELIVERY WITHIN 02 DAYS FROM THIS DO ISSUE DATE", data.settings.margin.left + 8, 113);
+            doc.text("OTHERWISE THIS DO WILL BE CONSIDERED 'CANCELLED'AND", data.settings.margin.left + 8, 118);
+            doc.text("CUSTOMER HAVE TO PAY AED10 FOR DUPLICATE DO.", data.settings.margin.left + 8, 123);
+
+            doc.text("------------------------------------------------------------------", data.settings.margin.left + 0, 130);
+
+
+            //// FOOTER
+            //var str = "Page " + data.pageCount;
+            //// Total page number plugin only available in jspdf v1.0+
+            //if (typeof doc.putTotalPages === 'function') {
+            //    str = str + " of " + totalPagesExp;
+            //}
+            //doc.setFontSize(10);
+            //doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+
+        var pageContent2 = function (data) {
+            // HEADER
+            doc.setFont('helvetica');
+            doc.setFontSize(30);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+            doc.text("DAA MOTORS FZCO", data.settings.margin.left + 35, 150);
+            doc.setFontSize(13);
+            doc.text("MAIN DO", data.settings.margin.left + 70, 160);
+
+            //doc.setLineWidth(1)
+            doc.text("DATE:", data.settings.margin.left + 0, 170);
+            doc.text(Date, data.settings.margin.left + 13, 170);
+            doc.line(data.settings.margin.left + 0, 172, 200, 172)
+
+            doc.text("CUSTOMER NAME", data.settings.margin.left + 0, 180);
+            doc.text(":", data.settings.margin.left + 45, 180);
+            doc.text(CustomerName, data.settings.margin.left + 50, 180);
+            //doc.line(data.settings.margin.left + 35, 51, data.settings.margin.left + 70, 51)
+
+            doc.text("PHONE NO.", data.settings.margin.left + 0, 190);
+            doc.text(":", data.settings.margin.left + 45, 190);
+            doc.text(PhoneNum, data.settings.margin.left + 50, 190);
+            doc.line(data.settings.margin.left + 0, 192, 200, 192)
+
+            doc.text("DATE OF DELIVERY", data.settings.margin.left + 90, 200);
+            doc.text(":", data.settings.margin.left + 135, 200);
+            doc.text("00/00/2017", data.settings.margin.left + 140, 200);
+            //doc.line(data.settings.margin.left + 127, 61, data.settings.margin.left + 160, 61)
+
+            doc.text("CHASSIS NO.", data.settings.margin.left + 0, 200);
+            doc.text(":", data.settings.margin.left + 45, 200);
+            doc.text(ChassisNum, data.settings.margin.left + 50, 200);
+            doc.line(data.settings.margin.left + 0, 212, 200, 212)
+            // last line
+            doc.line(data.settings.margin.left + 0, 230, 200, 230)
+
+            doc.setFont('helvetica');
+            doc.setFontType('bold');
+
+            doc.text("Receiver Sign & Mobile No:", data.settings.margin.left + 0, 217);
+            doc.setLineWidth(1);
+            doc.setDrawColor(0, 0, 0);
+            //doc.line(15, 95, 45, 95);
+            //doc.text("(Mob:", 45, 95); doc.text(")", 90, 95);
+            doc.text("Mob:", data.settings.margin.left + 0, 227);
+            doc.text("Sign.", 140, 227);
+            doc.line(150, 227, 180, 227);
+
+
+            doc.setFont('courier');
+            doc.setFontType('bolditalic');
+
+            doc.text("Terms & Conditions:", data.settings.margin.left + 0, 237);
+
+            doc.text("1)", data.settings.margin.left + 0, 245);
+            doc.text("PLEASE TAKE THIS DELIVERY WITHIN 02 DAYS FROM THIS DO ISSUE DATE", data.settings.margin.left + 8, 245);
+            doc.text("OTHERWISE THIS DO WILL BE CONSIDERED 'CANCELLED'AND", data.settings.margin.left + 8, 250);
+            doc.text("CUSTOMER HAVE TO PAY AED10 FOR DUPLICATE DO.", data.settings.margin.left + 8, 255);
+
+
+
+
+            //// FOOTER
+            //var str = "Page " + data.pageCount;
+            //// Total page number plugin only available in jspdf v1.0+
+            //if (typeof doc.putTotalPages === 'function') {
+            //    str = str + " of " + totalPagesExp;
+            //}
+            //doc.setFontSize(10);
+            //doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            //theme: 'grid',
+            addPageContent: pageContent1,
+            margin: { top: 30 },
+
+        });
+
+        doc.autoTable(columns, data, {
+            //theme: 'grid',
+            addPageContent: pageContent2,
+            margin: { top: 100 },
+
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        ////doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+
+    }
+
+
+    function generateTempDOPDF() {
+        debugger
+
+        var columns = [];
+        var data = [];
+
+
+        var Date = $("#strDate").val();
+
+        var ShowRoomName = $("#hdnShowRoomName").val();
+        var ShowRoomNumber = $("#hdnShowRoomNumber").val();
+        var ShowRoomPhoneNo = $("#hdnShowRoomPhoneNo").val();
+        var Block = $("#hdnBlock").val();
+        var PersonPhoneNo = $("#hdnPersonPhoneNo").val();
+        var PersonFullName = $("#hdnPersonFullName").val();
+
+        var ChassisNum = $("#txtChassisNumber").val();
+
+        //data.push(['DATE:', Date]);
+        //data.push(['SHOWROOM NAME:', ShowRoomName]);
+        //data.push(['SHOWROOM NO:', ShowRoomNumber]);
+        //data.push(['BLOCK NO:', Block]);
+        //data.push(['PHONE NO:', '']);
+        //data.push(['PREP. NAME:', PersonFullName]);
+        //data.push(['PREP. MOB:', PersonPhoneNo]);
+        //data.push(['DATE OF DELIVERY:', '']);
+        //data.push(['CHASSIS NO:', ChassisNum]);
+        var doc = new jsPDF("p", "mm", "a4");
+        //var doc = new jsPDF('l', 'mm', [217, 150], '');
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent1 = function (data) {
+            // HEADER
+
+            doc.setFontSize(30);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+            doc.text("DAA MOTORS FZCO", data.settings.margin.left + 35, 20);
+            doc.setFontSize(13);
+            doc.text("TEMPORARY DO", data.settings.margin.left + 70, 30);
+
+            //doc.setLineWidth(1)
+            doc.text("DATE:", data.settings.margin.left + 0, 40);
+            doc.text(Date, data.settings.margin.left + 13, 40);
+            doc.line(data.settings.margin.left + 0, 41, 200, 41);
+
+            doc.text("SHOWROOM NO", data.settings.margin.left + 0, 50);
+            doc.text(":", data.settings.margin.left + 45, 50);
+            doc.text(ShowRoomNumber, data.settings.margin.left + 50, 50);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("SHOWROOM NAME", data.settings.margin.left + 70, 50);
+            doc.text(":", data.settings.margin.left + 115, 50);
+            doc.text(ShowRoomName, data.settings.margin.left + 120, 50);
+            //doc.line(data.settings.margin.left + 0, 51, 200, 51)
+
+
+
+
+            doc.text("BLOCK NO", data.settings.margin.left + 0, 60);
+            doc.text(":", data.settings.margin.left + 45, 60);
+            doc.text(Block, data.settings.margin.left + 50, 60);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("PHONE NO", data.settings.margin.left + 70, 60);
+            doc.text(":", data.settings.margin.left + 115, 60);
+            doc.text(ShowRoomPhoneNo, data.settings.margin.left + 120, 60);
+            doc.line(data.settings.margin.left + 0, 65, 200, 65)
+
+            doc.text("REP. NAME:", data.settings.margin.left + 0, 80);
+            doc.text(":", data.settings.margin.left + 45, 80);
+            doc.text(PersonFullName, data.settings.margin.left + 50, 80);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("REP. MOB:", data.settings.margin.left + 0, 90);
+            doc.text(":", data.settings.margin.left + 45, 90);
+            doc.text(PersonPhoneNo, data.settings.margin.left + 50, 90);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("DATE OF DELIVERY", data.settings.margin.left + 90, 100);
+            doc.text(":", data.settings.margin.left + 135, 100);
+            doc.text("00/00/2017", data.settings.margin.left + 140, 100);
+            //doc.line(data.settings.margin.left + 127, 61, data.settings.margin.left + 160, 61)
+
+            doc.text("CHASSIS NO:", data.settings.margin.left + 0, 100);
+            doc.text(":", data.settings.margin.left + 45, 100);
+            doc.text(ChassisNum, data.settings.margin.left + 50, 100);
+            doc.line(data.settings.margin.left + 0, 110, 200, 110);
+
+            doc.setFont('courier');
+            doc.setFontType('bolditalic');
+            doc.text('TERMS & CONDITIONS:', data.settings.margin.left + 0, 120);
+            doc.text('I.  BALANCE WILL BE CLEARED WITHIN    DAYS.', data.settings.margin.left + 0, 125);
+            doc.text('II.  INCASE OF FALURE TO CLEAR DUES WITHIN SPECIFIED PERIOD', data.settings.margin.left + 0, 130);
+            doc.text('THE TEMPORARY D.O WILL BE CANCELED & THE CUSTOMER', data.settings.margin.left + 0, 135);
+            doc.text('HAVE TO RETURN THE VEHICLE IMMEDIATELY OR FACE PENALTIES.', data.settings.margin.left + 0, 140);
+            doc.text('III. PERMANENT D.O WILL BE ISSUED AFTER ALL PAYMENTS CLEARED.', data.settings.margin.left + 0, 145);
+
+            doc.text('------------------------------------------------------------------', data.settings.margin.left + 0, 150);
+
+        };
+
+        //second copy
+        var pageContent2 = function (data) {
+            // HEADER
+
+            doc.setFont('helvetica');
+            doc.setFontSize(30);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+            doc.text("DAA MOTORS FZCO", data.settings.margin.left + 35, 170);
+            doc.setFontSize(13);
+            doc.text("TEMPORARY DO", data.settings.margin.left + 70, 180);
+
+            //doc.setLineWidth(1)
+            doc.text("DATE:", data.settings.margin.left + 0, 190);
+            doc.text(Date, data.settings.margin.left + 13, 190);
+            doc.line(data.settings.margin.left + 0, 192, 200, 192);
+
+            doc.text("SHOWROOM NO", data.settings.margin.left + 0, 200);
+            doc.text(":", data.settings.margin.left + 45, 200);
+            doc.text(ShowRoomNumber, data.settings.margin.left + 50, 200);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("SHOWROOM NAME", data.settings.margin.left + 70, 200);
+            doc.text(":", data.settings.margin.left + 115, 200);
+            doc.text(ShowRoomName, data.settings.margin.left + 120, 200);
+            //doc.line(data.settings.margin.left + 0, 51, 200, 51)
+
+
+
+
+            doc.text("BLOCK NO", data.settings.margin.left + 0, 210);
+            doc.text(":", data.settings.margin.left + 45, 210);
+            doc.text(Block, data.settings.margin.left + 50, 210);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("PHONE NO", data.settings.margin.left + 70, 210);
+            doc.text(":", data.settings.margin.left + 115, 210);
+            doc.text(ShowRoomPhoneNo, data.settings.margin.left + 120, 210);
+            doc.line(data.settings.margin.left + 0, 215, 200, 215)
+
+            doc.text("REP. NAME:", data.settings.margin.left + 0, 230);
+            doc.text(":", data.settings.margin.left + 45, 230);
+            doc.text(PersonFullName, data.settings.margin.left + 50, 230);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("REP. MOB:", data.settings.margin.left + 0, 240);
+            doc.text(":", data.settings.margin.left + 45, 240);
+            doc.text(PersonPhoneNo, data.settings.margin.left + 50, 240);
+            //doc.line(data.settings.margin.left + 32, 61, data.settings.margin.left + 70, 61)
+
+            doc.text("DATE OF DELIVERY", data.settings.margin.left + 90, 250);
+            doc.text(":", data.settings.margin.left + 135, 250);
+            doc.text("00/00/2017", data.settings.margin.left + 140, 250);
+            //doc.line(data.settings.margin.left + 127, 61, data.settings.margin.left + 160, 61)
+
+            doc.text("CHASSIS NO:", data.settings.margin.left + 0, 250);
+            doc.text(":", data.settings.margin.left + 45, 250);
+            doc.text(ChassisNum, data.settings.margin.left + 50, 250);
+            doc.line(data.settings.margin.left + 0, 255, 200, 255);
+
+            doc.setFont('courier');
+            doc.setFontType('bolditalic');
+            doc.text('TERMS & CONDITIONS:', data.settings.margin.left + 0, 260);
+            doc.text('I.  BALANCE WILL BE CLEARED WITHIN    DAYS.', data.settings.margin.left + 0, 265);
+            doc.text('II.  INCASE OF FALURE TO CLEAR DUES WITHIN SPECIFIED PERIOD', data.settings.margin.left + 0, 270);
+            doc.text('THE TEMPORARY D.O WILL BE CANCELED & THE CUSTOMER', data.settings.margin.left + 0, 275);
+            doc.text('HAVE TO RETURN THE VEHICLE IMMEDIATELY OR FACE PENALTIES.', data.settings.margin.left + 0, 280);
+            doc.text('III. PERMANENT D.O WILL BE ISSUED AFTER ALL PAYMENTS CLEARED.', data.settings.margin.left + 0, 285);
+            //doc.line(data.settings.margin.left + 10, 71, data.settings.margin.left + 40, 71)
+
+            //doc.setFont('helvetica');
+            //doc.setFontType('bold');
+
+            //doc.text("Receiver Sign & Mobile No:", data.settings.margin.left + 0, 85);
+            //doc.setLineWidth(1);
+            //doc.setDrawColor(0, 0, 0);
+            //doc.line(15, 95, 45, 95);
+            //doc.text("(Mob:", 45, 95); doc.text(")", 90, 95);
+
+
+
+            //doc.text("Terms & Conditions:", data.settings.margin.left + 0, 105);
+
+            //doc.setFont('courier');
+            //doc.setFontType('bolditalic');
+            //doc.text("1)", data.settings.margin.left + 0, 113);
+            //doc.text("PLEASE TAKE THIS DELIVERY WITHIN 02 DAYS FROM THIS DO ISSUE DATE", data.settings.margin.left + 8, 113);
+            //doc.text("OTHERWISE THIS DO WILL BE CONSIDERED 'CANCELLED'AND", data.settings.margin.left + 8, 118);
+            //doc.text("CUSTOMER HAVE TO PAY AED10 FOR DUPLICATE DO.", data.settings.margin.left + 8, 123);
+
+
+
+
+            //// FOOTER
+            //var str = "Page " + data.pageCount;
+            //// Total page number plugin only available in jspdf v1.0+
+            //if (typeof doc.putTotalPages === 'function') {
+            //    str = str + " of " + totalPagesExp;
+            //}
+            //doc.setFontSize(10);
+            //doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            //theme: 'gridWithNoHeader',
+            addPageContent: pageContent1,
+            margin: { top: 30 },
+
+        });
+
+        doc.autoTable(columns, data, {
+            //theme: 'gridWithNoHeader',
+            addPageContent: pageContent2,
+            margin: { top: 30 },
+
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        ////doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+        //window.open(doc.output('bloburl'), '_blank');
+    }
+
+</script>*@
+
+
+
+
+
+<!--Script for Update account-->
+
+<script type="text/javascript">
+
+    function Cancel() {
+        window.location.href = "/Papers/PapersList";
+    }
+
+    $(function () { // will trigger when the document is ready
+        $('.datepicker').datepicker({ dateFormat: 'mm/dd/yy' }); //Initialise any date pickers
+
+    });
+</script>
+
+@*<script>
+        $("#UpdatePopUP").click(function () { UpdateAccountFunction() });
+        function UpdateAccountFunction() {
+            $("#divFillByAccountUpdateList").show();
+            $("#divForUpdateAccountList").hide();
+
+            $("#btnUpdateSave").hide();
+            $("#CancelBtnForAccountUpdate").hide();
+
+            $("#dataGridUpdateAccount").jqGrid('GridUnload');
+
+            $('#dataGridUpdateAccount').jqGrid({
+                caption: "Account List",
+                url: '/Account/GetAccountListData/',
+                datatype: "json",
+                contentType: "application/json; charset-utf-8",
+                mtype: 'GET',
+                colNames: ['iAccountID', 'DebitCreditOptions', 'Party', 'Date', 'dtAccountDate', 'Amount(DHM)', 'Description', 'iAccountPartyID', 'strChassisNum', 'Action'],
+                colModel: [
+
+                      { name: 'iAccountID', index: 'iAccountID', hidden: true, hidedlg: true },
+                       { name: 'DebitCreditOptions', index: 'DebitCreditOptions', hidden: true, hidedlg: true },
+                    { name: 'strPartyName', index: 'strPartyName', align: 'center' },
+                    //{ name: 'strDebit', index: 'strDebit', align: 'center', hidden: true, hidedlg: true },
+                    //{ name: 'strCredit', index: 'strCredit', align: 'center', hidden: true, hidedlg: true },
+                    { name: 'strAccountDate', index: 'strAccountDate', align: 'center' },
+
+                      { name: 'dtAccountDate', index: 'dtAccountDate', hidden: true, hidedlg: true },
+
+                    { name: 'strAmountInDHM', index: 'strAmountInDHM', align: 'center' },
+                    //{ name: 'strAmountInYEN', index: 'strAmountInYEN', align: 'center' },
+                    { name: 'strDescription', index: 'strDescription', align: 'center' },
+                    //{ name: 'strConvRate', index: 'strConvRate', align: 'center' },
+                      { name: 'iAccountPartyID', index: 'iAccountPartyID', hidden: true, hidedlg: true },
+                  { name: 'strChassisNum', index: 'strChassisNum', hidden: true, hidedlg: true },
+                     {
+                         name: 'Action', index: 'Action', align: 'center', width: 250, search: false, title: false,
+                         formatter: function (cellvalue, options, rowObject) {
+
+                             return "<input class='popup btn btn-info' style='margin-right: 5%; ' type='button' value='Edit' onclick=\"editRowData('" + options.rowId + "');\"  />" + '   ' + "<input class='btn btn-danger' style='margin-right: 5%; ' type='button' value='Delete' onclick=\"DeleteAccountData('" + options.rowId + "');\"  />";
+                         }
+
+                     },
+
+                ],
+                width: 1050,
+                height: 300,
+                rowNum: 100000,
+                loadonce: true,
+                rownumbers: true,
+
+            });
+            jQuery("#dataGridUpdateAccount").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+        }
+
+
+
+    </script>*@
+
+
+<script>
+    $("#CancelBtnForAccountUpdate").click(function () {
+
+        $("#divFillByAccountUpdateList").show();
+        $("#divForUpdateAccountList").hide();
+        $("#CancelBtnForAccountUpdate").hide();
+        $("#btnUpdateSave").hide();
+    });
+
+    var arr = new Array();
+
+    function editRowData(rowID) {
+        debugger
+        //arr = new Array();
+        $("#divForPaymentGrid").hide();//hide payment grid
+        $("#divForPayment").show();//show update payment div
+        
+        $("#btnPaymentSave").hide();//hide save payment btn
+        $("#BtnUpdatePayment").show();//show update payment btn
+
+        //$("#CancelBtnForAccountUpdate").show();
+        //$("#btnUpdateSave").show();
+        //$("#CancelBtnForAccountUpdate").show();
+
+        var rowData = jQuery("#dataGridForPayment").getRowData(rowID);
+
+        var iAccountID = rowData['iAccountID'];
+        var iAccountPartyID = rowData['iAccountPartyID'];
+        //var strPartyName = rowData['strPartyName'];
+        //var strDebit = rowData['strDebit'];
+        //var strCredit = rowData['strCredit'];
+        var strAccountDate = rowData['strAccountDate'];
+        var dtAccountDate = rowData['dtAccountDate'];
+        var strAmountInDHM = rowData['strAmountInDHM'];
+        //var strAmountInYEN = rowData['strAmountInYEN'];
+        var strDescription = rowData['strDescription'];
+        //var strConvRate = rowData['strConvRate'];
+        var DebitCreditOptions = rowData['DebitCreditOptions'];
+        var strChassisNum = rowData['strChassisNum'];
+
+        var strReferenceNumber = rowData['strReferenceNumber'];
+
+        $("input[name=PaymentOption][value=" + DebitCreditOptions + "]").prop('checked', true);
+
+        
+
+        $("#hdniUpdateAccountID").val(iAccountID);
+        //$("#strPartyName").val(strPartyName);
+        //$("#strDebit").val(strDebit);
+        //$("#strCredit").val(strCredit);
+        $("#strAccountDate").val(strAccountDate);
+        $("#hdndtUpdateAccountDate").val(dtAccountDate);
+        $("#strAmountInDHM").val(strAmountInDHM);
+        $("#txtReferenceNum").val(strReferenceNumber);
+        $("#strDescription").val(strDescription);
+        //$("#strConvRate").val(strConvRate);
+        ////$("#strUpdateChassisNum").val(strChassisNum);
+
+
+        $.ajax({
+            url: "/Account/ShowPartyName",
+            type: "Get",
+            success: function (data) {
+                $('#ddlAccountParty').children().remove();
+                $('#ddlAccountParty').append('<option value="" >Select Party</option>');
+                for (var i = 0; i < data.length; i++) {
+
+                    //var option = new Option(data[i].strFirstName, data[i].iPartyID);
+
+                    // $('#ddlParty' + j).append(option);
+                    if (iAccountPartyID == data[i].iAccountPartyID) {
+
+                        $('#ddlAccountParty').append('<option value="' + data[i].iAccountPartyID + '" selected>' + data[i].strPartyName + '</option>');
+
+                    }
+                    else {
+                        $('#ddlAccountParty').append('<option value="' + data[i].iAccountPartyID + '">' + data[i].strPartyName + '</option>');
+                    }
+
+                }
+
+                //$.each(data, function (i, party) {
+
+                //    if (iYardID == party.iYardID) {
+                //        $("#ddlYard").append('<option value="' + yard.iYardID + '" selected>' + yard.frontEndYardName + '</option>');
+                //    }
+                //    else {
+                //        $("#ddlYard").append('<option value="' + yard.iYardID + '" >' + yard.frontEndYardName + '</option>');
+                //    }
+
+
+                //});
+            }
+        });
+
+
+    }
+
+
+    
+
+   
+
+
+    $('#BtnUpdatePayment').click(function () {
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog2').dialog('open');
+                return false;
+            }
+        });
+       
+        $("#dialog2").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            zIndex: 10000,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+                debugger
+                if ($("#rdbDebitOption").is(":checked")) {
+                    var paymentStatus = 1;    //1 for Debit
+
+                }
+                else {
+                    var paymentStatus = 2;  //2 for Credit
+                }
+
+
+               
+
+                var iAccountID = $("#hdniUpdateAccountID").val();
+                var iAccountPartyID = $("#ddlAccountParty").val();
+                //var strDebit = $("#strDebit").val();
+                //var strCredit = $("#strCredit").val();
+                var strAccountDate = $("#strAccountDate").val();
+                var strAmountInDHM = $("#strAmountInDHM").val();
+                //var strAmountInYEN = $("#strAmountInYEN").val();
+                var strDescription = $("#strDescription").val();
+                //var strConvRate = $("#strConvRate").val();
+                var strChassisNum = $("#txtChassisNumber").val();
+
+                var refNum = $("#txtReferenceNum").val();
+                //var dtAccountDate = $("#hdndtUpdateAccountDate").val();
+                var AccountData =
+                      {
+                          iAccountID: iAccountID,
+                          iAccountPartyID: iAccountPartyID,
+                          //strDebit: strDebit,
+                          //strCredit: strCredit,
+                          strAccountDate: strAccountDate,
+                          dtAccountDate: strAccountDate,
+                          strAmountInDHM: strAmountInDHM,
+                          //strAmountInYEN: strAmountInYEN,
+                          strDescription: strDescription,
+                          //strConvRate: strConvRate,
+                          DebitCreditOptions: paymentStatus,
+                          strChassisNum: strChassisNum,
+                          strReferenceNumber: refNum
+                      }
+                //arrAccountData.push(AccountData);
+                SaveUpdateAccountData(AccountData);
+
+               
+                //$("#btnPaymentSave").hide();//hide save payment btn
+                //$("#BtnUpdatePayment").show();//show update payment btn
+                $(this).dialog('close');
+                        }
+
+                    },
+                    {
+                        id: "No",
+                        text: "No",
+                        click: function () {
+                            $(this).dialog('close');
+                        }
+                    }
+                        ]
+                    });
+        });
+        
+
+
+
+
+
+    function SaveUpdateAccountData(model) {
+        debugger;
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: 'POST',
+            url: "/Account/SaveEdit",
+            data: JSON.stringify({ 'acntModel': model }),
+            success: function (data) {
+
+
+                alert("Account  Update Successfully");
+                clearFields();
+                PaymentGrid();
+                calculateDeductionAmount();
+
+                $("#divForPayment").hide();
+                $("#divForPaymentGrid").show();
+            }
+        });
+    }
+
+
+
+    function DeleteAccountData(rowId) {
+
+        $(function () {
+            if ($(this).attr("rel") != "update") {
+                $('#dialog3').dialog('open');
+                return false;
+            }
+        });
+
+        $("#dialog3").dialog({
+            modal: true,
+            autoOpen: false,
+            title: "Confirmation",
+            width: 350,
+            height: 160,
+            zIndex: 10000,
+            buttons: [
+        {
+            id: "Yes",
+            text: "Yes",
+            click: function () {
+
+            //calling function here for update
+                var rowData = jQuery("#dataGridForPayment").getRowData(rowId);
+
+            var iAccountID = rowData['iAccountID'];
+
+            debugger
+            $.ajax({
+                type: "POST",
+                url: "/Account/Delete",
+                cache: false,
+                data: JSON.stringify({ id: iAccountID }),
+                // data: JSON.stringify(purchase),
+                dataType: this.dataType,
+                contentType: "application/json; charset=utf-8",
+                success: function (Data) {
+
+                    alert("Account  Deleted Successfully");
+                    //window.location.href = "/Account/Index";
+                    clearFields();
+                    PaymentGrid();
+                    calculateDeductionAmount();
+                }
+
+
+            });
+            $(this).dialog('close');
+        }
+
+        },
+    {
+    id: "No",
+        text: "No",
+    click: function () {
+        $(this).dialog('close');
+    }
+    }
+    ]
+    });
+    }
+
+
+
+
+    ////Delete Account
+    //function DeleteAccountData(rowId) {
+
+
+    //    debugger;
+
+    //    $(function () {
+    //        if ($(this).attr("rel") != "update") {
+    //            $('#dialog3').dialog('open');
+    //            return false;
+    //        }
+    //    });
+
+    //    $("#dialog3").dialog({
+    //        modal: true,
+    //        autoOpen: false,
+    //        title: "Confirmation",
+    //        width: 350,
+    //        height: 160,
+    //        zIndex: 10000,
+    //        buttons: [
+    //    {
+    //        id: "Yes",
+    //        text: "Yes",
+    //        click: function () {
+
+    //            //calling function here for update
+
+
+    //            debugger
+    //            $.ajax({
+    //                type: "POST",
+    //                url: "/Account/Delete",
+    //                cache: false,
+    //                data: JSON.stringify({ id: rowId }),
+    //                // data: JSON.stringify(purchase),
+    //                dataType: this.dataType,
+    //                contentType: "application/json; charset=utf-8",
+    //                success: function (Data) {
+
+    //                    alert("Account  Deleted Successfully");
+    //                    window.location.href = "/Account/Index";
+
+    //                }
+
+
+
+
+    //            });
+    //            $(this).dialog('close');
+    //        }
+
+    //    },
+    //    {
+    //        id: "No",
+    //        text: "No",
+    //        click: function () {
+    //            $(this).dialog('close');
+    //        }
+    //    }
+    //        ]
+    //    });
+
+    //}
+
+    ////Calculate Amount In YEN
+    //function calculateAmountInYEN() {
+    //    debugger
+    //    var strAmountInDHM = parseFloat($('#strAmountInDHM').val());
+    //    var strConvRate = parseFloat($('#strConvRate').val());
+    //    var AmountInYEN = (strAmountInDHM * strConvRate).toFixed(3);
+    //    if (!isNaN(AmountInYEN) && AmountInYEN >= 0)
+    //    { $('#strAmountInYEN').val(AmountInYEN); } else { $('#strAmountInYEN').val("0"); }
+
+    //}
+
+</script>
+
+<!--End Script for Update account-->
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="http://www.ittutorials.in/js/demo/numtoword.js" type="text/javascript"></script>
+
+

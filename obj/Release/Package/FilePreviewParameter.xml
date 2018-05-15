@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="Default Web Site/AuctionInventory" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^G:\\Project\ Work\ Area\\AuctionFinal\\AuctionInventory\\obj\\Release\\Package\\PackageTmp$" />
+    <parameterEntry kind="ProviderPath" scope="setAcl" match="^G:\\Project\ Work\ Area\\AuctionFinal\\AuctionInventory\\obj\\Release\\Package\\PackageTmp$" />
+  </parameter>
+  <parameter name="AuctionInventoryEntities-Web.config Connection String" description="" value="metadata=res://*/Entity.AuctionInventoryEntities.csdl|res://*/Entity.AuctionInventoryEntities.ssdl|res://*/Entity.AuctionInventoryEntities.msl;provider=System.Data.SqlClient;provider connection string=&quot;Data Source=SQL5013.myWindowsHosting.com;Initial Catalog=DB_A184E6_Testingdb;User ID=DB_A184E6_Testingdb_admin;Password=tausif7043;Connect Timeout=300&quot;" tags="">
+    <parameterEntry kind="XmlFile" scope="G:\\Project\ Work\ Area\\AuctionFinal\\AuctionInventory\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='AuctionInventoryEntities']/@connectionString" />
+  </parameter>
+</parameters>

@@ -1,0 +1,192 @@
+﻿
+@{
+    ViewBag.Title = "YardData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="box-body" id="divFillByYardList">
+   
+    <br />
+    <table id="dataGrid" class="table table-bordered table-striped"></table>
+    @*<div id="pagingGrid"></div>*@
+    <br/>
+    <input type="button" class="btn btn-success col-md-3" value="Print" style="margin-left: 70px;" id="btnPrint" />
+</div>
+
+
+<script>
+    $("#btnCancel").click(function () {
+        window.location.href = "/MYard/Index";
+    });
+    $(function () {
+        debugger
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: "/Reports/YardDataReport",
+                //data: JSON.stringify({ 'a': 0 }),
+                success: function (data) {
+                    debugger
+                    $("#dataGrid").jqGrid('GridUnload');
+
+                    $('#dataGrid').jqGrid({
+                        caption: "Vehicles In Yards",
+                        data: data,
+                        datatype: "local",
+
+
+                        colNames: ['iYardID', 'YardName', 'YardLimit', 'No.Of Vehicles'],
+                        colModel: [
+                              { name: 'iYardID', index: 'iYardID', hidden: true, hidedlg: true },
+                              { name: 'strYardName', index: 'strYardName'},
+                              { name: 'iYardLimit', index: 'iYardLimit' },
+                              { name: 'Count', index: 'Count' },
+
+                              
+
+                        ],
+                        shrinkToFit: false,
+                        forceFit: true,
+                        //width: 800,
+                        height: 350,
+                        rowNum: 10000,
+                        rownumWidth: 50,
+                        rownumbers: true,
+                        loadonce: true,
+                        ignoreCase: true,
+                        cmTemplate: { sortable: false },
+
+                    });
+                    jQuery("#dataGrid").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false, defaultSearch: "cn" });
+
+                }
+            });
+        
+
+
+    });
+
+
+    $("#btnPrint").click(function () {
+       
+        debugger
+
+        var griddata = jQuery("#dataGrid").getRowData();
+
+        //var griddata = data;
+
+        var sno = 1;
+        var columns = ['sn', 'YardName', 'YardLimit', 'No.Of Vehicles'];
+
+        var data = [];
+        for (var i = 0; i < griddata.length; i++) {
+            data.push([sno,griddata[i].strYardName, griddata[i].iYardLimit, griddata[i].Count]);
+            sno = sno + 1;
+        }
+
+      
+
+        //var Date = $("#txtDate").val();
+
+        //var sumOfSellingPrice = $('#hdnSellingPrice').val();
+
+        //var custFullName = $("#hdnCustomerName").val();
+        //var custAddr = $("#hdnCustomerAddress").val();
+        //var custPhone = $("#hdnCustomerContactNumber").val();
+
+
+
+        var d = new Date();
+
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+
+        var ReportDate = (('' + day).length < 2 ? '0' : '') + day + '/' + (('' + month).length < 2 ? '0' : '') + month + '/' + d.getFullYear();
+
+
+        //var doc = new jsPDF('l', 'mm', [350, 300], '');
+
+        var doc = new jsPDF();
+
+        var totalPagesExp = "{total_pages_count_string}";
+
+        var pageContent = function (data) {
+            // HEADER
+
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+            doc.setFontStyle('normal');
+
+
+
+            doc.setFontSize(20);
+            doc.setFontStyle('bold');
+            doc.text("D.A.A.", data.settings.margin.left + 80, 10);
+
+            doc.setFontStyle('normal');
+            //doc.setFontSize(15);
+            //doc.text("Show room # 118, DUCAMZ, RAS AL KHOR, DUBAI, U.A.E. P.O. BOX 63544 DUBAI", data.settings.margin.left + 70, 20);
+            //doc.text("Tel : +971 4 333 8986 Fax : +971 4 333 2256  E-Mail : automan1@eim.ae", data.settings.margin.left + 90, 25);
+
+            doc.setFontStyle('bold', 'underline');
+            doc.text("Yard Data Report", data.settings.margin.left + 70, 35);
+
+            doc.text("Date:", data.settings.margin.left + 70, 45);
+            doc.text(ReportDate, data.settings.margin.left + 90, 45);
+
+            //doc.text("Rprt Dt:", data.settings.margin.left + 125, 20);
+            //doc.text(ReportDate, data.settings.margin.left + 145, 20);
+            //doc.setFontSize(20)
+            //doc.setTextColor(0, 0, 255)
+            //doc.text(custFullName, data.settings.margin.left, 20);
+            //doc.setFontSize(10)
+            //doc.text(custAddr, data.settings.margin.left, 30);
+            //doc.text(custPhone, data.settings.margin.left, 40);
+
+            // FOOTER
+            var str = "Page " + data.pageCount;
+            // Total page number plugin only available in jspdf v1.0+
+            if (typeof doc.putTotalPages === 'function') {
+                str = str + " of " + totalPagesExp;
+            }
+            doc.setFontSize(10);
+            doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+
+            //doc.text('Note: This is computer generated ', data.settings.margin.left, 20);
+        };
+
+        doc.autoTable(columns, data, {
+            theme: 'grid',
+            addPageContent: pageContent,
+            margin: { top: 50 },
+
+            
+        });
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (typeof doc.putTotalPages === 'function') {
+            doc.putTotalPages(totalPagesExp);
+        }
+        //doc.output("dataurlnewwindow");
+        window.open(doc.output('bloburl'), '_blank');
+      
+    });
+</script>
+
+<!-- JqGrid Scripts -->
+<link href="~/scripts/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+<link href="~/scripts/ui.jqgrid.css" rel="stylesheet" />
+<script src="~/Scripts/jQuery-migrate-1.2.1-min.js"></script>
+<script src="~/scripts/jQuery-migrate-1.2.1.js"></script>
+<script src="~/scripts/grid.locale-en.js"></script>
+<script src="~/scripts/jquery.jqgrid.min.js"></script>
+
+<script src="~/Content/plugins/jsPDF/jspdf.debug.js"></script>
+<script src="~/Content/plugins/jsPDF/jspdf.plugin.autotable.js"></script>
+<script src="~/Content/plugins/jsPDF-2/faker.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/redmond/jquery-ui.css" />
+
